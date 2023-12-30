@@ -2,15 +2,7 @@ import { View, Text, Button, Image, StyleSheet, Pressable } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { FIREBASE_AUTH } from '../../firebaseConfig'
 
-
-
 const Home = ({ navigation }) => {
-
-  useEffect(() => {
-    FIREBASE_AUTH.onAuthStateChanged((user) => {
-      console.log(user)
-    })
-  }, [])
 
   function handleLogOut() {
     FIREBASE_AUTH.signOut().then(() => {
@@ -24,16 +16,16 @@ const Home = ({ navigation }) => {
           <Image style={styles.colorImage} source={require('./../../assets/ColorFill.png')} resizeMode="contain"></Image>
       </View>
       <View style={styles.bottom}>
-        <Pressable style={styles.button} onPress={() => navigation.navigate('PlayMenu')}>
-          <Text style={styles.buttonText}>Play Game</Text>
-        </Pressable>
         <Pressable style={[styles.button, {opacity: .5}]} onPress={() => navigation.navigate('Login')}>
+          <Text style={styles.buttonText}>Play</Text>
+        </Pressable>
+        <Pressable style={styles.button} onPress={() => navigation.navigate('Login')}>
           <Text style={styles.buttonText}>Login</Text>
         </Pressable>
-        <Pressable style={styles.button} onPress={() => handleLogOut()}>
+        <Pressable style={[styles.button, {opacity: .5}]} onPress={() => handleLogOut()}>
           <Text style={styles.buttonText}>Logout</Text>
         </Pressable>
-        <Pressable style={styles.button} onPress={() => navigation.navigate('Leaderboard')}>
+        <Pressable style={[styles.button, {opacity: .5}]} onPress={() => navigation.navigate('Login')}>
           <Text style={styles.buttonText}>Leaderboard</Text>
         </Pressable>
       </View>

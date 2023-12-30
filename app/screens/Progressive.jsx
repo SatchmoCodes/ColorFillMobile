@@ -1,15 +1,14 @@
 import { View, Text, StyleSheet, FlatList, Dimensions, Pressable, Modal, Animated, Easing } from 'react-native'
 import React from 'react'
 import { useState, useEffect, useRef } from 'react'
-import generateBoard from './squareGenerator.js'
+import generateBoard from './progGenerator.js'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
 import { query, collection, doc, addDoc, where, getDocs, getDoc, orderBy, serverTimestamp } from 'firebase/firestore'
-import { FIRESTORE_DB, FIREBASE_AUTH } from '../../firebaseConfig.js';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig.js';
 import uuid from 'react-native-uuid'
 import { useColorSchemeContext } from '../../App';
-
 
 let red = 'hsl(0, 100%, 40%)'
 let orange = 'hsl(22, 100%, 50%)'
@@ -29,16 +28,13 @@ const colorArr = [
 ]
 
 
-let boardSize = 12
-let sizeName = 'Medium'
+let boardSize = 5
 let screenWidth = (Dimensions.get('window').width) * .95;
 let gridItemSize = Math.floor(screenWidth / boardSize);
-console.log(gridItemSize)
 if (screenWidth >= 1000) {
   screenWidth = (Dimensions.get('window').height) * .55
-  console.log(screenWidth)
-  gridItemSize = Math.floor(screenWidth / boardSize)
-  
+  // console.log(screenWidth)
+  gridItemSize = Math.floor(screenWidth / boardSize);
 }
 
 
@@ -46,13 +42,16 @@ if (screenWidth >= 1000) {
 //temporary stuff to generate random squares
 let randomArr = []
 
-for (let i = 0; i < (boardSize * boardSize); i++) {
+for (let i = 0; i < 1210; i++) {
     randomArr.push(Math.floor(Math.random() * 5))
-}
+  }
 
-let squares = generateBoard(randomArr).flat()
-let tempSquareArr = JSON.parse(JSON.stringify(squares))
-// let squareAnimArr = new Array(tempSquareArr.length).fill(new Animated.Value(0))
+let squares = generateBoard(randomArr)
+let hole = 0
+let parValue = 10
+let roundScore
+let totalScoreValue = 0
+let tempSquareArr = JSON.parse(JSON.stringify(squares[hole]))
 let squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
 let squareCounterArr = [
     {
@@ -89,24 +88,24 @@ let squareCounterArr = [
   let username
   let boardId = uuid.v4()
   let docId = null
-  let originalSize
 
-const FreePlay = () => {
+const Progressive = () => {
 
-    const route = useRoute()
     const { useColors } = useColorSchemeContext()
     const colorTheme = useColors()
+
+    const route = useRoute()
 
     const [colorState, setColorState] = useState(tempSquareArr)
     const [selectedColor, setSelectedColor] = useState(tempSquareArr[0].color)
     const [colorOption, setSelectedColorOption] = useState(colors)
     const [counter, setCounter] = useState(0)
     const [highScore, setHighScore] = useState('')
+    const [totalScore, setTotalScore] = useState(0)
     const [squareCounter, setSquareCounter] = useState(squareCounterArr)
     const [squareAnim, setSquareAnim] = useState(squareAnimArr)
     const [change, setChange] = useState(false)
     const [complete, setComplete] = useState(false)
-
     const [modalVisible, setModalVisible] = useState(false)
 
     const db = FIRESTORE_DB
@@ -119,98 +118,67 @@ const FreePlay = () => {
 
     const [boardLoaded, setBoardLoaded] = useState(false)
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      // The user object will be null if not logged in or a user object if logged in
-      setUid(user.uid);
-      console.log('uid ', user.uid)
-    });
-
-    // Clean up the subscription when the component unmounts
-    return unsubscribe;
-  }, []);
-
-  useEffect(() => {
-    const getUserData = async () => {
-      console.log('uid here', uid)
-      const q = query(collection(db, 'Users'), where("uid", "==", uid))
-      const querySnapshot = await getDocs(q)
-      if (querySnapshot.empty) {
-        console.log('tests')
+    useEffect(() => {
+      const unsubscribe = auth.onAuthStateChanged((user) => {
+        // The user object will be null if not logged in or a user object if logged in
+        setUid(user.uid);
+      });
+  
+      // Clean up the subscription when the component unmounts
+      return unsubscribe;
+    }, []);
+  
+    useEffect(() => {
+      const getUserData = async () => {
+        const q = query(collection(db, 'Users'), where("uid", "==", uid))
+        const querySnapshot = await getDocs(q)
+        querySnapshot.forEach((doc) => {
+          setUserName(doc.data().username)
+        })
+      };
+      getUserData();
+    }, [uid]);
+  
+    useEffect(() => {
+      const getHighScore = async () => {
+        const q = query(collection(db, 'Scores'), where('gamemode', '==', 'Progressive'), where('size', '==', 'Default'), where('createdBy', '==', userName), orderBy('score', 'asc'), orderBy('createdAt', 'asc'))
+        const querySnapshot = await getDocs(q)
+        !querySnapshot.empty ? setHighScore(querySnapshot.docs[0].data().score) : setHighScore('')
       }
-      querySnapshot.forEach((doc) => {
-        setUserName(doc.data().username)
-      })
-    };
-    getUserData();
-  }, [uid]);
-
-  // useEffect(() => {
-  //   if (route) {
-  //     docId = route.params?.id
-  //   }
-  // }, [route])
-
-  useEffect(() => {
-    const getHighScore = async () => {
-      let size = await getSize()
-      const q = query(collection(db, 'Scores'), where('gamemode', '==', 'FreePlay'), where('size', '==', size.sizeName), where('createdBy', '==', userName), orderBy('score', 'asc'), orderBy('createdAt', 'asc'))
-      const querySnapshot = await getDocs(q)
-      !querySnapshot.empty ? setHighScore(querySnapshot.docs[0].data().score) : setHighScore('')
-    }
-    if (userName) {
-      getHighScore()
-    }
-  }, [userName, isFocused])
+      if (userName) {
+        getHighScore()
+      }
+    }, [userName])
 
     async function initialLoad() {
       await getColor()
-      let size = await getSize()
       if (docId != undefined && !boardLoaded) {
         const docRef = doc(db, "Scores", docId)
         const docSnap = await getDoc(docRef)
         if (docSnap.exists()) {
-          console.log(docSnap.data().size)
-          console.log(size.sizeName)
-          if (docSnap.data().size != size.sizeName) {
-            console.log('docId found but size different')
-            generateNewBoard()
-            return
-          }
           setBoardLoaded(true)
-          console.log('loading board from leaderboard')
           randomArr = docSnap.data().boardData.replace(/,/g, '')
-          boardSize = Math.sqrt(randomArr.length)
-          originalSize = boardSize
-          gridItemSize = Math.floor(screenWidth / boardSize)
-          boardId = docSnap.data().boardId
-          squares = generateBoard(randomArr).flat()
-          tempSquareArr = JSON.parse(JSON.stringify(squares))
+          squares = generateBoard(randomArr)
+          tempSquareArr = JSON.parse(JSON.stringify(squares[0]))
+          // console.log(tempSquareArr)
           squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
           resetColors()
           handleReset()
           return
         }
       }
-      if (originalSize != size.boardSize) {
-        console.log('original size not equal')
-        generateNewBoard()
-        return
-      }
-      console.log('resetting colors')
       resetColors()
     }
+     //check to see if user returned from options page
 
-    useEffect(() => {
+     useEffect(() => {
       if (route) {
         docId = route.params?.id
       }
     }, [route])
 
-    //check to see if user returned from options page
-    useEffect(() => {
+     useEffect(() => {
       const coolFunction = async() => {
-        originalSize = boardSize
         await initialLoad()
       }
       if (isFocused) {
@@ -232,39 +200,18 @@ const FreePlay = () => {
                     }
                   })
               })
-            // setSquareCounter(squareCounterArr)
             initialLoad()
             setChange(true)
             hasRun = true
-            console.log('testing to seesasdfasdf')
         }
     }, [])
 
-    const getSize = async () => {
-      try {
-        const value = await AsyncStorage.getItem('size');
-        if (value !== null) {
-          switch(value) {
-            case '1':
-              boardSize = 8
-              sizeName = 'Small'
-              break
-            case '2':
-              boardSize = 12
-              sizeName = 'Medium'
-              break
-            case '3':
-              boardSize = 16
-              sizeName = 'Large'
-              break
-          }
-          // gridItemSize = Math.floor(screenWidth / boardSize);
-          return {boardSize, sizeName}
-        }
-      } catch (e) {
-        // error reading value
-      }
-    };
+    const getSize = () => {
+        // console.log(gridItemSize)
+        // console.log(hole)
+        gridItemSize = Math.floor(screenWidth / boardSize)
+        // console.log(gridItemSize)
+      };
 
     const getColor = async () => {
       try {
@@ -275,22 +222,21 @@ const FreePlay = () => {
           for (let y = 0; y < 5; y++) {
             colors.push(colorArr[x][y])
           }
+          // console.log(colors)
           setSelectedColorOption(colors)
-          setSelectedColor(tempSquareArr[0].color)
         }
       } catch (e) {
-        console.log(e)
+        // console.log(e)
       }
     }
 
     function colorChange(color) {
-      setSelectedColor(color)
+      countNumber++
         tempSquareArr.forEach((sq, index) => {
             if (sq.captured) {
                 captureCheck(color, index)
             }
         })
-        countNumber++
         setChange(true)
     }
 
@@ -299,37 +245,24 @@ const FreePlay = () => {
             setColorState(tempSquareArr)
             setSquareCounter(squareCounterArr)
             setCounter(countNumber)
-            setSquareAnim(squareAnimArr)
             setSelectedColor(tempSquareArr[0].color)
+            setSquareAnim(squareAnimArr)
             setSelectedColorOption(colors)
-            if (totalCaptured == (boardSize * boardSize)) {
+            if (totalCaptured == (squares[hole].length)) {
+              if (hole == 9) {
                 handleComplete()
+              }
+              else {
+                tempSquareArr = JSON.parse(JSON.stringify(squares[hole]))
+                // setColorState(tempSquareArr)
+                setModalVisible(true)
+              }   
             }
             setChange(false)
         }
     }, [change])
-
-    async function handleComplete() {
-      const newScore = await addDoc(collection(db, 'Scores'), {
-        boardId: boardId,
-        score: countNumber,
-        size: sizeName,
-        boardData: randomArr.toString(),
-        createdBy: userName,
-        gamemode: 'FreePlay',
-        createdAt: serverTimestamp()
-      })
-      if (countNumber < highScore || highScore == '') {
-        setHighScore(countNumber)
-      }
-      setComplete(true)
-      setModalVisible(true)
-    }
     
     function captureCheck(color, index) {
-      setTimeout(() => {
-
-      }, 50)
         tempSquareArr[index].color = color
         //right
         if (tempSquareArr[index + 1] && tempSquareArr[index + 1].captured == false) {
@@ -437,24 +370,75 @@ const FreePlay = () => {
           })
         }
 
-     function generateNewBoard() {
-      randomArr = []
-      squareAnimArr = []
-      // getSize()
-        for (let i = 0; i < (boardSize * boardSize); i++) {
-          randomArr.push(Math.floor(Math.random() * 5))
+    function handleHoleChange() {
+        squareAnimArr = []
+        hole++
+        boardSize++
+        roundScore = countNumber - parValue
+        totalScoreValue += roundScore
+        parValue += 2
+        setTotalScore(totalScoreValue)
+        getSize()
+        tempSquareArr = JSON.parse(JSON.stringify(squares[hole]))
+        squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
+        squareCounterArr.forEach((counter, index) => {
+            counter.count = 0
+          })
+        totalCaptured = 1
+        tempSquareArr.forEach((sq, index) => {
+            if (sq.captured) {
+                captureCheck(sq.color, index);
+            }
+        });
+        tempSquareArr.forEach(sq => {
+            squareCounterArr.forEach(counter => {
+                if (sq.color == counter.color && !sq.index == 0) {
+                  counter.count++
+                }
+              })
+          })
+        countNumber = 0
+        modalVisible && setModalVisible(!modalVisible)
+        setChange(true)
+    }
+
+    async function handleComplete() {
+      const newScore = await addDoc(collection(db, 'Scores'), {
+        boardId: boardId,
+        score: totalScoreValue,
+        size: 'Default',
+        boardData: randomArr.toString(),
+        createdBy: userName,
+        gamemode: 'Progressive',
+        createdAt: serverTimestamp()
+      })
+      if (totalScoreValue < highScore || highScore == '') {
+        setHighScore(totalScoreValue)
       }
-      squares = generateBoard(randomArr).flat()
-      tempSquareArr = JSON.parse(JSON.stringify(squares))
+      setComplete(true)
+    }
+
+    function generateNewBoard() {
+      randomArr = []
+      for (let i = 0; i < 1210; i++) {
+          randomArr.push(Math.floor(Math.random() * 5))
+        }
+      squares = generateBoard(randomArr)
+      tempSquareArr = JSON.parse(JSON.stringify(squares[hole]))
       squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
       boardId = uuid.v4()
       docId = null
       resetColors()
-      // handleReset()
       handleReset()
-    }
+      }
 
     function resetColors() {
+      // console.log(squares)
+      squares.forEach((arr) => {
+        arr.forEach(sq => {
+          sq.color = colors[sq.colorIndex]
+        })
+      })
       tempSquareArr.forEach((sq) => {
         sq.color = colors[sq.colorIndex]
         if (sq.captured) {
@@ -468,23 +452,67 @@ const FreePlay = () => {
       setChange(true)
     }
 
+    // function handleReset() {
+    //     squareCounterArr.forEach(counter => {
+    //         counter.count = 0
+    //     })
+    //     totalCaptured = 1
+    //     tempSquareArr.forEach((sq, index) => {
+    //         if (sq.captured) {
+    //           captureCheck(sq.color, index);
+    //         }
+    //       });
+    //     tempSquareArr.forEach(sq => {
+    //         squareCounterArr.forEach(counter => {
+    //             if (sq.color == counter.color && !sq.index == 0) {
+    //                 counter.count++
+    //             }
+    //         })
+    //     })
+    //     countNumber = 0
+    //     modalVisible && setModalVisible(!modalVisible)
+    //     gridItemSize = Math.floor(screenWidth / 5)
+    //     setTotalScore(0)
+    //     parValue = 10
+    //     roundScore = 0
+    //     setChange(true)
+    // }
+
     function handleReset() {
-      squareCounterArr.forEach((counter, index) => {
-          counter.count = 0
-        })
-      totalCaptured = 1
-      tempSquareArr.forEach((sq, index) => {
-          if (sq.captured) {
-              captureCheck(sq.color, index);
+      boardSize = 5
+      gridItemSize = Math.floor(screenWidth / 5)
+      setTotalScore(0)
+      parValue = 10
+      roundScore = 0
+      hole = 0
+      totalScoreValue = 0
+      countNumber = 0
+      squares.forEach(arr => {
+        arr.forEach(sq => {
+          // console.log(sq)
+          sq.color = colors[sq.colorIndex]
+          if (sq.index != 0) {
+            sq.captured = false
           }
+        })
+      })
+        squareCounterArr.forEach(counter => {
+          counter.count = 0
+      })
+      totalCaptured = 1
+      tempSquareArr = JSON.parse(JSON.stringify(squares[0]))
+      tempSquareArr.forEach((sq, index) => {
+        if (sq.captured) {
+          captureCheck(sq.color, index);
+        }
       });
       tempSquareArr.forEach(sq => {
           squareCounterArr.forEach(counter => {
-              if (sq.colorIndex == counter.id && !sq.index == 0) {
-                counter.count++
+              if (sq.color == counter.color && !sq.index == 0) {
+                  counter.count++
               }
-            })
-        })
+          })
+      })
       const growAnimation = Animated.timing(squareAnimArr[0], {
         toValue: 1, 
         duration: 250, 
@@ -498,94 +526,9 @@ const FreePlay = () => {
         useNativeDriver: true, 
       });
       Animated.sequence([growAnimation, reverseAnimation]).start()
-      countNumber = 0
       modalVisible && setModalVisible(!modalVisible)
+      setComplete(false)
       setChange(true)
-    }
-
-    // async function handleReset() {
-    //     randomArr = []
-    //     squareAnimArr = []
-    //     console.log('before board size')
-    //     console.log(boardSize)
-    //     let x = await getSize()
-    //     await getColor()
-    //     console.log(x)
-    //     console.log('reset board size')
-    //     console.log(boardSize)
-    //     for (let i = 0; i < (boardSize * boardSize); i++) {
-    //         randomArr.push(Math.floor(Math.random() * 5))
-    //     }
-    //     squares = generateBoard(randomArr).flat()
-    //     tempSquareArr = JSON.parse(JSON.stringify(squares))
-    //     squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
-    //     //ensure colors match current color set
-    //     tempSquareArr.forEach((sq) => {
-    //       sq.color = colors[sq.colorIndex]
-    //     })
-        
-    //     console.log(squareAnimArr.length)
-    //     squareCounterArr.forEach((counter, index) => {
-    //         counter.count = 0
-    //         counter.color = colors[index]
-    //       })
-    //     totalCaptured = 1
-    //     tempSquareArr.forEach((sq, index) => {
-    //         if (sq.captured) {
-    //             captureCheck(sq.color, index);
-    //         }
-    //     });
-    //     tempSquareArr.forEach(sq => {
-    //         squareCounterArr.forEach(counter => {
-    //             if (sq.colorIndex == counter.id && !sq.index == 0) {
-    //               counter.count++
-    //             }
-    //           })
-    //       })
-    //     countNumber = 0
-    //     modalVisible && setModalVisible(!modalVisible)
-    //     setChange(true)
-    // }
-
-    function handleRetry() {
-        tempSquareArr.forEach((sq) => {
-            sq.color = colors[sq.colorIndex]
-            if (sq.index != 0) {
-                sq.captured = false
-            }
-        })
-        squareCounterArr.forEach(counter => {
-            counter.count = 0
-        })
-        totalCaptured = 1
-        tempSquareArr.forEach((sq, index) => {
-            if (sq.captured) {
-              captureCheck(sq.color, index);
-            }
-          });
-        tempSquareArr.forEach(sq => {
-            squareCounterArr.forEach(counter => {
-                if (sq.color == counter.color && !sq.index == 0) {
-                    counter.count++
-                }
-            })
-        })
-        const growAnimation = Animated.timing(squareAnimArr[0], {
-          toValue: 1, 
-          duration: 250, 
-          easing: Easing.linear,
-          useNativeDriver: true, 
-        });
-        const reverseAnimation = Animated.timing(squareAnimArr[0], {
-          toValue: 0, 
-          duration: 250, 
-          easing: Easing.linear,
-          useNativeDriver: true, 
-        });
-        Animated.sequence([growAnimation, reverseAnimation]).start()
-        countNumber = 0
-        modalVisible && setModalVisible(!modalVisible)
-        setChange(true)
     }
 
   return (
@@ -598,56 +541,86 @@ const FreePlay = () => {
           Alert.alert('Modal has been closed.');
           setModalVisible(!modalVisible);
         }}>
-        <View style={[styles.centeredView]}>
+        <View style={styles.centeredView}>
           <View style={[styles.modalView, {backgroundColor: colorTheme.button}]}>
-            <Text style={[styles.modalText, {color: colorTheme.text}]}>You completed the board in {counter} turns!</Text>
+            <Text style={[styles.modalText, {color: colorTheme.text}]}>You completed this round {counter > parValue ? `+${counter - parValue} over` : `${counter - parValue} under`} par!</Text>
             <Pressable
               style={[styles.button, styles.buttonClose]}
-              onPress={() => generateNewBoard()}>
-              <Text style={styles.textStyle}>New Board</Text>
+              onPress={() => handleHoleChange()}>
+              <Text style={[styles.textStyle, {color: colorTheme.text}]}>Next Round</Text>
             </Pressable>
-            <Pressable
+            {/* <Pressable
               style={[styles.button, styles.buttonClose]}
               onPress={() => handleRetry()}>
               <Text style={styles.textStyle}>Retry Board</Text>
+            </Pressable> */}
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={complete}
+        onRequestClose={() => {
+          Alert.alert('Modal has been closed.');
+          setModalVisible(!modalVisible);
+        }}>
+        <View style={styles.centeredView}>
+          <View style={[styles.modalView, {backgroundColor: colorTheme.button}]}>
+            <Text style={[styles.modalText, {color: colorTheme.text}]}>You completed the game { totalScore < 0 ? totalScore + ' under ' : totalScore + ' over '} par!</Text>
+            <Pressable
+              style={[styles.button, styles.buttonClose]}
+              onPress={() => generateNewBoard()}>
+              <Text style={[styles.textStyle, {color: colorTheme.text}]}>New Game</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.button, styles.buttonClose]}
+              onPress={() => handleReset()}>
+              <Text style={[styles.textStyle, {color: colorTheme.text}]}>Retry Game</Text>
             </Pressable>
           </View>
         </View>
       </Modal>
         <View style={styles.top}>
-            <Text style={[styles.topText, styles.highScore, {color: colorTheme.text}]}>High Score: {highScore}</Text>
+            <Text style={[styles.topText, styles.highScore, {color: colorTheme.text}]}>High Score: {highScore > 0 ? `+${highScore}` : highScore}</Text>
             <Text style={[styles.topText, styles.remainText, {color: colorTheme.text}]}>Squares Remaining</Text>
             <View style={styles.squareCounter}>
                 <View style={[styles.fakeSquare, {backgroundColor: colorOption[0]}]}>
-                    <Text style={[styles.fakeText]}>{squareCounter[0].count}</Text>
+                    <Text style={styles.fakeText}>{squareCounter[0].count}</Text>
                 </View>
                 <View style={[styles.fakeSquare, {backgroundColor: colorOption[1]}]}>
-                    <Text style={[styles.fakeText]}>{squareCounter[1].count}</Text>
+                    <Text style={styles.fakeText}>{squareCounter[1].count}</Text>
                 </View>
                 <View style={[styles.fakeSquare, {backgroundColor: colorOption[2]}]}>
-                    <Text style={[styles.fakeText]}>{squareCounter[2].count}</Text>
+                    <Text style={styles.fakeText}>{squareCounter[2].count}</Text>
                 </View>
                 <View style={[styles.fakeSquare, {backgroundColor: colorOption[3]}]}>
-                    <Text style={[styles.fakeText]}>{squareCounter[3].count}</Text>
+                    <Text style={styles.fakeText}>{squareCounter[3].count}</Text>
                 </View>
                 <View style={[styles.fakeSquare, {backgroundColor: colorOption[4]}]}>
-                    <Text style={[styles.fakeText]}>{squareCounter[4].count}</Text>
+                    <Text style={styles.fakeText}>{squareCounter[4].count}</Text>
                 </View>
             </View>
         </View>
-        <Text style={[styles.counter, {color: colorTheme.text}]}>{counter}</Text>
+        <View style={styles.scoreInfo}>
+            <Text style={[{fontSize: 20, display: 'flex', width: '25%', justifyContent: 'flex-start', textAlign: 'left', color: colorTheme.text}]}>Round {hole + 1}</Text>
+            <Text style={[{fontSize: 20, display: 'flex', width: '50%', justifyContent: 'center', textAlign: 'center', color: colorTheme.text}]}>{counter} / {parValue}</Text>
+            <Text style={[{fontSize: 20, display: 'flex', width: '25%', justifyContent: 'flex-end', textAlign: 'right', color: colorTheme.text}]}>Score: 
+            <Text style={{marginLeft: 5,color: totalScore < 0 ? 'green' : totalScore > 0 ? 'red' : colorTheme.text}}>{totalScore > 0 ? `+${totalScore}` : totalScore}</Text>
+            </Text>
+        </View>
         <View style={[styles.board, screenWidth > 500 && {maxWidth: screenWidth}]}>
             {colorState.map((sq, index) => {
                 return (
                     // <View key={index} style={[styles.square, {backgroundColor: sq.color}]}></View>
-                    <Animated.View key={index} style={[styles.square, sq.captured && {zIndex: 2}, {backgroundColor: sq.color, width: gridItemSize, height: gridItemSize, transform: [
+                    <Animated.View key={index} style={[styles.square, colorState[index].captured && {zIndex: 2}, {backgroundColor: sq.color, width: gridItemSize, height: gridItemSize, transform: [
                       {
                         scale: squareAnim[index].interpolate({
                           inputRange: [0, 1],
                           outputRange: [1, 1.2], // grow by 20%
                         }),
                       },
-                    ],}]}></Animated.View>
+                    ]}]}></Animated.View>
                 )
             })}
             {/* <FlatList
@@ -660,10 +633,10 @@ const FreePlay = () => {
         
         <View style={styles.extraRow}>
             <Pressable style={[styles.resetButton, {backgroundColor: colorTheme.button}]} onPress={() => generateNewBoard()}>
-                <Text style={{textAlign: 'center', userSelect: 'none', color: colorTheme.text}}>New Board</Text>
+                <Text style={[{textAlign: 'center', userSelect: 'none', color: colorTheme.text}]}>New Board</Text>
             </Pressable>
-            <Pressable style={[styles.resetButton, {backgroundColor: colorTheme.button}]} onPress={() => handleRetry()}>
-                <Text style={{userSelect: 'none', color: colorTheme.text}}>Retry</Text>
+            <Pressable style={[styles.resetButton, {backgroundColor: colorTheme.button}]} onPress={() => handleReset()}>
+                <Text style={[{textAlign: 'center', userSelect: 'none', color: colorTheme.text}]}>Retry</Text>
             </Pressable>
         </View>
         <View style={styles.colorRow}>
@@ -688,6 +661,11 @@ const styles = StyleSheet.create({
     topText: {
         textAlign: 'center',
         fontSize: 20
+    },
+    scoreInfo: {
+        width: screenWidth,
+        flexDirection: 'row',
+        // justifyContent: 'space-between'
     },
     remainText: {
         marginBottom: 5
@@ -731,7 +709,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'center',
-        maxWidth: screenWidth
+        // maxWidth: screenWidth
     },
     square: {
         borderWidth: 1,
@@ -817,4 +795,4 @@ const styles = StyleSheet.create({
 
 })
 
-export default FreePlay
+export default Progressive

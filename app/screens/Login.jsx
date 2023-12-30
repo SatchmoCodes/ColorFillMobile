@@ -2,44 +2,67 @@ import { useNavigation } from '@react-navigation/core'
 import React, { useEffect, useState } from 'react'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 // import firebase from '@react-native-firebase/app'
-import { getFirestore } from 'firebase/firestore'
-import auth from '@react-native-firebase/auth';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { query, collection, doc, addDoc, where, getDocs } from 'firebase/firestore'
 // import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
 
-const LoginScreen = () => {
+const LoginScreen = ({  }) => {
   const [email, setEmail] = useState('')
+  const [displayName, setDisplayName] = useState('')
   const [password, setPassword] = useState('')
+  
+  const auth = FIREBASE_AUTH
+  const db = FIRESTORE_DB
 
   const navigation = useNavigation()
 
-  // useEffect(() => {
-  //   const unsubscribe = auth.onAuthStateChanged(user => {
-  //     if (user) {
-  //       navigation.replace("Home")
-  //     }
-  //   })
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      if (user) {
+        navigation.navigate('HomePage')
+      }
+    })
 
-  //   return unsubscribe
-  // }, [])
+    return unsubscribe
+  }, [])
 
-  const handleSignUp = () => {
-    auth
-      .createUserWithEmailAndPassword(email, password)
-      .then(userCredentials => {
-        const user = userCredentials.user;
-        console.log('Registered with:', user.email);
+  const handleSignUp =  async () => {
+    try {
+      const q = query(collection(db, 'Users'), where("username", "==", displayName))
+      const querySnapshot = await getDocs(q)
+      if (!querySnapshot.empty) {
+        alert('That username is already taken')
+        return
+      }
+
+      const response = await createUserWithEmailAndPassword(auth, email, password)
+      
+      const newUser = await addDoc(collection(db, 'Users'), {
+        email: email,
+        // password: password,
+        uid: response.user.uid,
+        username: displayName,
+        wins: 0,
+        losses: 0,
+        currentWinStreak: 0,
+        bestWinStreak: 0
       })
-      .catch(error => alert(error.message))
+      console.log('new user created with name ' + newUser.username)
+    }
+    catch (error) {
+      alert(error)
+    }
   }
 
-  const handleLogin = () => {
-    auth
-      .signInWithEmailAndPassword(email, password)
-      .then(userCredentials => {
-        const user = userCredentials.user;
-        console.log('Logged in with:', user.email);
-      })
-      .catch(error => alert(error.message))
+  const handleLogin = async () => {
+    try {
+      const response = await signInWithEmailAndPassword(auth, email, password)
+      console.log(response)
+    }
+    catch (error) {
+      alert(error)
+    }
   }
 
   return (
@@ -52,6 +75,12 @@ const LoginScreen = () => {
           placeholder="Email"
           value={email}
           onChangeText={text => setEmail(text)}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Username"
+          value={displayName}
+          onChangeText={text => setDisplayName(text)}
           style={styles.input}
         />
         <TextInput

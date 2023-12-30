@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, Button } from 'react-native';
+import { StyleSheet, Text, View, Image, Button, ActivityIndicator, useColorScheme } from 'react-native';
+import { lightModeColors, darkModeColors } from './app/screens/colors.js';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from './app/screens/Home.jsx'
@@ -8,54 +9,175 @@ import Leaderboard from './app/screens/Leaderboard.jsx'
 import PlayMenu from './app/screens/PlayMenu.jsx';
 import FreePlay from './app/screens/FreePlay.jsx';
 import Options from './app/screens/Options.jsx';
-import { initializeApp } from "firebase/app";
-import React, {useEffect} from 'react';
+import FakeHome from './app/screens/FakeHome.jsx'
+import React, {useEffect, useState, useContext, createContext} from 'react';
+import Progressive from './app/screens/Progressive.jsx';
+import { User, onAuthStateChanged } from 'firebase/auth';
+import { FIREBASE_AUTH, FIREBASE_APP } from './firebaseConfig.js';
+import LeaderboardOptions from './app/LeaderboardOptions.jsx';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function App() {
-  const Stack = createNativeStackNavigator()
+import PVPMenu from './app/screens/PVPMenu.jsx';
+import PVPCreate from './app/screens/PVPCreate.jsx';
+import PVPLobby from './app/screens/PVPLobby.jsx';
+import PVPGame from './app/screens/PVPGame.jsx';
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCusZ-giht0y9F8SlGq03bb8hlIyje3Kfg",
-    authDomain: "colorfill-6d541.firebaseapp.com",
-    databaseURL: "https://colorfill-6d541-default-rtdb.firebaseio.com",
-    projectId: "colorfill-6d541",
-    storageBucket: "colorfill-6d541.appspot.com",
-    messagingSenderId: "748210238503",
-    appId: "1:748210238503:web:ce401caec82e4172ec4a02",
-    measurementId: "G-6LSQJGV743"
-  };
+import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth';
+import BoardInfo from './app/screens/BoardInfo.jsx';
+
+const Stack = createNativeStackNavigator()
+const AuthenticatedUserContext = createContext({})
+const auth = FIREBASE_AUTH
+
+const authObj = getAuth(FIREBASE_APP)
+setPersistence(authObj, browserLocalPersistence)
+
+const AuthenticatedUserProvider = ({ children }) => {
+  const [user, setUser] = useState(null)
+  return (
+    <AuthenticatedUserContext.Provider value={{user, setUser}}>
+      {children}
+    </AuthenticatedUserContext.Provider>
+  )
+}
+
+const ColorSchemeContext = createContext();
+
+export const useColorSchemeContext = () => {
+  return useContext(ColorSchemeContext);
+};
+
+export const ColorSchemeProvider = ({ children }) => {
+  const systemColorScheme = useColorScheme()
+  const [userColorScheme, setUserColorScheme] = useState(systemColorScheme);
 
   useEffect(() => {
-    initializeApp(firebaseConfig)
-  })
+    // Load user's color scheme preference from storage
+    const loadColorScheme = async () => {
+      try {
+        const storedColorScheme = await AsyncStorage.getItem('userColorScheme');
+        if (storedColorScheme) {
+          console.log(storedColorScheme)
+          setUserColorScheme(storedColorScheme);
+          
+        }
+      } catch (error) {
+        console.error('Error loading color scheme:', error);
+      }
+    };
+
+    loadColorScheme();
+  }, []);
+
+  const toggleColorScheme = () => {
+    const newColorScheme = userColorScheme === 'light' ? 'dark' : 'light'
+    AsyncStorage.setItem('userColorScheme', newColorScheme);
+    setUserColorScheme(newColorScheme);
+  };
+
+  const useColors = () => {
+    const colorTheme = userColorScheme
+    return colorTheme == 'light' ? lightModeColors : darkModeColors
+  }
 
   return (
-    // <View style={styles.container}>
-    //   <View style={styles.container}>
-    //     <Image style={styles.colorImage} source={require('./assets/ColorFill.png')} resizeMode="contain"></Image>
-    //     <StatusBar style="auto" />
-    //   </View>
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name='HomePage' component={Home} options={{headerRight: () => (
+    <ColorSchemeContext.Provider value={{ userColorScheme, useColors, toggleColorScheme }}>
+      {children}
+    </ColorSchemeContext.Provider>
+  );
+};
+
+function AuthView() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name='HomePage' component={Home} options={{headerRight: () => (
             <Button onPress={() => alert('This is a button!')}
             title="Options"
             color="lightblue"></Button>
           )}}/>
-          <Stack.Screen name='Login' component={Login}/>
-          <Stack.Screen name='PlayMenu' component={PlayMenu}/>
-          <Stack.Screen name='Leaderboard' component={Leaderboard}/>
-          <Stack.Screen name='Options' component={Options}/>
-          <Stack.Screen name='FreePlay' component={FreePlay} options={({ navigation, route }) => ({
+      <Stack.Screen name='Login' component={Login}/>
+      <Stack.Screen name='PlayMenu' component={PlayMenu}/>
+      <Stack.Screen name='Leaderboard' component={Leaderboard} options={({ navigation, route }) => ({
           // Add a placeholder button without the `onPress` to avoid flicker
           headerRight: () => (
             <Button title="Options" onPress={() => navigation.navigate('Options')} color='blue' />
           ),
         })}/>
-        </Stack.Navigator>
+      <Stack.Screen name='BoardInfo' component={BoardInfo}/>
+      <Stack.Screen name='Options' component={Options}/>
+      <Stack.Screen name='LeaderboardOptions' component={LeaderboardOptions}/>
+      <Stack.Screen name='FreePlay' component={FreePlay} options={({ navigation, route }) => ({
+          // Add a placeholder button without the `onPress` to avoid flicker
+          headerRight: () => (
+            <Button title="Options" onPress={() => navigation.navigate('Options')} color='blue' />
+          ),
+        })}/>
+      <Stack.Screen name='Progressive' component={Progressive} options={({ navigation, route }) => ({
+          // Add a placeholder button without the `onPress` to avoid flicker
+          headerRight: () => (
+            <Button title="Options" onPress={() => navigation.navigate('Options')} color='blue' />
+          ),
+        })}/>
+      <Stack.Screen name='PVPMenu' component={PVPMenu}/>
+      <Stack.Screen name='PVPCreate' component={PVPCreate}/>
+      <Stack.Screen name='PVPLobby' component={PVPLobby}/>
+      <Stack.Screen name='PVPGame' component={PVPGame} options={({ navigation, route }) => ({
+          // Add a placeholder button without the `onPress` to avoid flicker
+          headerRight: () => (
+            <Button title="Options" onPress={() => navigation.navigate('Options')} color='blue' />
+          ),
+        })}/>
+    </Stack.Navigator>
+  )
+}
+
+function NonAuthView() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name='FakeHome' component={FakeHome} options={{headerRight: () => (
+            <Button onPress={() => alert('This is a button!')}
+            title="Options"
+            color="lightblue"></Button>
+          )}}/>
+      <Stack.Screen name='Login' component={Login}/>
+    </Stack.Navigator>
+  )
+}
+
+function RootNavigator() {
+ const { user, setUser } = useContext(AuthenticatedUserContext)
+ const [loading, setLoading] = useState(true)
+
+ useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth,
+    async authenticatedUser => {
+      authenticatedUser ? setUser(authenticatedUser) : setUser(null)
+      setLoading(false) 
+    })
+    return () => unsubscribe()
+ }, [user])
+ if (loading) {
+  return (
+    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <ActivityIndicator size='large'/>
+    </View>
+  )
+ }
+  return (
+      <NavigationContainer>
+        { user ? <AuthView /> : <NonAuthView /> }
       </NavigationContainer>
-    // </View> 
   );
+}
+
+export default function App() {
+  return (
+    <AuthenticatedUserProvider>
+      <ColorSchemeProvider>
+        <RootNavigator />
+      </ColorSchemeProvider>
+    </AuthenticatedUserProvider>
+  )
 }
 
 const styles = StyleSheet.create({

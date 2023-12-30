@@ -1,17 +1,31 @@
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native'
 import React from 'react'
+import { useColorSchemeContext } from '../../App';
 
 const PlayMenu = ({ navigation }) => {
+
+  const { useColors } = useColorSchemeContext()
+  const colors = useColors()
+
+  async function generateBoard(mode) {
+    if (mode == 'FreePlay') {
+      navigation.navigate('FreePlay')
+    }
+    else if (mode == 'Progressive') {
+      navigation.navigate('Progressive')
+    }
+  }
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: colors.background}]}>
       <View style={styles.top}>
          <Image style={styles.colorImage} source={require('./../../assets/ColorFill.png')} resizeMode="contain"></Image>
       </View>
       <View style={styles.bottom}>
-        <Pressable style={styles.button} onPress={() => navigation.navigate('FreePlay')}>
+        <Pressable style={styles.button} onPress={() => generateBoard('FreePlay')}>
             <Text style={styles.buttonText}>Free Play</Text>
         </Pressable>
-        <Pressable style={styles.button} onPress={() => navigation.navigate('Progressive')}>
+        <Pressable style={styles.button} onPress={() => generateBoard('Progressive')}>
             <Text style={styles.buttonText}>Progressive</Text>
         </Pressable>
         <Pressable style={styles.button} onPress={() => navigation.navigate('PVPMenu')}>
