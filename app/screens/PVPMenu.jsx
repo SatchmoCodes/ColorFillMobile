@@ -153,8 +153,8 @@ const PVPMenu = ({ navigation }) => {
           )}
         />
         <View style={styles.codeView}>
-          <Text style={{fontSize: 20}}>Code:</Text>
-          <TextInput style={styles.codeInput} onChangeText={(e) => setCode(e)} maxLength={6} autoCapitalize='characters' value={code}></TextInput>
+          <Text style={{fontSize: 20, color: colors.text}}>Code:</Text>
+          <TextInput style={[styles.codeInput, {fontSize: 20,backgroundColor: colors.tableRow, color: colors.text}]} onChangeText={(e) => setCode(e)} maxLength={6} autoCapitalize='characters' value={code}></TextInput>
         </View>
         
         <View style={styles.buttonOptions}>

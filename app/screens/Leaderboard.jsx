@@ -20,10 +20,10 @@ const gamemodeOptions = [
 ]
 
 const queryOptions = [
-  { label: 'Win Rate', value: 'WinRate'},
-  { label: 'Wins', value: 'Wins'},
-  { label: 'Current Winstreak', value: 'CurrentWinStreak'},
-  { label: 'Best Winstreak', value: 'BestWinStreak'}
+  { label: 'Win Rate', value: 'Win Rate'},
+  { label: 'Wins/Losses', value: 'Wins/Losses'},
+  { label: 'Current Winstreak', value: 'Current Winstreak'},
+  { label: 'Best Winstreak', value: 'Best Winstreak'}
 ]
 
 const Leaderboard = () => {
@@ -37,7 +37,7 @@ const Leaderboard = () => {
   const [size, setSize] = useState('Medium')
   const [gamemode, setGamemode] = useState('FreePlay')
   const [userSearch, setUserSearch] = useState('')
-  const [queryOptionState, setQueryOptionState] = useState('WinRate')
+  const [queryOptionState, setQueryOptionState] = useState('Win Rate')
   const [scores, setScores] = useState([])
   const [pvpResults, setPVPResults] = useState([])
 
@@ -126,28 +126,28 @@ const Leaderboard = () => {
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const queryArr = []
         querySnapshot.forEach((doc) => {
-          if (queryOptionState == 'WinRate') {
+          if (queryOptionState == 'Win Rate') {
             queryArr.push({
               id: doc.id,
               ...doc.data(),
               queryData: Math.round((doc.data().wins / (doc.data().wins + doc.data().losses) + Number.EPSILON) * 100) + '%'
             })
           }
-          else if (queryOptionState == 'Wins') {
+          else if (queryOptionState == 'Wins/Losses') {
             queryArr.push({
               id: doc.id,
               ...doc.data(),
-              queryData: doc.data().wins
+              queryData: doc.data().wins + '-' + doc.data().losses
             })
           }
-          else if (queryOptionState == 'CurrentWinStreak') {
+          else if (queryOptionState == 'Current Winstreak') {
             queryArr.push({
               id: doc.id,
               ...doc.data(),
               queryData: doc.data().currentWinStreak
             })
           }
-          else if (queryOptionState == 'BestWinStreak') {
+          else if (queryOptionState == 'Best Winstreak') {
             queryArr.push({
               id: doc.id,
               ...doc.data(),
@@ -157,7 +157,7 @@ const Leaderboard = () => {
         })
         console.log(queryArr)
         queryArr.sort((a, b) => parseInt(a.queryData) - parseInt(b.queryData))
-        // if (queryOptionState == 'WinRate') {
+        // if (queryOptionState == 'Win Rate') {
         //   queryArr = queryArr.filter((a) => a.wins + a.losses > 9)
         // }
         queryArr.reverse()
@@ -324,8 +324,8 @@ const Leaderboard = () => {
                 <Text style={{textAlign: 'center', padding: 5, color: colors.text}}>{item.username}</Text>
               </View>
               <View style={[styles.tableCol, {width: '42.5%', maxWidth: '42.5%', alignItems: 'center', padding: 15}]}>
-                <Text style={{textAlign: 'center', padding: 5, color: queryOptionState == 'WinRate' && parseInt(item.queryData) > 50 && item.wins + item.losses > 9 ? 'green' : queryOptionState == 'WinRate' && parseInt(item.queryData) < 50 && item.wins + item.losses > 9 ? 'red' : colors.text}}>
-                  {queryOptionState == 'WinRate' && item.wins + item.losses < 10 ? `${item.wins + item.losses}/10 Games` : item.queryData}</Text>
+                <Text style={{textAlign: 'center', padding: 5, color: queryOptionState == 'Win Rate' && parseInt(item.queryData) > 50 && item.wins + item.losses > 9 ? 'green' : queryOptionState == 'Win Rate' && parseInt(item.queryData) < 50 && item.wins + item.losses > 9 ? 'red' : colors.text}}>
+                  {item.wins + item.losses < 10 ? `${item.wins + item.losses}/10 Games Played` : item.queryData}</Text>
               </View>
             </View>
         )}

@@ -1,10 +1,15 @@
 import { View, Text, Button, Image, StyleSheet, Pressable } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { FIREBASE_AUTH } from '../../firebaseConfig'
-
+import { useColorSchemeContext } from '../../App';
 
 
 const Home = ({ navigation }) => {
+
+  const { useColors } = useColorSchemeContext()
+  const colors = useColors()
+
+  const [colorTheme, setColorTheme] = useState(null)
 
   useEffect(() => {
     FIREBASE_AUTH.onAuthStateChanged((user) => {
@@ -18,8 +23,15 @@ const Home = ({ navigation }) => {
     })
   }
 
+  useEffect(() => {
+    if (colors) {
+      console.log(colors)
+      setColorTheme(useColors())
+    }
+  }, [colors])
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: colorTheme != null && colorTheme.background}]}>
       <View style={styles.top}>
           <Image style={styles.colorImage} source={require('./../../assets/ColorFill.png')} resizeMode="contain"></Image>
       </View>

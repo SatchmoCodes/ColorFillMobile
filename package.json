@@ -32,10 +32,12 @@
     "react-native-safe-area-context": "^4.6.3",
     "react-native-screens": "~3.22.0",
     "react-native-uuid": "^2.0.1",
-    "react-native-web": "~0.19.6"
+    "react-native-web": "~0.19.6",
+    "save": "^2.9.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "react-native-dotenv": "^3.4.9"
   },
   "private": true
 }

@@ -25,6 +25,9 @@ import PVPGame from './app/screens/PVPGame.jsx';
 import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import BoardInfo from './app/screens/BoardInfo.jsx';
 
+import { FIREBASE_API_KEY} from '@env'
+console.log(FIREBASE_API_KEY)
+
 const Stack = createNativeStackNavigator()
 const AuthenticatedUserContext = createContext({})
 const auth = FIREBASE_AUTH
@@ -89,21 +92,37 @@ export const ColorSchemeProvider = ({ children }) => {
 
 function AuthView() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen name='HomePage' component={Home} options={{headerRight: () => (
-            <Button onPress={() => alert('This is a button!')}
-            title="Options"
-            color="lightblue"></Button>
-          )}}/>
+    <Stack.Navigator 
+    screenOptions={{
+      headerStyle: {
+        // backgroundColor: 'gray'
+      }
+    }}>
+      <Stack.Screen name='HomePage' component={Home} options={({ navigation, route }) => ({
+          // Add a placeholder button without the `onPress` to avoid flicker
+          headerRight: () => (
+            <Button title="Options" onPress={() => navigation.navigate('Options')} color='blue' />
+          ),
+        })}/>
       <Stack.Screen name='Login' component={Login}/>
-      <Stack.Screen name='PlayMenu' component={PlayMenu}/>
+      <Stack.Screen name='PlayMenu' component={PlayMenu} options={({ navigation, route }) => ({
+          // Add a placeholder button without the `onPress` to avoid flicker
+          headerRight: () => (
+            <Button title="Options" onPress={() => navigation.navigate('Options')} color='blue' />
+          ),
+        })}/>
       <Stack.Screen name='Leaderboard' component={Leaderboard} options={({ navigation, route }) => ({
           // Add a placeholder button without the `onPress` to avoid flicker
           headerRight: () => (
             <Button title="Options" onPress={() => navigation.navigate('Options')} color='blue' />
           ),
         })}/>
-      <Stack.Screen name='BoardInfo' component={BoardInfo}/>
+      <Stack.Screen name='BoardInfo' component={BoardInfo} options={({ navigation, route }) => ({
+          // Add a placeholder button without the `onPress` to avoid flicker
+          headerRight: () => (
+            <Button title="Options" onPress={() => navigation.navigate('Options')} color='blue' />
+          ),
+        })}/>
       <Stack.Screen name='Options' component={Options}/>
       <Stack.Screen name='LeaderboardOptions' component={LeaderboardOptions}/>
       <Stack.Screen name='FreePlay' component={FreePlay} options={({ navigation, route }) => ({
@@ -118,9 +137,24 @@ function AuthView() {
             <Button title="Options" onPress={() => navigation.navigate('Options')} color='blue' />
           ),
         })}/>
-      <Stack.Screen name='PVPMenu' component={PVPMenu}/>
-      <Stack.Screen name='PVPCreate' component={PVPCreate}/>
-      <Stack.Screen name='PVPLobby' component={PVPLobby}/>
+      <Stack.Screen name='PVPMenu' component={PVPMenu} options={({ navigation, route }) => ({
+          // Add a placeholder button without the `onPress` to avoid flicker
+          headerRight: () => (
+            <Button title="Options" onPress={() => navigation.navigate('Options')} color='blue' />
+          ),
+        })}/>
+      <Stack.Screen name='PVPCreate' component={PVPCreate} options={({ navigation, route }) => ({
+          // Add a placeholder button without the `onPress` to avoid flicker
+          headerRight: () => (
+            <Button title="Options" onPress={() => navigation.navigate('Options')} color='blue' />
+          ),
+        })}/>
+      <Stack.Screen name='PVPLobby' component={PVPLobby} options={({ navigation, route }) => ({
+          // Add a placeholder button without the `onPress` to avoid flicker
+          headerRight: () => (
+            <Button title="Options" onPress={() => navigation.navigate('Options')} color='blue' />
+          ),
+        })}/>
       <Stack.Screen name='PVPGame' component={PVPGame} options={({ navigation, route }) => ({
           // Add a placeholder button without the `onPress` to avoid flicker
           headerRight: () => (
@@ -134,11 +168,6 @@ function AuthView() {
 function NonAuthView() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name='FakeHome' component={FakeHome} options={{headerRight: () => (
-            <Button onPress={() => alert('This is a button!')}
-            title="Options"
-            color="lightblue"></Button>
-          )}}/>
       <Stack.Screen name='Login' component={Login}/>
     </Stack.Navigator>
   )

@@ -8,6 +8,8 @@ import { useRoute } from '@react-navigation/native';
 import { query, collection, doc, addDoc, where, getDocs, getDoc, orderBy, serverTimestamp, onSnapshot, increment, updateDoc } from 'firebase/firestore'
 import { FIRESTORE_DB, FIREBASE_AUTH } from '../../firebaseConfig.js';
 import uuid from 'react-native-uuid'
+import { useColorSchemeContext } from '../../App';
+import { squareColors } from './colors.js'
 
 let red = 'hsl(0, 100%, 40%)'
 let orange = 'hsl(22, 100%, 50%)'
@@ -19,14 +21,7 @@ let playerTwo = 'rgb(30,30,30)'
 
 let colors = [red, orange, yellow, green, blue, playerOne, playerTwo]
 
-const colorArr = [
-  ['hsl(0, 100%, 40%)','hsl(22, 100%, 50%)','hsl(60, 100%, 50%)','hsl(130, 100%, 15%)','hsl(242, 69%, 49%)', 'rgb(255,255,255)', 'rgb(30,30,30)'],
-  ['hsl(33, 90.8%, 12.7%)','hsl(33, 89.8%, 26.9%)','hsl(25, 95.4%, 42.7%)','hsl(221, 69.2%, 43.3%)','hsl(213, 68.6%, 90%)','rgb(133, 7, 7)','rgb(8, 68, 17)'],
-  ['hsl(358,83%,35%)','hsl(2,72%,51%)','hsl(211,88%,32%)','hsl(0,0%,39%)','hsl(0,0%,14%)','rgb(143, 4, 156)','rgb(255, 235, 15)'],
-  ['hsl(164,95%,43%)','hsl(240,100%,98%)','hsl(43,100%,70%)','hsl(197,19%,36%)','hsl(200,43%,7%)','rgb(5, 73, 157)','rgb(197, 42, 11)'],
-  ['hsl(7,55%,30%)','hsl(6,56%,49%)','hsl(24,38%,87%)','hsl(183,66%,28%)','hsl(180,20%,20%)','rgb(228, 174, 13)','rgb(110, 13, 228)'],
-  ['hsl(83, 45%, 18%)','hsl(59,70%,30%)','hsl(55, 47%, 78%)','hsl(48,99%,59%)','hsl(27, 55%, 33%)','rgb(31, 194, 215)','rgb(204, 72, 16)']
-]
+const colorArr = squareColors
 
 
 let boardSize = 19
@@ -105,6 +100,9 @@ let squareCounterArr = [
 
 const PVPGame = ({ navigation }) => {
 
+    const { useColors } = useColorSchemeContext()
+    const colorTheme = useColors()
+
     const db = FIRESTORE_DB
     const auth = FIREBASE_AUTH
     const route = useRoute()
@@ -141,6 +139,8 @@ const PVPGame = ({ navigation }) => {
     const [boardLoaded, setBoardLoaded] = useState(false)
     const userNameRef = useRef(null)
     const completeRef = useRef(null)
+
+    
 
 
   useEffect(() => {
@@ -799,9 +799,9 @@ const PVPGame = ({ navigation }) => {
     }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: colorTheme.background}]}>
         <Modal
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         visible={complete}
         onRequestClose={() => {
@@ -809,9 +809,12 @@ const PVPGame = ({ navigation }) => {
           setModalVisible(!modalVisible);
         }}>
         <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>{ownerScore > opponentScore ? `${ownerName} wins the game!` : `${opponentName} wins the game!`}</Text>
-            <Text style={styles.modalText}>Score: {userName != opponentName ? `${ownerScore} - ${opponentScore}` : `${opponentScore} - ${ownerScore}`}</Text>
+          <View style={[styles.modalView, {borderWidth: 1, borderColor: ownerScore > opponentScore && userName == ownerName ? 'green' : opponentScore > ownerScore && userName == opponentName ? 'green' : ownerScore < opponentScore && userName == ownerName ? 'red' : opponentScore < ownerScore && userName == opponentName ? 'red' : '', backgroundColor: colorTheme.button}]}>
+            <Text style={{fontSize: 30, color: ownerScore > opponentScore && userName == ownerName ? 'green' : opponentScore > ownerScore && userName == opponentName ? 'green' : ownerScore < opponentScore && userName == ownerName ? 'red' : opponentScore < ownerScore && userName == opponentName ? 'red' : ''}}>
+                {ownerScore > opponentScore && userName == ownerName ? 'Victory' : opponentScore > ownerScore && userName == opponentName ? 'Victory' : ownerScore < opponentScore && userName == ownerName ? 'Defeat' : opponentScore < ownerScore && userName == opponentName ? 'Defeat' : ''}
+            </Text>
+            <Text style={[styles.modalText, {fontSize: 20, color: colorTheme.text}]}>{ownerScore > opponentScore ? `${ownerName} wins the game!` : `${opponentName} wins the game!`}</Text>
+            <Text style={[styles.modalText, {fontSize: 20, color: colorTheme.text}]}>Score: {userName != opponentName ? `${ownerScore} - ${opponentScore}` : `${opponentScore} - ${ownerScore}`}</Text>
             <Pressable style={[styles.button, styles.buttonClose]} onPress={() => navigation.navigate('PVPMenu')}>
                 <Text>Return to Menu</Text>
             </Pressable>
@@ -821,16 +824,16 @@ const PVPGame = ({ navigation }) => {
         <View style={styles.top}>
             <View style={[styles.playerNames, {width: (gridItemSize * boardSize)}]}>
                 <View style={styles.playerView}>
-                  <Text style={{textAlign: 'center'}}>{userName != opponentName ? ownerName : opponentName}</Text>
+                  <Text style={{textAlign: 'center', color: colorTheme.text}}>{userName != opponentName ? ownerName : opponentName}</Text>
                   <View style={[styles.fakeSquare, {backgroundColor: userName != opponentName ? ownerColor : opponentColor}]}>
                     <Text style={styles.fakeText}>{userName != opponentName ? ownerScore : opponentScore}</Text>
                   </View>
                 </View>
                 <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                    <Text>VS</Text>
+                    <Text style={{color: colorTheme.text}}>VS</Text>
                 </View>
                 <View style={styles.playerView}>
-                <Text style={{textAlign: 'center'}}>{userName != opponentName ? opponentName : ownerName}</Text>
+                <Text style={{textAlign: 'center', color: colorTheme.text}}>{userName != opponentName ? opponentName : ownerName}</Text>
                   <View style={[styles.fakeSquare, {backgroundColor: userName != opponentName ? opponentColor : ownerColor}]}>
                     <Text style={styles.fakeText}>{userName != opponentName ? opponentScore : ownerScore}</Text>
                   </View>

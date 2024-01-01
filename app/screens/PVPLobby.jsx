@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, Pressable } from 'react-native'
+import { StyleSheet, Text, View, Image, Pressable, ActivityIndicator } from 'react-native'
 import React, { useState, useEffect, useRef } from 'react'
 import { useRoute } from '@react-navigation/native';
 import { query, collection, doc, getDoc, addDoc, where, orderBy, onSnapshot, getDocs, updateDoc } from 'firebase/firestore'
@@ -30,7 +30,7 @@ const PVPLobby = () => {
             console.log('leaving')
             handleLeave()
         })
-        return unsubscribeBlur
+        // return unsubscribeBlur
 
     }, [navigation])
 
@@ -144,10 +144,10 @@ const PVPLobby = () => {
             <View style={{justifyContent: 'center', alignItems: 'center', width: '10%'}}>
               <Text>VS</Text>
             </View>
-            <Text style={{fontSize: 20, width: '45%', textAlign: 'center', color: colors.text}}>{gameInfo != null && gameInfo.opponentName}</Text>
+            <Text style={{fontSize: 20, width: '45%', textAlign: 'center', justifyContent: 'center', color: colors.text}}>{gameInfo != null && gameInfo.opponentName == '' ? <ActivityIndicator color='lightgreen'></ActivityIndicator> : gameInfo != null && gameInfo.opponentName != '' && gameInfo.opponentName}</Text>
         </View>
         <Text style={{fontSize: 20, color: colors.text}}>Code: {gameInfo != null && gameInfo.code}</Text>
-        {gameInfo != null && userName == gameInfo.ownerName && <Pressable style={styles.button} onPress={() => startGame()}>
+        {gameInfo != null && userName == gameInfo.ownerName && <Pressable style={[styles.button, {opacity: gameInfo.opponentName == '' && .25}]} onPress={() => gameInfo.opponentName != '' && startGame()}>
             <Text style={styles.buttonText}>Start Game</Text>
         </Pressable>}
       </View>

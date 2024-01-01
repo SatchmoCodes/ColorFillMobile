@@ -9,6 +9,7 @@ import { query, collection, doc, addDoc, where, getDocs, getDoc, orderBy, server
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig.js';
 import uuid from 'react-native-uuid'
 import { useColorSchemeContext } from '../../App';
+import { squareColors } from './colors.js'
 
 let red = 'hsl(0, 100%, 40%)'
 let orange = 'hsl(22, 100%, 50%)'
@@ -18,14 +19,7 @@ let blue = 'hsl(242, 69%, 49%)'
 
 let colors = [red, orange, yellow, green, blue]
 
-const colorArr = [
-  ['hsl(0, 100%, 40%)','hsl(22, 100%, 50%)','hsl(60, 100%, 50%)','hsl(130, 100%, 15%)','hsl(242, 69%, 49%)', 'rgb(255,255,255)', 'rgb(30,30,30)'],
-  ['hsl(33, 90.8%, 12.7%)','hsl(33, 89.8%, 26.9%)','hsl(25, 95.4%, 42.7%)','hsl(221, 69.2%, 43.3%)','hsl(213, 68.6%, 90%)','rgb(133, 7, 7)','rgb(8, 68, 17)'],
-  ['hsl(358,83%,35%)','hsl(2,72%,51%)','hsl(211,88%,32%)','hsl(0,0%,39%)','hsl(0,0%,14%)','rgb(143, 4, 156)','rgb(255, 235, 15)'],
-  ['hsl(164,95%,43%)','hsl(240,100%,98%)','hsl(43,100%,70%)','hsl(197,19%,36%)','hsl(200,43%,7%)','rgb(5, 73, 157)','rgb(197, 42, 11)'],
-  ['hsl(7,55%,30%)','hsl(6,56%,49%)','hsl(24,38%,87%)','hsl(183,66%,28%)','hsl(180,20%,20%)','rgb(228, 174, 13)','rgb(110, 13, 228)'],
-  ['hsl(83, 45%, 18%)','hsl(59,70%,30%)','hsl(55, 47%, 78%)','hsl(48,99%,59%)','hsl(27, 55%, 33%)','rgb(31, 194, 215)','rgb(204, 72, 16)']
-]
+const colorArr = squareColors
 
 
 let boardSize = 5
@@ -545,7 +539,7 @@ const Progressive = () => {
           <View style={[styles.modalView, {backgroundColor: colorTheme.button}]}>
             <Text style={[styles.modalText, {color: colorTheme.text}]}>You completed this round {counter > parValue ? `+${counter - parValue} over` : `${counter - parValue} under`} par!</Text>
             <Pressable
-              style={[styles.button, styles.buttonClose]}
+              style={[styles.button, styles.buttonClose, {marginBottom: 10}]}
               onPress={() => handleHoleChange()}>
               <Text style={[styles.textStyle, {color: colorTheme.text}]}>Next Round</Text>
             </Pressable>
@@ -773,7 +767,7 @@ const styles = StyleSheet.create({
       },
       button: {
         borderRadius: 20,
-        padding: 10,
+        padding: 15,
         elevation: 2,
         marginBottom: 5
       },
@@ -787,10 +781,12 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
         textAlign: 'center',
+        fontSize: 15
       },
       modalText: {
         marginBottom: 15,
         textAlign: 'center',
+        fontSize: 20
       },
 
 })
