@@ -111,6 +111,8 @@ const FreePlay = () => {
     const [squareAnim, setSquareAnim] = useState(squareAnimArr)
     const [change, setChange] = useState(false)
     const [complete, setComplete] = useState(false)
+    const [scoreToBeat, setScoreToBeat] = useState(null)
+    const [previousScore, setPreviousScore] = useState(null) //set this state before updating scoreToBeat
 
     const [modalVisible, setModalVisible] = useState(false)
 
@@ -183,6 +185,7 @@ const FreePlay = () => {
             return
           }
           setBoardLoaded(true)
+          setScoreToBeat(docSnap.data().score)
           console.log('loading board from leaderboard')
           randomArr = docSnap.data().boardData.replace(/,/g, '')
           boardSize = Math.sqrt(randomArr.length)
@@ -311,6 +314,7 @@ const FreePlay = () => {
                 handleComplete()
             }
             setChange(false)
+            setComplete(false)
         }
     }, [change])
 
@@ -326,6 +330,10 @@ const FreePlay = () => {
       })
       if (countNumber < highScore || highScore == '') {
         setHighScore(countNumber)
+      }
+      if (countNumber < scoreToBeat) {
+        setPreviousScore(scoreToBeat)
+        setScoreToBeat(countNumber)
       }
       setComplete(true)
       setModalVisible(true)
@@ -454,6 +462,8 @@ const FreePlay = () => {
       squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
       boardId = uuid.v4()
       docId = null
+      setScoreToBeat(null)
+      setPreviousScore(null)
       resetColors()
       // handleReset()
       handleReset()
@@ -588,6 +598,11 @@ const FreePlay = () => {
           useNativeDriver: true, 
         });
         Animated.sequence([growAnimation, reverseAnimation]).start()
+        console.log('complete',complete)
+        console.log('countNumber',countNumber)
+        if (countNumber < scoreToBeat || scoreToBeat == null) {
+          complete && setScoreToBeat(countNumber)
+        }
         countNumber = 0
         modalVisible && setModalVisible(!modalVisible)
         setChange(true)
@@ -605,7 +620,7 @@ const FreePlay = () => {
         }}>
         <View style={[styles.centeredView]}>
           <View style={[styles.modalView, {backgroundColor: colorTheme.button}]}>
-            <Text style={[styles.modalText, {color: colorTheme.text}]}>You completed the board in {counter} turns!</Text>
+            <Text style={[styles.modalText, {color: colorTheme.text}]}>{previousScore == null ? `You completed the board in ${counter} turns!` : counter < previousScore ? `You beat the previous record (${previousScore}) with ${counter} turns!` : `You did not beat the previous record!`}</Text>
             <Pressable
               style={[styles.button, styles.buttonClose, {marginBottom: 10}]}
               onPress={() => generateNewBoard()}>
@@ -620,7 +635,7 @@ const FreePlay = () => {
         </View>
       </Modal>
         <View style={styles.top}>
-            <Text style={[styles.topText, styles.highScore, {color: colorTheme.text}]}>High Score: {highScore}</Text>
+            <Text style={[styles.topText, styles.highScore, {color: colorTheme.text}]}>{scoreToBeat == null ? `High Score: ${highScore}` : `Score to beat: ${scoreToBeat}`}</Text>
             <Text style={[styles.topText, styles.remainText, {color: colorTheme.text}]}>Squares Remaining</Text>
             <View style={styles.squareCounter}>
                 <View style={[styles.fakeSquare, {backgroundColor: colorOption[0]}]}>
@@ -640,7 +655,7 @@ const FreePlay = () => {
                 </View>
             </View>
         </View>
-        <Text style={[styles.counter, {color: colorTheme.text}]}>{counter}</Text>
+        <Text style={[styles.counter, {color: colorTheme.text}]}>{scoreToBeat == null ? counter : `${counter} / ${scoreToBeat}`}</Text>
         <View style={[styles.board, screenWidth > 500 && {maxWidth: screenWidth}]}>
             {colorState.map((sq, index) => {
                 return (

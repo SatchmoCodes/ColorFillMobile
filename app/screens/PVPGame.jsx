@@ -97,6 +97,9 @@ let squareCounterArr = [
   let opponentNameVar
   let winner
   let animationIndex = []
+  let randomColor
+
+  const totalTime = 10
 
 const PVPGame = ({ navigation }) => {
 
@@ -140,9 +143,55 @@ const PVPGame = ({ navigation }) => {
     const userNameRef = useRef(null)
     const completeRef = useRef(null)
 
+    //timer stuff
+    const [timer, setTimer] = useState(11)
+    const [intervalId, setIntervalId] = useState(null)
+    const [resetTimer, setResetTimer] = useState(null)
+
+    useEffect(() => {
+
+        const newIntervalId = setInterval(() => {
+            setTimer((prevTimer) => prevTimer - 1);
+        }, 1000);
     
+        // Save the interval ID for cleanup
+        if (resetTimer) {
+            setIntervalId(newIntervalId);
+            setResetTimer(false)
+        }
+        
+        // Clear the interval on component unmount
+        return () => {
+            clearInterval(newIntervalId);
+        };
+    }, [resetTimer])
+
+    useEffect(() => {
+        if (!resetTimer) {
+            if (timer == 0) {
+                if (turn == 'Owner' && userNameRef.current == ownerName) {
+                    console.log('owner ran out of time')
+                    randomColor = Math.floor(Math.random() * 5)
+                    while (randomColor == colors.indexOf(ownerSelectedColor)) {
+                        randomColor = Math.floor(Math.random() * 5)
+                    }
+                    colorChange(colors[randomColor])
+                }
+                else if (turn == 'Opponent' && userNameRef.current == opponentName) {
+                    console.log('opponent ran out of time')
+                    randomColor = Math.floor(Math.random() * 5)
+                    while (randomColor == colors.indexOf(opponentSelectedColor)) {
+                        randomColor = Math.floor(Math.random() * 5)
+                    }
+                    colorChange(colors[randomColor])
+                }
+                console.log('no time')
+            }
+        }
+    }, [timer])
 
 
+    
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       // The user object will be null if not logged in or a user object if logged in
@@ -226,6 +275,11 @@ const PVPGame = ({ navigation }) => {
                     setTurn('Opponent')
                     setOwnerSelectedColor(boardState[0].color)
                 }
+                //timer testing
+                setTimer(11)
+                setResetTimer(true)
+
+
                 boardState.forEach(sq => {
                     sq.color = colors[sq.colorIndex]
                 })
@@ -278,6 +332,8 @@ const PVPGame = ({ navigation }) => {
                 if (doc.data().ownerScore > Math.floor(tempSquareArr.length / 2)) {
                     winner = 'Owner'
                     completeRef.current = true
+                    setTimer(0)
+                    setResetTimer(false)
                     setComplete(true)
                     handleComplete()
                     return
@@ -838,6 +894,9 @@ const PVPGame = ({ navigation }) => {
                     <Text style={styles.fakeText}>{userName != opponentName ? opponentScore : ownerScore}</Text>
                   </View>
                 </View>
+            </View>
+            <View>
+                <Text style={{fontSize: 25, textAlign: 'center', color: colorTheme.text}}>{timer < 1 ? 0 : timer - 1}</Text>
             </View>
           
             { userName != opponentName ? 

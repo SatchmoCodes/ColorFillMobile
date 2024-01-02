@@ -100,6 +100,8 @@ const Progressive = () => {
     const [squareAnim, setSquareAnim] = useState(squareAnimArr)
     const [change, setChange] = useState(false)
     const [complete, setComplete] = useState(false)
+    const [scoreToBeat, setScoreToBeat] = useState(null)
+    const [previousScore, setPreviousScore] = useState(null)
     const [modalVisible, setModalVisible] = useState(false)
 
     const db = FIRESTORE_DB
@@ -150,11 +152,13 @@ const Progressive = () => {
         const docRef = doc(db, "Scores", docId)
         const docSnap = await getDoc(docRef)
         if (docSnap.exists()) {
+          console.log(docSnap.data().score)
+          setScoreToBeat(docSnap.data().score)
           setBoardLoaded(true)
           randomArr = docSnap.data().boardData.replace(/,/g, '')
           squares = generateBoard(randomArr)
           tempSquareArr = JSON.parse(JSON.stringify(squares[0]))
-          // console.log(tempSquareArr)
+          boardId = docSnap.data().boardId
           squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
           resetColors()
           handleReset()
@@ -409,6 +413,10 @@ const Progressive = () => {
       if (totalScoreValue < highScore || highScore == '') {
         setHighScore(totalScoreValue)
       }
+      if (totalScoreValue < scoreToBeat) {
+        setPreviousScore(scoreToBeat)
+        setScoreToBeat(totalScoreValue)
+      }
       setComplete(true)
     }
 
@@ -422,6 +430,8 @@ const Progressive = () => {
       squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
       boardId = uuid.v4()
       docId = null
+      setPreviousScore(null)
+      setScoreToBeat(null)
       resetColors()
       handleReset()
       }
@@ -525,6 +535,7 @@ const Progressive = () => {
       setChange(true)
     }
 
+    console.log(scoreToBeat)
   return (
     <View style={[styles.container, {backgroundColor: colorTheme.background}]}>
         <Modal
@@ -561,7 +572,9 @@ const Progressive = () => {
         }}>
         <View style={styles.centeredView}>
           <View style={[styles.modalView, {backgroundColor: colorTheme.button}]}>
-            <Text style={[styles.modalText, {color: colorTheme.text}]}>You completed the game { totalScore < 0 ? totalScore + ' under ' : totalScore + ' over '} par!</Text>
+            <Text style={[styles.modalText, {color: colorTheme.text}]}>{previousScore == null ? `You completed the game ${totalScore < 0 ? totalScore + ' under ' : totalScore + ' over '} par!` 
+            : totalScore > previousScore ? `You did not beat the previous score!` 
+            : `You beat the previous record (${previousScore > 0 ? `+${previousScore}` :  previousScore}) with a score of ${totalScore > 0 ? `+${totalScore}` : totalScore}!`}</Text>
             <Pressable
               style={[styles.button, styles.buttonClose]}
               onPress={() => generateNewBoard()}>
@@ -576,7 +589,7 @@ const Progressive = () => {
         </View>
       </Modal>
         <View style={styles.top}>
-            <Text style={[styles.topText, styles.highScore, {color: colorTheme.text}]}>High Score: {highScore > 0 ? `+${highScore}` : highScore}</Text>
+            <Text style={[styles.topText, styles.highScore, {color: colorTheme.text}]}>{scoreToBeat == null ? `High Score: ${highScore > 0 ? `+${highScore}` : highScore}`: `Score to beat: ${scoreToBeat > 0 ? `+${scoreToBeat}` : scoreToBeat}`}</Text>
             <Text style={[styles.topText, styles.remainText, {color: colorTheme.text}]}>Squares Remaining</Text>
             <View style={styles.squareCounter}>
                 <View style={[styles.fakeSquare, {backgroundColor: colorOption[0]}]}>
@@ -617,12 +630,6 @@ const Progressive = () => {
                     ]}]}></Animated.View>
                 )
             })}
-            {/* <FlatList
-            data={squares}
-            keyExtractor={(item) => item.toString()}
-            numColumns={boardSize}
-            renderItem={({item}) => <Square/>}
-            ></FlatList> */}
         </View>
         
         <View style={styles.extraRow}>

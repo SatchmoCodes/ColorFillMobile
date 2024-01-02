@@ -142,7 +142,7 @@ const PVPLobby = () => {
         <View style={[styles.players, {width: 300, backgroundColor: colors.tableRow}]}>
             <Text style={{fontSize: 20, width: '45%', textAlign: 'center', color: colors.text}}>{gameInfo != null && gameInfo.ownerName}</Text>
             <View style={{justifyContent: 'center', alignItems: 'center', width: '10%'}}>
-              <Text>VS</Text>
+              <Text style={{color: 'red'}}>VS</Text>
             </View>
             <Text style={{fontSize: 20, width: '45%', textAlign: 'center', justifyContent: 'center', color: colors.text}}>{gameInfo != null && gameInfo.opponentName == '' ? <ActivityIndicator color='lightgreen'></ActivityIndicator> : gameInfo != null && gameInfo.opponentName != '' && gameInfo.opponentName}</Text>
         </View>
