@@ -29,10 +29,18 @@ const LoginScreen = ({  }) => {
 
   const handleSignUp =  async () => {
     try {
-      const q = query(collection(db, 'Users'), where("username", "==", displayName))
+      // const q = query(collection(db, 'Users'), where("username", "==", displayName))
+      const q = query(collection(db, 'Users'))
       const querySnapshot = await getDocs(q)
-      if (!querySnapshot.empty) {
-        alert('That username is already taken')
+      let cancel = false
+      querySnapshot.forEach((doc) => {
+        console.log(doc.data().username)
+        if (doc.data().username.toLowerCase() == displayName.toLowerCase()) {
+          alert('username is taken')
+          cancel = true
+        }
+      })
+      if (cancel) {
         return
       }
 
