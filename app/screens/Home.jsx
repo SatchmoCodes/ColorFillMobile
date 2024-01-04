@@ -22,11 +22,11 @@ const Home = ({ navigation }) => {
   }
 
   useEffect(() => {
-    if (colors) {
-      console.log(colors)
-      setColorTheme(getColors())
+    const newColorTheme = getColors()
+    if (colors && colors !== newColorTheme) {
+      setColorTheme(newColorTheme)
     }
-  }, [colors])
+  }, [colors, getColors])
 
   return (
     <View

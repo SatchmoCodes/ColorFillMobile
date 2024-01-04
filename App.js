@@ -1,4 +1,5 @@
 import { StatusBar } from 'expo-status-bar'
+import { useCallback } from 'react'
 import {
   StyleSheet,
   Text,
@@ -74,19 +75,18 @@ export const ColorSchemeProvider = ({ children }) => {
     loadColorScheme()
   }, [])
 
-  const toggleColorScheme = () => {
+  const toggleColorScheme = useCallback(() => {
     const newColorScheme = userColorScheme === 'light' ? 'dark' : 'light'
     AsyncStorage.setItem('userColorScheme', newColorScheme)
     setUserColorScheme(newColorScheme)
-  }
+  }, [userColorScheme])
 
   // TODO: definitely rename this to just `getColors()` so that
   // tooling doesn't get confused about this being a hook, when its just
   // a function
-  const useColors = () => {
-    const colorTheme = userColorScheme
-    return colorTheme == 'light' ? lightModeColors : darkModeColors
-  }
+  const useColors = useCallback(() => {
+    return userColorScheme === 'light' ? lightModeColors : darkModeColors
+  }, [userColorScheme])
 
   return (
     <ColorSchemeContext.Provider
