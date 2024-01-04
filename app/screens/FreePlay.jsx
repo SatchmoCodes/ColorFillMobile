@@ -8,6 +8,7 @@ import {
   Modal,
   Animated,
   Easing,
+  Alert,
 } from 'react-native'
 import React from 'react'
 import { useState, useEffect, useRef } from 'react'

@@ -8,6 +8,7 @@ import {
   Modal,
   Animated,
   Easing,
+  Alert,
 } from 'react-native'
 import React from 'react'
 import { useState, useEffect, useRef } from 'react'
@@ -96,9 +97,11 @@ let hasRun = false
 let countNumber = 0
 let totalCaptured = 1
 
-let username
 let boardId = uuid.v4()
 let docId = null
+
+const db = FIRESTORE_DB
+const auth = FIREBASE_AUTH
 
 const Progressive = () => {
   const { useColors } = useColorSchemeContext()
@@ -119,9 +122,6 @@ const Progressive = () => {
   const [scoreToBeat, setScoreToBeat] = useState(null)
   const [previousScore, setPreviousScore] = useState(null)
   const [modalVisible, setModalVisible] = useState(false)
-
-  const db = FIRESTORE_DB
-  const auth = FIREBASE_AUTH
 
   const isFocused = useIsFocused()
 
@@ -760,7 +760,7 @@ const Progressive = () => {
                   ],
                 },
               ]}
-            ></Animated.View>
+            />
           )
         })}
       </View>
@@ -831,7 +831,7 @@ const Progressive = () => {
             { opacity: selectedColor == colors[3] ? 0.25 : 1 },
           ]}
           onPress={() => colorChange(colorOption[3])}
-        ></Pressable>
+        />
         <Pressable
           style={[
             styles.color,

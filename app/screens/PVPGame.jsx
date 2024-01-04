@@ -9,6 +9,7 @@ import {
   Animated,
   Easing,
   ActivityIndicator,
+  Alert,
 } from 'react-native'
 import React from 'react'
 import { useState, useEffect, useRef } from 'react'

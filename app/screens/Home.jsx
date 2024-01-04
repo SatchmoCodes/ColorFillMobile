@@ -4,8 +4,8 @@ import { FIREBASE_AUTH } from '../../firebaseConfig'
 import { useColorSchemeContext } from '../../App'
 
 const Home = ({ navigation }) => {
-  const { useColors } = useColorSchemeContext()
-  const colors = useColors()
+  const { getColors } = useColorSchemeContext()
+  const colors = getColors()
 
   const [colorTheme, setColorTheme] = useState(null)
 
@@ -24,7 +24,7 @@ const Home = ({ navigation }) => {
   useEffect(() => {
     if (colors) {
       console.log(colors)
-      setColorTheme(useColors())
+      setColorTheme(getColors())
     }
   }, [colors])
 
