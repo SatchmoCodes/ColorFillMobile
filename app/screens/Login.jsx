@@ -1,24 +1,34 @@
 import { useNavigation } from '@react-navigation/core'
 import React, { useEffect, useState } from 'react'
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import {
+  KeyboardAvoidingView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 // import firebase from '@react-native-firebase/app'
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from 'firebase/auth'
 import { query, collection, doc, addDoc, where, getDocs } from 'firebase/firestore'
 // import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
 
-const LoginScreen = ({  }) => {
+const LoginScreen = ({}) => {
   const [email, setEmail] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [password, setPassword] = useState('')
-  
+
   const auth = FIREBASE_AUTH
   const db = FIRESTORE_DB
 
   const navigation = useNavigation()
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(user => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         navigation.navigate('HomePage')
       }
@@ -27,7 +37,7 @@ const LoginScreen = ({  }) => {
     return unsubscribe
   }, [])
 
-  const handleSignUp =  async () => {
+  const handleSignUp = async () => {
     try {
       // const q = query(collection(db, 'Users'), where("username", "==", displayName))
       const q = query(collection(db, 'Users'))
@@ -45,7 +55,7 @@ const LoginScreen = ({  }) => {
       }
 
       const response = await createUserWithEmailAndPassword(auth, email, password)
-      
+
       const newUser = await addDoc(collection(db, 'Users'), {
         email: email,
         // password: password,
@@ -54,11 +64,10 @@ const LoginScreen = ({  }) => {
         wins: 0,
         losses: 0,
         currentWinStreak: 0,
-        bestWinStreak: 0
+        bestWinStreak: 0,
       })
       console.log('new user created with name ' + newUser.username)
-    }
-    catch (error) {
+    } catch (error) {
       alert(error)
     }
   }
@@ -67,44 +76,37 @@ const LoginScreen = ({  }) => {
     try {
       const response = await signInWithEmailAndPassword(auth, email, password)
       console.log(response)
-    }
-    catch (error) {
+    } catch (error) {
       alert(error)
     }
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior="padding"
-    >
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
       <View style={styles.inputContainer}>
         <TextInput
           placeholder="Email"
           value={email}
-          onChangeText={text => setEmail(text)}
+          onChangeText={(text) => setEmail(text)}
           style={styles.input}
         />
         <TextInput
           placeholder="Username"
           value={displayName}
-          onChangeText={text => setDisplayName(text)}
+          onChangeText={(text) => setDisplayName(text)}
           style={styles.input}
         />
         <TextInput
           placeholder="Password"
           value={password}
-          onChangeText={text => setPassword(text)}
+          onChangeText={(text) => setPassword(text)}
           style={styles.input}
           secureTextEntry
         />
       </View>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          onPress={handleLogin}
-          style={styles.button}
-        >
+        <TouchableOpacity onPress={handleLogin} style={styles.button}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -127,7 +129,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   inputContainer: {
-    width: '80%'
+    width: '80%',
   },
   input: {
     backgroundColor: 'white',
