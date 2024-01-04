@@ -1,6 +1,6 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { View, Text, StyleSheet, Pressable, FlatList, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Pressable, FlatList, TextInput, Animated, Easing } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { query, collection, doc, addDoc, where, orderBy, onSnapshot, getDocs } from 'firebase/firestore'
 import { FIRESTORE_DB } from '../../firebaseConfig';
@@ -26,6 +26,12 @@ const queryOptions = [
   { label: 'Best Winstreak', value: 'Best Winstreak'}
 ]
 
+const animationDelay = 50
+const animationDuration = 500
+
+let lowestScoresMap = new Map()
+let prevLowestScoresMap = null
+
 const Leaderboard = () => {
 
   const { useColors } = useColorSchemeContext()
@@ -44,6 +50,31 @@ const Leaderboard = () => {
   const [sizeFocus, setSizeFocus] = useState(false)
   const [gamemodeFocus, setGamemodeFocus] = useState(false)
   const [queryFocus, setQueryFocus] = useState(false)
+
+  const [animatedValues, setAnimatedValues] = useState(null)
+  const [update, setUpdate] = useState(false)
+
+  // const animatedValues = useRef(scores.map(() => new Animated.Value(0)))
+
+  useEffect(() => {
+    scores.forEach((_, index) => {
+      // console.log(animatedValues[index]._value)
+      Animated.timing(animatedValues[index], {
+        toValue: 1,
+        duration: animationDuration,
+        delay: index * animationDelay,
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: true,
+      }).start();
+    });
+
+  }, [scores])
+
+  useEffect(() => {
+    // lowestScoresMap = new Map()
+    prevLowestScoresMap = null
+    setUpdate(true)
+  }, [size, gamemode, queryOptionState])
 
   
   // const sizeLabel = () => {
@@ -89,11 +120,12 @@ const Leaderboard = () => {
   }, [gamemode])
   
   useEffect(() => {
-    console.log(gamemode)
+    // console.log(gamemode)
     if (gamemode != 'PVP') {
       const q = query(collection(db, 'Scores'), where('gamemode', '==', gamemode), where('size', '==', size), orderBy('score', 'asc'), orderBy('createdAt', 'asc'))
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        const lowestScoresMap = new Map();
+        lowestScoresMap = new Map();
+        let updatedIndexArr = []
         querySnapshot.forEach((doc) => {
           const boardId = doc.data().boardId;
           const score = doc.data().score;
@@ -116,9 +148,42 @@ const Leaderboard = () => {
           }
         });
         const scoreList = Array.from(lowestScoresMap.values());
-        console.log(scoreList)
+        let newAnimatedValues = []
+        if (prevLowestScoresMap != null) {
+          const prevScoreList = Array.from(prevLowestScoresMap.values())
+          let y = 0 //number to add to previous scores to offset index in case new score came in
+          for (let x = 0; x < scoreList.length; x++) {
+            // console.log(`scorelist[${x}]`,scoreList[x])
+            // console.log(`prevscoreList${x}`,prevScoreList[x])
+            if (prevScoreList[x + y] && scoreList[x].boardId != prevScoreList[x - y].boardId) {
+              // console.log('boardId not equal here',x)
+              updatedIndexArr.push(0)
+              y++
+            }
+            else if (prevScoreList[x + y] && scoreList[x].score != prevScoreList[x - y].score) {
+              // console.log('score not equal here',x)
+              updatedIndexArr.push(0)
+            }
+            else {
+              updatedIndexArr.push(1)
+            }
+          }
+          updatedIndexArr.forEach(val => {
+            newAnimatedValues.push(new Animated.Value(val))
+          })
+        }
+        else {
+          scoreList.forEach((val) => {
+            newAnimatedValues.push(new Animated.Value(0))
+          })
+        }
+        setAnimatedValues(newAnimatedValues)
         setScores(scoreList);
+        prevLowestScoresMap = new Map([...lowestScoresMap])
+        // console.log(scoreList)
+        updatedIndexArr = []
       })
+      setUpdate(false)
       return unsubscribe
     } 
     else {
@@ -155,7 +220,7 @@ const Leaderboard = () => {
             })
           }
         })
-        console.log(queryArr)
+        // console.log(queryArr)
         queryArr.sort((a, b) => parseInt(a.queryData) - parseInt(b.queryData))
         // if (queryOptionState == 'Win Rate') {
         //   queryArr = queryArr.filter((a) => a.wins + a.losses > 9)
@@ -163,10 +228,11 @@ const Leaderboard = () => {
         queryArr.reverse()
         setPVPResults(queryArr)
       })
+      setUpdate(false)
       return unsubscribe
     }
-
-  }, [size, gamemode, queryOptionState])
+    
+  }, [update])
 
   async function handleLink(id) {
       navigation.navigate('BoardInfo', { id })
@@ -274,7 +340,12 @@ const Leaderboard = () => {
         data={scores}
         keyExtractor={(item) => item.id}
         renderItem={({ item, index }) => (
-          <View style={[styles.tableRow, {backgroundColor: colors.tableRow}]}>
+          <Animated.View style={[styles.tableRow, {opacity: animatedValues[index],backgroundColor: colors.tableRow, transform: [{
+            translateX: animatedValues[index].interpolate({
+              inputRange: [0, 1],
+              outputRange: [-50, 0]
+            })
+          }]}]}>
               <View style={[styles.tableCol, {width: '15%', maxWidth: '15%', alignItems: 'center', padding: 15}]}>
                 <Text style={{textAlign: 'center', padding: 5, color: colors.text}}>{index + 1}</Text>
               </View>
@@ -296,7 +367,7 @@ const Leaderboard = () => {
                   <Text style={{textAlign: 'center', color: colors.text}}>Board Info</Text>
                 </Pressable>
               </View>
-            </View>
+            </Animated.View>
         )}
         />
       </View> : 
