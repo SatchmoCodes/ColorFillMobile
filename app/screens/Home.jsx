@@ -7,7 +7,7 @@ const Home = ({ navigation }) => {
   const { getColors } = useColorSchemeContext()
   const colors = getColors()
 
-  const [colorTheme, setColorTheme] = useState(null)
+  const [colorTheme, setColorTheme] = useState(colors)
 
   useEffect(() => {
     FIREBASE_AUTH.onAuthStateChanged((user) => {
@@ -23,7 +23,7 @@ const Home = ({ navigation }) => {
 
   useEffect(() => {
     const newColorTheme = getColors()
-    if (colors && colors !== newColorTheme) {
+    if (colors) {
       setColorTheme(newColorTheme)
     }
   }, [colors, getColors])

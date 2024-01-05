@@ -900,7 +900,6 @@ const PVPGame = ({ navigation }) => {
         transparent={true}
         visible={complete}
         onRequestClose={() => {
-          Alert.alert('Modal has been closed.')
           setModalVisible(!modalVisible)
         }}
       >

@@ -111,6 +111,7 @@ let username
 let boardId = uuid.v4()
 let docId = null
 let originalSize
+let originalScore //initial score of board when challenging/resetting
 
 const FreePlay = () => {
   const route = useRoute()
@@ -127,7 +128,7 @@ const FreePlay = () => {
   const [change, setChange] = useState(false)
   const [complete, setComplete] = useState(false)
   const [scoreToBeat, setScoreToBeat] = useState(null)
-  const [previousScore, setPreviousScore] = useState(null) //set this state before updating scoreToBeat
+  // const [previousScore, setPreviousScore] = useState(null) //set this state before updating scoreToBeat
 
   const [modalVisible, setModalVisible] = useState(false)
 
@@ -210,6 +211,8 @@ const FreePlay = () => {
         }
         setBoardLoaded(true)
         setScoreToBeat(docSnap.data().score)
+        // setPreviousScore(docSnap.data().score)
+        originalScore = docSnap.data().score
         console.log('loading board from leaderboard')
         randomArr = docSnap.data().boardData.replace(/,/g, '')
         boardSize = Math.sqrt(randomArr.length)
@@ -352,11 +355,12 @@ const FreePlay = () => {
       gamemode: 'FreePlay',
       createdAt: serverTimestamp(),
     })
+    originalScore = scoreToBeat
     if (countNumber < highScore || highScore == '') {
       setHighScore(countNumber)
     }
     if (countNumber < scoreToBeat) {
-      setPreviousScore(scoreToBeat)
+      // setPreviousScore(scoreToBeat)
       setScoreToBeat(countNumber)
     }
     setComplete(true)
@@ -501,7 +505,8 @@ const FreePlay = () => {
     boardId = uuid.v4()
     docId = null
     setScoreToBeat(null)
-    setPreviousScore(null)
+    // setPreviousScore(null)
+    originalScore = null
     resetColors()
     // handleReset()
     handleReset()
@@ -639,6 +644,8 @@ const FreePlay = () => {
     console.log('complete', complete)
     console.log('countNumber', countNumber)
     if (countNumber < scoreToBeat || scoreToBeat == null) {
+      originalScore = scoreToBeat
+      console.log('originalscore', originalScore)
       complete && setScoreToBeat(countNumber)
     }
     countNumber = 0
@@ -653,17 +660,16 @@ const FreePlay = () => {
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => {
-          Alert.alert('Modal has been closed.')
           setModalVisible(!modalVisible)
         }}
       >
         <View style={[styles.centeredView]}>
           <View style={[styles.modalView, { backgroundColor: colorTheme.button }]}>
             <Text style={[styles.modalText, { color: colorTheme.text }]}>
-              {previousScore == null
+              {originalScore == null
                 ? `You completed the board in ${counter} turns!`
-                : counter < previousScore
-                  ? `You beat the previous record (${previousScore}) with ${counter} turns!`
+                : counter < originalScore
+                  ? `You beat the previous record (${originalScore}) with ${counter} turns!`
                   : `You did not beat the previous record!`}
             </Text>
             <Pressable
