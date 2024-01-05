@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
+import { Platform } from "react-native";
 import {
   FIREBASE_API_KEY,
   FIREBASE_AUTH_DOMAIN,
@@ -12,7 +13,7 @@ import {
   FIREBASE_APP_ID,
   FIREBASE_MEASUREMENT_ID,
 } from "@env";
-import { getReactNativePersistence, initializeAuth } from "firebase/auth";
+import { browserLocalPersistence, getReactNativePersistence, initializeAuth } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -38,5 +39,5 @@ const firebaseConfig = {
 export const FIREBASE_APP = initializeApp(firebaseConfig);
 export const FIRESTORE_DB = getFirestore(FIREBASE_APP);
 export const FIREBASE_AUTH = initializeAuth(FIREBASE_APP, {
-  persistence: getReactNativePersistence(AsyncStorage),
+  persistence: Platform.OS === 'web' ? browserLocalPersistence : getReactNativePersistence(AsyncStorage),
 });
