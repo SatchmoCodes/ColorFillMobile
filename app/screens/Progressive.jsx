@@ -99,6 +99,7 @@ let totalCaptured = 1
 
 let boardId = uuid.v4()
 let docId = null
+let originalScore //score before challenge/reset
 
 const db = FIRESTORE_DB
 const auth = FIREBASE_AUTH
@@ -120,7 +121,7 @@ const Progressive = () => {
   const [change, setChange] = useState(false)
   const [complete, setComplete] = useState(false)
   const [scoreToBeat, setScoreToBeat] = useState(null)
-  const [previousScore, setPreviousScore] = useState(null)
+  // const [previousScore, setPreviousScore] = useState(null)
   const [modalVisible, setModalVisible] = useState(false)
 
   const isFocused = useIsFocused()
@@ -179,6 +180,8 @@ const Progressive = () => {
       if (docSnap.exists()) {
         console.log(docSnap.data().score)
         setScoreToBeat(docSnap.data().score)
+        // setPreviousScore(docSnap.data().score)
+        originalScore = docSnap.data().score
         setBoardLoaded(true)
         randomArr = docSnap.data().boardData.replace(/,/g, '')
         squares = generateBoard(randomArr)
@@ -273,6 +276,7 @@ const Progressive = () => {
       setSelectedColorOption(colors)
       if (totalCaptured == squares[hole].length) {
         if (hole == 9) {
+          handleHoleChange()
           handleComplete()
         } else {
           tempSquareArr = JSON.parse(JSON.stringify(squares[hole]))
@@ -416,6 +420,9 @@ const Progressive = () => {
     totalScoreValue += roundScore
     parValue += 2
     setTotalScore(totalScoreValue)
+    if (hole >= 10) {
+      return
+    }
     getSize()
     tempSquareArr = JSON.parse(JSON.stringify(squares[hole]))
     squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
@@ -450,11 +457,14 @@ const Progressive = () => {
       gamemode: 'Progressive',
       createdAt: serverTimestamp(),
     })
+    originalScore = scoreToBeat
+    console.log('totalscore', totalScoreValue)
+    console.log('originalscore', originalScore)
     if (totalScoreValue < highScore || highScore == '') {
       setHighScore(totalScoreValue)
     }
     if (totalScoreValue < scoreToBeat) {
-      setPreviousScore(scoreToBeat)
+      // setPreviousScore(scoreToBeat)
       setScoreToBeat(totalScoreValue)
     }
     setComplete(true)
@@ -470,7 +480,8 @@ const Progressive = () => {
     squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
     boardId = uuid.v4()
     docId = null
-    setPreviousScore(null)
+    // setPreviousScore(null)
+    originalScore = null
     setScoreToBeat(null)
     resetColors()
     handleReset()
@@ -529,7 +540,7 @@ const Progressive = () => {
     parValue = 10
     roundScore = 0
     hole = 0
-    totalScoreValue = 0
+
     countNumber = 0
     squares.forEach((arr) => {
       arr.forEach((sq) => {
@@ -557,6 +568,7 @@ const Progressive = () => {
         }
       })
     })
+    squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
     const growAnimation = Animated.timing(squareAnimArr[0], {
       toValue: 1,
       duration: 250,
@@ -570,12 +582,16 @@ const Progressive = () => {
       useNativeDriver: true,
     })
     Animated.sequence([growAnimation, reverseAnimation]).start()
+    if (totalScoreValue < scoreToBeat || scoreToBeat == null) {
+      originalScore = scoreToBeat
+      complete && setScoreToBeat(totalScoreValue)
+    }
+    totalScoreValue = 0
     modalVisible && setModalVisible(!modalVisible)
     setComplete(false)
     setChange(true)
   }
 
-  console.log(scoreToBeat)
   return (
     <View style={[styles.container, { backgroundColor: colorTheme.background }]}>
       <Modal
@@ -583,7 +599,6 @@ const Progressive = () => {
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => {
-          Alert.alert('Modal has been closed.')
           setModalVisible(!modalVisible)
         }}
       >
@@ -617,21 +632,20 @@ const Progressive = () => {
         transparent={true}
         visible={complete}
         onRequestClose={() => {
-          Alert.alert('Modal has been closed.')
           setModalVisible(!modalVisible)
         }}
       >
         <View style={styles.centeredView}>
           <View style={[styles.modalView, { backgroundColor: colorTheme.button }]}>
             <Text style={[styles.modalText, { color: colorTheme.text }]}>
-              {previousScore == null
+              {originalScore == null
                 ? `You completed the game ${
                     totalScore < 0 ? totalScore + ' under ' : totalScore + ' over '
                   } par!`
-                : totalScore > previousScore
+                : totalScore >= originalScore
                   ? `You did not beat the previous score!`
                   : `You beat the previous record (${
-                      previousScore > 0 ? `+${previousScore}` : previousScore
+                      originalScore > 0 ? `+${originalScore}` : originalScore
                     }) with a score of ${
                       totalScore > 0 ? `+${totalScore}` : totalScore
                     }!`}
@@ -760,7 +774,7 @@ const Progressive = () => {
                   ],
                 },
               ]}
-            />
+            ></Animated.View>
           )
         })}
       </View>
@@ -831,7 +845,7 @@ const Progressive = () => {
             { opacity: selectedColor == colors[3] ? 0.25 : 1 },
           ]}
           onPress={() => colorChange(colorOption[3])}
-        />
+        ></Pressable>
         <Pressable
           style={[
             styles.color,
