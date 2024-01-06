@@ -34,6 +34,7 @@ import PVPGame from './app/screens/PVPGame.jsx'
 import BoardInfo from './app/screens/BoardInfo.jsx'
 
 import { FIREBASE_API_KEY } from '@env'
+import Register from './app/screens/Register.jsx'
 console.log(FIREBASE_API_KEY)
 
 const Stack = createNativeStackNavigator()
@@ -240,13 +241,6 @@ function AuthView() {
         component={PVPGame}
         options={({ navigation, route }) => ({
           // Add a placeholder button without the `onPress` to avoid flicker
-          headerRight: () => (
-            <Button
-              title="Options"
-              onPress={() => navigation.navigate('Options')}
-              color="blue"
-            />
-          ),
         })}
       />
     </Stack.Navigator>
@@ -257,6 +251,7 @@ function NonAuthView() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="Register" component={Register} />
     </Stack.Navigator>
   )
 }

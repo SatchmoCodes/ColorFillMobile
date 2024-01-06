@@ -1,5 +1,3 @@
-import { useNavigation } from '@react-navigation/core'
-import React, { useEffect, useState } from 'react'
 import {
   KeyboardAvoidingView,
   StyleSheet,
@@ -8,19 +6,19 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-// import firebase from '@react-native-firebase/app'
+import React, { useState, useEffect } from 'react'
+import { useNavigation } from '@react-navigation/native'
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig'
-import { signInWithEmailAndPassword } from 'firebase/auth'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { query, collection, doc, addDoc, where, getDocs } from 'firebase/firestore'
-// import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
 
-const LoginScreen = ({}) => {
-  const [emailOrUsername, setEmailOrUsername] = useState('')
+const auth = FIREBASE_AUTH
+const db = FIRESTORE_DB
+
+const Register = () => {
+  const [email, setEmail] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [password, setPassword] = useState('')
-
-  const auth = FIREBASE_AUTH
-  const db = FIRESTORE_DB
 
   const navigation = useNavigation()
 
@@ -34,36 +32,38 @@ const LoginScreen = ({}) => {
     return unsubscribe
   }, [])
 
-  const handleSignUp = () => {
-    navigation.navigate('Register')
-  }
-
-  const handleLogin = async () => {
-    let email
-    if (emailOrUsername.includes('@')) {
-      email = emailOrUsername
-      try {
-        const response = await signInWithEmailAndPassword(auth, email, password)
-        console.log(response)
-      } catch (error) {
-        alert(error)
-      }
-    } else {
-      const q = query(
-        collection(db, 'Users'),
-        where('username', '==', emailOrUsername),
-      )
+  const handleSignUp = async () => {
+    try {
+      // const q = query(collection(db, 'Users'), where("username", "==", displayName))
+      const q = query(collection(db, 'Users'))
       const querySnapshot = await getDocs(q)
       let cancel = false
-      if (!querySnapshot.empty) {
-        email = querySnapshot.docs[0].data().email
-        try {
-          const response = await signInWithEmailAndPassword(auth, email, password)
-          console.log(response)
-        } catch (error) {
-          alert(error)
+      querySnapshot.forEach((doc) => {
+        console.log(doc.data().username)
+        if (doc.data().username.toLowerCase() == displayName.toLowerCase()) {
+          alert('username is taken')
+          cancel = true
         }
+      })
+      if (cancel) {
+        return
       }
+
+      const response = await createUserWithEmailAndPassword(auth, email, password)
+
+      const newUser = await addDoc(collection(db, 'Users'), {
+        email: email,
+        // password: password,
+        uid: response.user.uid,
+        username: displayName,
+        wins: 0,
+        losses: 0,
+        currentWinStreak: 0,
+        bestWinStreak: 0,
+      })
+      console.log('new user created with name ' + newUser.username)
+    } catch (error) {
+      alert(error)
     }
   }
 
@@ -71,9 +71,15 @@ const LoginScreen = ({}) => {
     <KeyboardAvoidingView style={styles.container} behavior="padding">
       <View style={styles.inputContainer}>
         <TextInput
-          placeholder="Email or Username"
-          value={emailOrUsername}
-          onChangeText={(text) => setEmailOrUsername(text)}
+          placeholder="Email"
+          value={email}
+          onChangeText={(text) => setEmail(text)}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Username"
+          value={displayName}
+          onChangeText={(text) => setDisplayName(text)}
           style={styles.input}
         />
         <TextInput
@@ -86,21 +92,18 @@ const LoginScreen = ({}) => {
       </View>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={handleLogin} style={styles.button}>
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
         <TouchableOpacity
           onPress={handleSignUp}
           style={[styles.button, styles.buttonOutline]}
         >
-          <Text style={styles.buttonOutlineText}>Register Account</Text>
+          <Text style={styles.buttonOutlineText}>Register</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   )
 }
 
-export default LoginScreen
+export default Register
 
 const styles = StyleSheet.create({
   container: {
