@@ -594,6 +594,21 @@ const PVPGame = () => {
         }
       })
       setColorState(tempSquareArr)
+      animationIndex.forEach((val) => {
+        const growAnimation = Animated.timing(squareAnimArr[val], {
+          toValue: 1,
+          duration: 250,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        })
+        const reverseAnimation = Animated.timing(squareAnimArr[val], {
+          toValue: 0,
+          duration: 250,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        })
+        Animated.sequence([growAnimation, reverseAnimation]).start()
+      })
       setSquareAnim(squareAnimArr)
       if (turn == 'Owner') {
         setOwnerSelectedColor(color)
@@ -776,19 +791,6 @@ const PVPGame = () => {
         //   !radar && totalCaptured++
         //   !radar ? data.squareGrowth[index + 1] = 'captured' : data.squareGrowth[index + 1] = 'predicted'
         //   setGrowth(data.squareGrowth)
-        const growAnimation = Animated.timing(squareAnimArr[index + 1], {
-          toValue: 1,
-          duration: 250,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        })
-        const reverseAnimation = Animated.timing(squareAnimArr[index + 1], {
-          toValue: 0,
-          duration: 250,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        })
-        Animated.sequence([growAnimation, reverseAnimation]).start()
         tempSquareArr[index + 1].colIndex <= boardSize &&
           captureCheck(color, index + 1)
       }
@@ -813,19 +815,6 @@ const PVPGame = () => {
         updateSquareCounter(color)
         totalCaptured++
         turnCaptured++
-        const growAnimation = Animated.timing(squareAnimArr[index - 1], {
-          toValue: 1,
-          duration: 250,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        })
-        const reverseAnimation = Animated.timing(squareAnimArr[index - 1], {
-          toValue: 0,
-          duration: 250,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        })
-        Animated.sequence([growAnimation, reverseAnimation]).start()
         tempSquareArr[index - 1].colIndex <= boardSize &&
           captureCheck(color, index - 1)
       }
@@ -850,19 +839,6 @@ const PVPGame = () => {
         updateSquareCounter(color)
         totalCaptured++
         turnCaptured++
-        const growAnimation = Animated.timing(squareAnimArr[index + boardSize], {
-          toValue: 1,
-          duration: 250,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        })
-        const reverseAnimation = Animated.timing(squareAnimArr[index + boardSize], {
-          toValue: 0,
-          duration: 250,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        })
-        Animated.sequence([growAnimation, reverseAnimation]).start()
         tempSquareArr[index + boardSize].rowIndex <= boardSize &&
           captureCheck(color, index + boardSize)
       }
@@ -887,19 +863,6 @@ const PVPGame = () => {
         updateSquareCounter(color)
         totalCaptured++
         turnCaptured++
-        const growAnimation = Animated.timing(squareAnimArr[index - boardSize], {
-          toValue: 1,
-          duration: 250,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        })
-        const reverseAnimation = Animated.timing(squareAnimArr[index - boardSize], {
-          toValue: 0,
-          duration: 250,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        })
-        Animated.sequence([growAnimation, reverseAnimation]).start()
         tempSquareArr[index - boardSize].rowIndex <= boardSize &&
           captureCheck(color, index - boardSize)
       }
