@@ -261,12 +261,17 @@ const Leaderboard = () => {
           }
         })
         // console.log(queryArr)
-        queryArr.sort((a, b) => parseInt(a.queryData) - parseInt(b.queryData))
+        let topScores = queryArr.filter((a) => a.wins + a.losses > 9)
+        let bottomScores = queryArr.filter((a) => a.wins + a.losses <= 9)
+        bottomScores.sort((a, b) => a.wins + a.losses > b.wins + b.losses)
+        topScores.sort((a, b) => parseInt(a.queryData) - parseInt(b.queryData))
         // if (queryOptionState == 'Win Rate') {
         //   queryArr = queryArr.filter((a) => a.wins + a.losses > 9)
         // }
-        queryArr.reverse()
-        setPVPResults(queryArr)
+        topScores.reverse()
+        let fullArr = topScores.concat(bottomScores)
+        // fullArr.reverse()
+        setPVPResults(fullArr)
       })
       setUpdate(false)
       return unsubscribe
