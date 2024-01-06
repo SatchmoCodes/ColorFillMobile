@@ -8,6 +8,8 @@ import {
   Button,
   ActivityIndicator,
   useColorScheme,
+  TouchableOpacity,
+  Platform,
 } from 'react-native'
 import { lightModeColors, darkModeColors } from './app/screens/colors.js'
 import { NavigationContainer } from '@react-navigation/native'
@@ -99,12 +101,17 @@ export const ColorSchemeProvider = ({ children }) => {
 }
 
 function AuthView() {
+  const { useColors } = useColorSchemeContext()
+  const colors = useColors()
   return (
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          // backgroundColor: 'gray'
+          backgroundColor: colors.tableRow,
+          borderColor: 'black',
+          borderBottomWidth: 0,
         },
+        headerTintColor: colors.text,
       }}
     >
       <Stack.Screen
@@ -113,11 +120,18 @@ function AuthView() {
         options={({ navigation, route }) => ({
           // Add a placeholder button without the `onPress` to avoid flicker
           headerRight: () => (
-            <Button
-              title="Options"
+            <TouchableOpacity
+              style={[
+                {
+                  marginRight: Platform.OS === 'web' && 50,
+                  backgroundColor: 'blue',
+                  padding: 8,
+                },
+              ]}
               onPress={() => navigation.navigate('Options')}
-              color="blue"
-            />
+            >
+              <Text style={{ color: 'white' }}>Options</Text>
+            </TouchableOpacity>
           ),
         })}
       />
@@ -128,11 +142,18 @@ function AuthView() {
         options={({ navigation, route }) => ({
           // Add a placeholder button without the `onPress` to avoid flicker
           headerRight: () => (
-            <Button
-              title="Options"
+            <TouchableOpacity
+              style={[
+                {
+                  marginRight: Platform.OS === 'web' && 50,
+                  backgroundColor: 'blue',
+                  padding: 8,
+                },
+              ]}
               onPress={() => navigation.navigate('Options')}
-              color="blue"
-            />
+            >
+              <Text style={{ color: 'white' }}>Options</Text>
+            </TouchableOpacity>
           ),
         })}
       />
@@ -142,11 +163,18 @@ function AuthView() {
         options={({ navigation, route }) => ({
           // Add a placeholder button without the `onPress` to avoid flicker
           headerRight: () => (
-            <Button
-              title="Options"
+            <TouchableOpacity
+              style={[
+                {
+                  marginRight: Platform.OS === 'web' && 50,
+                  backgroundColor: 'blue',
+                  padding: 8,
+                },
+              ]}
               onPress={() => navigation.navigate('Options')}
-              color="blue"
-            />
+            >
+              <Text style={{ color: 'white' }}>Options</Text>
+            </TouchableOpacity>
           ),
         })}
       />
@@ -156,11 +184,18 @@ function AuthView() {
         options={({ navigation, route }) => ({
           // Add a placeholder button without the `onPress` to avoid flicker
           headerRight: () => (
-            <Button
-              title="Options"
+            <TouchableOpacity
+              style={[
+                {
+                  marginRight: Platform.OS === 'web' && 50,
+                  backgroundColor: 'blue',
+                  padding: 8,
+                },
+              ]}
               onPress={() => navigation.navigate('Options')}
-              color="blue"
-            />
+            >
+              <Text style={{ color: 'white' }}>Options</Text>
+            </TouchableOpacity>
           ),
         })}
       />
@@ -172,11 +207,18 @@ function AuthView() {
         options={({ navigation, route }) => ({
           // Add a placeholder button without the `onPress` to avoid flicker
           headerRight: () => (
-            <Button
-              title="Options"
+            <TouchableOpacity
+              style={[
+                {
+                  marginRight: Platform.OS === 'web' && 50,
+                  backgroundColor: 'blue',
+                  padding: 8,
+                },
+              ]}
               onPress={() => navigation.navigate('Options')}
-              color="blue"
-            />
+            >
+              <Text style={{ color: 'white' }}>Options</Text>
+            </TouchableOpacity>
           ),
         })}
       />
@@ -186,11 +228,18 @@ function AuthView() {
         options={({ navigation, route }) => ({
           // Add a placeholder button without the `onPress` to avoid flicker
           headerRight: () => (
-            <Button
-              title="Options"
+            <TouchableOpacity
+              style={[
+                {
+                  marginRight: Platform.OS === 'web' && 50,
+                  backgroundColor: 'blue',
+                  padding: 8,
+                },
+              ]}
               onPress={() => navigation.navigate('Options')}
-              color="blue"
-            />
+            >
+              <Text style={{ color: 'white' }}>Options</Text>
+            </TouchableOpacity>
           ),
         })}
       />
@@ -200,11 +249,18 @@ function AuthView() {
         options={({ navigation, route }) => ({
           // Add a placeholder button without the `onPress` to avoid flicker
           headerRight: () => (
-            <Button
-              title="Options"
+            <TouchableOpacity
+              style={[
+                {
+                  marginRight: Platform.OS === 'web' && 50,
+                  backgroundColor: 'blue',
+                  padding: 8,
+                },
+              ]}
               onPress={() => navigation.navigate('Options')}
-              color="blue"
-            />
+            >
+              <Text style={{ color: 'white' }}>Options</Text>
+            </TouchableOpacity>
           ),
         })}
       />
@@ -214,11 +270,18 @@ function AuthView() {
         options={({ navigation, route }) => ({
           // Add a placeholder button without the `onPress` to avoid flicker
           headerRight: () => (
-            <Button
-              title="Options"
+            <TouchableOpacity
+              style={[
+                {
+                  marginRight: Platform.OS === 'web' && 50,
+                  backgroundColor: 'blue',
+                  padding: 8,
+                },
+              ]}
               onPress={() => navigation.navigate('Options')}
-              color="blue"
-            />
+            >
+              <Text style={{ color: 'white' }}>Options</Text>
+            </TouchableOpacity>
           ),
         })}
       />
@@ -228,11 +291,18 @@ function AuthView() {
         options={({ navigation, route }) => ({
           // Add a placeholder button without the `onPress` to avoid flicker
           headerRight: () => (
-            <Button
-              title="Options"
+            <TouchableOpacity
+              style={[
+                {
+                  marginRight: Platform.OS === 'web' && 50,
+                  backgroundColor: 'blue',
+                  padding: 8,
+                },
+              ]}
               onPress={() => navigation.navigate('Options')}
-              color="blue"
-            />
+            >
+              <Text style={{ color: 'white' }}>Options</Text>
+            </TouchableOpacity>
           ),
         })}
       />
