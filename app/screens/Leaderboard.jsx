@@ -269,6 +269,7 @@ const Leaderboard = () => {
         //   queryArr = queryArr.filter((a) => a.wins + a.losses > 9)
         // }
         topScores.reverse()
+        bottomScores.reverse()
         let fullArr = topScores.concat(bottomScores)
         // fullArr.reverse()
         setPVPResults(fullArr)
