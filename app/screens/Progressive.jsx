@@ -415,14 +415,13 @@ const Progressive = () => {
   function handleHoleChange() {
     squareAnimArr = []
     hole++
-    boardSize++
     roundScore = countNumber - parValue
     totalScoreValue += roundScore
     parValue += 2
-    setTotalScore(totalScoreValue)
     if (hole >= 10) {
       return
     }
+    boardSize++
     getSize()
     tempSquareArr = JSON.parse(JSON.stringify(squares[hole]))
     squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
@@ -457,6 +456,7 @@ const Progressive = () => {
       gamemode: 'Progressive',
       createdAt: serverTimestamp(),
     })
+    console.log(totalScoreValue)
     originalScore = scoreToBeat
     console.log('totalscore', totalScoreValue)
     console.log('originalscore', originalScore)
@@ -640,7 +640,7 @@ const Progressive = () => {
             <Text style={[styles.modalText, { color: colorTheme.text }]}>
               {originalScore == null
                 ? `You completed the game ${
-                    totalScore < 0 ? totalScore + ' under ' : totalScore + ' over '
+                    totalScore < 0 ? totalScore + ' under ' : totalScore + ' over'
                   } par!`
                 : totalScore >= originalScore
                   ? `You did not beat the previous score!`
@@ -711,7 +711,7 @@ const Progressive = () => {
             },
           ]}
         >
-          Round {hole + 1}
+          Round {hole > 10 ? 10 : hole + 1}
         </Text>
         <Text
           style={[
