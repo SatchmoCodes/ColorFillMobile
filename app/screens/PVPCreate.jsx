@@ -31,6 +31,8 @@ const PVPCreate = ({ navigation }) => {
   const [uid, setUid] = useState(null)
   const [userName, setUserName] = useState(null)
 
+  const [block, setBlock] = useState(false)
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setUid(user.uid)
@@ -118,6 +120,7 @@ const PVPCreate = ({ navigation }) => {
   }
 
   async function createBoard() {
+    setBlock(true)
     let dimensions
     let boardData = []
 
@@ -377,7 +380,7 @@ const PVPCreate = ({ navigation }) => {
           </View>
         </View>
         <View>
-          <Pressable style={styles.button} onPress={() => createBoard()}>
+          <Pressable style={styles.button} onPress={() => !block && createBoard()}>
             <Text style={[styles.buttonText]}>Create Game</Text>
           </Pressable>
         </View>
