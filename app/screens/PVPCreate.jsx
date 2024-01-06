@@ -292,6 +292,8 @@ const PVPCreate = ({ navigation }) => {
       opponentName: '',
       ownerScore: 1,
       opponentScore: 1,
+      ownerLeaver: false,
+      opponentLeaver: false,
       turn: turn,
       ownerColor: ownerColor,
       opponentColor: opponentColor,
