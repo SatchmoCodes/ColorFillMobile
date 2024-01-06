@@ -206,6 +206,15 @@ const PVPGame = () => {
         }
         // console.log('no time')
       }
+      if (timer == -3) {
+        if (turn === 'Owner' && userNameRef.current === opponentName) {
+          console.log('owner left by closing app')
+          handleLeave('Owner')
+        } else if (turn === 'Opponent' && userNameRef.current === ownerName) {
+          console.log('opponent left by closing app')
+          handleLeave('Opponent')
+        }
+      }
     }
   }, [timer])
 
