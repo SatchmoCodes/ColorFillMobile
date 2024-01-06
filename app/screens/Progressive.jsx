@@ -4,7 +4,7 @@ import {
   StyleSheet,
   FlatList,
   Dimensions,
-  Pressable,
+  TouchableOpacity,
   Modal,
   Animated,
   Easing,
@@ -611,19 +611,19 @@ const Progressive = () => {
                 : `${counter - parValue} under`}{' '}
               par!
             </Text>
-            <Pressable
+            <TouchableOpacity
               style={[styles.button, styles.buttonClose, { marginBottom: 10 }]}
               onPress={() => handleHoleChange()}
             >
               <Text style={[styles.textStyle, { color: colorTheme.text }]}>
                 Next Round
               </Text>
-            </Pressable>
-            {/* <Pressable
+            </TouchableOpacity>
+            {/* <TouchableOpacity
               style={[styles.button, styles.buttonClose]}
               onPress={() => handleRetry()}>
               <Text style={styles.textStyle}>Retry Board</Text>
-            </Pressable> */}
+            </TouchableOpacity> */}
           </View>
         </View>
       </Modal>
@@ -650,22 +650,22 @@ const Progressive = () => {
                       totalScore > 0 ? `+${totalScore}` : totalScore
                     }!`}
             </Text>
-            <Pressable
+            <TouchableOpacity
               style={[styles.button, styles.buttonClose]}
               onPress={() => generateNewBoard()}
             >
               <Text style={[styles.textStyle, { color: colorTheme.text }]}>
                 New Game
               </Text>
-            </Pressable>
-            <Pressable
+            </TouchableOpacity>
+            <TouchableOpacity
               style={[styles.button, styles.buttonClose]}
               onPress={() => handleReset()}
             >
               <Text style={[styles.textStyle, { color: colorTheme.text }]}>
                 Retry Game
               </Text>
-            </Pressable>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -780,7 +780,7 @@ const Progressive = () => {
       </View>
 
       <View style={styles.extraRow}>
-        <Pressable
+        <TouchableOpacity
           style={[styles.resetButton, { backgroundColor: colorTheme.button }]}
           onPress={() => generateNewBoard()}
         >
@@ -791,8 +791,8 @@ const Progressive = () => {
           >
             New Board
           </Text>
-        </Pressable>
-        <Pressable
+        </TouchableOpacity>
+        <TouchableOpacity
           style={[styles.resetButton, { backgroundColor: colorTheme.button }]}
           onPress={() => handleReset()}
         >
@@ -803,10 +803,10 @@ const Progressive = () => {
           >
             Retry
           </Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
       <View style={styles.colorRow}>
-        <Pressable
+        <TouchableOpacity
           style={[
             styles.color,
             {
@@ -815,8 +815,8 @@ const Progressive = () => {
             { opacity: selectedColor == colors[0] ? 0.25 : 1 },
           ]}
           onPress={() => colorChange(colorOption[0])}
-        ></Pressable>
-        <Pressable
+        ></TouchableOpacity>
+        <TouchableOpacity
           style={[
             styles.color,
             {
@@ -825,8 +825,8 @@ const Progressive = () => {
             { opacity: selectedColor == colors[1] ? 0.25 : 1 },
           ]}
           onPress={() => colorChange(colorOption[1])}
-        ></Pressable>
-        <Pressable
+        ></TouchableOpacity>
+        <TouchableOpacity
           style={[
             styles.color,
             {
@@ -835,8 +835,8 @@ const Progressive = () => {
             { opacity: selectedColor == colors[2] ? 0.25 : 1 },
           ]}
           onPress={() => colorChange(colorOption[2])}
-        ></Pressable>
-        <Pressable
+        ></TouchableOpacity>
+        <TouchableOpacity
           style={[
             styles.color,
             {
@@ -845,8 +845,8 @@ const Progressive = () => {
             { opacity: selectedColor == colors[3] ? 0.25 : 1 },
           ]}
           onPress={() => colorChange(colorOption[3])}
-        ></Pressable>
-        <Pressable
+        ></TouchableOpacity>
+        <TouchableOpacity
           style={[
             styles.color,
             {
@@ -855,7 +855,7 @@ const Progressive = () => {
             { opacity: selectedColor == colors[4] ? 0.25 : 1 },
           ]}
           onPress={() => colorChange(colorOption[4])}
-        ></Pressable>
+        ></TouchableOpacity>
       </View>
     </View>
   )

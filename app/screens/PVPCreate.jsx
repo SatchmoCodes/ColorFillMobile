@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, Pressable } from 'react-native'
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
 import React, { useMemo, useState, useEffect } from 'react'
 import RadioGroup, { RadioButton } from 'react-native-radio-buttons-group'
 import {
@@ -380,9 +380,12 @@ const PVPCreate = ({ navigation }) => {
           </View>
         </View>
         <View>
-          <Pressable style={styles.button} onPress={() => !block && createBoard()}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => !block && createBoard()}
+          >
             <Text style={[styles.buttonText]}>Create Game</Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
       </View>
     </View>

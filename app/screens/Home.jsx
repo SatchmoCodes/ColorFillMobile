@@ -1,4 +1,11 @@
-import { View, Text, Button, Image, StyleSheet, Pressable } from 'react-native'
+import {
+  View,
+  Text,
+  Button,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { FIREBASE_AUTH } from '../../firebaseConfig'
 import { useColorSchemeContext } from '../../App'
@@ -43,27 +50,27 @@ const Home = ({ navigation }) => {
         ></Image>
       </View>
       <View style={styles.bottom}>
-        <Pressable
+        <TouchableOpacity
           style={styles.button}
           onPress={() => navigation.navigate('PlayMenu')}
         >
           <Text style={styles.buttonText}>Play Game</Text>
-        </Pressable>
-        <Pressable
+        </TouchableOpacity>
+        <TouchableOpacity
           style={[styles.button, { opacity: 0.5 }]}
           onPress={() => navigation.navigate('Login')}
         >
           <Text style={styles.buttonText}>Login</Text>
-        </Pressable>
-        <Pressable style={styles.button} onPress={() => handleLogOut()}>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => handleLogOut()}>
           <Text style={styles.buttonText}>Logout</Text>
-        </Pressable>
-        <Pressable
+        </TouchableOpacity>
+        <TouchableOpacity
           style={styles.button}
           onPress={() => navigation.navigate('Leaderboard')}
         >
           <Text style={styles.buttonText}>Leaderboard</Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
     </View>
   )

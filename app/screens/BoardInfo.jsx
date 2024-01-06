@@ -4,7 +4,7 @@ import {
   View,
   ActivityIndicator,
   FlatList,
-  Pressable,
+  TouchableOpacity,
 } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { useNavigation, useRoute } from '@react-navigation/native'
@@ -125,12 +125,12 @@ const BoardInfo = ({ navigation }) => {
         <Text style={{ textAlign: 'center', fontSize: 30, color: colors.text }}>
           Board Info
         </Text>
-        <Pressable
+        <TouchableOpacity
           style={styles.button}
           onPress={() => loadBoard(highScore.id, highScore.data.size)}
         >
           <Text style={styles.buttonText}>Play this board</Text>
-        </Pressable>
+        </TouchableOpacity>
         {/* <Text style={{textAlign: 'center', fontSize: 20, color: colors.text}}>Board Code: {createdBy.boardId}</Text> */}
         <Text
           style={{

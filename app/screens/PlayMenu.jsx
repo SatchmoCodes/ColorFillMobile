@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, Pressable } from 'react-native'
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { useColorSchemeContext } from '../../App'
 
@@ -24,21 +24,24 @@ const PlayMenu = ({ navigation }) => {
         ></Image>
       </View>
       <View style={styles.bottom}>
-        <Pressable style={styles.button} onPress={() => generateBoard('FreePlay')}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => generateBoard('FreePlay')}
+        >
           <Text style={styles.buttonText}>Free Play</Text>
-        </Pressable>
-        <Pressable
+        </TouchableOpacity>
+        <TouchableOpacity
           style={styles.button}
           onPress={() => generateBoard('Progressive')}
         >
           <Text style={styles.buttonText}>Progressive</Text>
-        </Pressable>
-        <Pressable
+        </TouchableOpacity>
+        <TouchableOpacity
           style={styles.button}
           onPress={() => navigation.navigate('PVPMenu')}
         >
           <Text style={styles.buttonText}>Player vs Player</Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
     </View>
   )
@@ -70,7 +73,15 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
     marginTop: 5,
     marginBottom: 5,
-    backgroundColor: 'lightblue',
+    backgroundColor: 'green',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   buttonText: {
     textAlign: 'center',

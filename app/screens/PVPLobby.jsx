@@ -3,7 +3,7 @@ import {
   Text,
   View,
   Image,
-  Pressable,
+  TouchableOpacity,
   ActivityIndicator,
 } from 'react-native'
 import React, { useState, useEffect, useRef } from 'react'
@@ -194,7 +194,7 @@ const PVPLobby = () => {
             }}
           >
             {gameInfo != null && gameInfo.opponentName == '' ? (
-              <ActivityIndicator color="lightgreen"></ActivityIndicator>
+              <ActivityIndicator color="darkgreen"></ActivityIndicator>
             ) : (
               gameInfo != null &&
               gameInfo.opponentName != '' &&
@@ -206,12 +206,12 @@ const PVPLobby = () => {
           Code: {gameInfo != null && gameInfo.code}
         </Text>
         {gameInfo != null && userName == gameInfo.ownerName && (
-          <Pressable
+          <TouchableOpacity
             style={[styles.button, { opacity: gameInfo.opponentName == '' && 0.25 }]}
             onPress={() => gameInfo.opponentName != '' && startGame()}
           >
             <Text style={styles.buttonText}>Start Game</Text>
-          </Pressable>
+          </TouchableOpacity>
         )}
       </View>
     </View>

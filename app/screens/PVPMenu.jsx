@@ -4,7 +4,7 @@ import {
   TextInput,
   StyleSheet,
   Image,
-  Pressable,
+  TouchableOpacity,
   FlatList,
   Platform,
 } from 'react-native'
@@ -201,16 +201,16 @@ const PVPMenu = ({ navigation }) => {
                   : item.data.opponentName}
               </Text>
               {item.data.opponentName == '' && (
-                <Pressable
+                <TouchableOpacity
                   style={styles.buttonSmall}
                   onPress={() => handleJoin(item.id)}
                 >
                   <Text style={styles.buttonText}>Join Game</Text>
-                </Pressable>
+                </TouchableOpacity>
               )}
-              {/* <Pressable style={styles.buttonSmall} onPress={() => handleJoin(item.id)}>
+              {/* <TouchableOpacity style={styles.buttonSmall} onPress={() => handleJoin(item.id)}>
                 <Text style={styles.buttonText}>Join Game</Text>
-              </Pressable> */}
+              </TouchableOpacity> */}
             </View>
           )}
         />
@@ -229,18 +229,18 @@ const PVPMenu = ({ navigation }) => {
         </View>
 
         <View style={styles.buttonOptions}>
-          <Pressable
+          <TouchableOpacity
             style={[styles.button, code.length < 6 && { opacity: 0.25 }]}
             onPress={() => code.length == 6 && handleCodeJoin()}
           >
             <Text style={[styles.buttonText]}>Join</Text>
-          </Pressable>
-          <Pressable
+          </TouchableOpacity>
+          <TouchableOpacity
             style={styles.button}
             onPress={() => navigation.navigate('PVPCreate')}
           >
             <Text style={styles.buttonText}>Create</Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
       </View>
     </View>

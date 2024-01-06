@@ -4,7 +4,7 @@ import {
   View,
   Text,
   StyleSheet,
-  Pressable,
+  TouchableOpacity,
   FlatList,
   TextInput,
   Animated,
@@ -510,15 +510,15 @@ const Leaderboard = () => {
                       { width: '20%', maxWidth: '20%', justifyContent: 'center' },
                     ]}
                   >
-                    {/* <Pressable style={{padding: 5}} onPress={() => handleLink(item.id, item.data.size)}> */}
-                    <Pressable
+                    {/* <TouchableOpacity style={{padding: 5}} onPress={() => handleLink(item.id, item.data.size)}> */}
+                    <TouchableOpacity
                       style={{ padding: 5 }}
                       onPress={() => handleLink(item.boardId)}
                     >
                       <Text style={{ textAlign: 'center', color: colors.text }}>
                         Board Info
                       </Text>
-                    </Pressable>
+                    </TouchableOpacity>
                   </View>
                 </Animated.View>
               )}

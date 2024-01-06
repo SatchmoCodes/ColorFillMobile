@@ -4,7 +4,7 @@ import {
   StyleSheet,
   FlatList,
   Dimensions,
-  Pressable,
+  TouchableOpacity,
   Modal,
   Animated,
   Easing,
@@ -672,18 +672,18 @@ const FreePlay = () => {
                   ? `You beat the previous record (${originalScore}) with ${counter} turns!`
                   : `You did not beat the previous record!`}
             </Text>
-            <Pressable
+            <TouchableOpacity
               style={[styles.button, styles.buttonClose, { marginBottom: 10 }]}
               onPress={() => generateNewBoard()}
             >
               <Text style={[styles.textStyle]}>New Board</Text>
-            </Pressable>
-            <Pressable
+            </TouchableOpacity>
+            <TouchableOpacity
               style={[styles.button, styles.buttonClose]}
               onPress={() => handleRetry()}
             >
               <Text style={[styles.textStyle]}>Retry Board</Text>
-            </Pressable>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -747,7 +747,7 @@ const FreePlay = () => {
         })}
       </View>
       <View style={styles.extraRow}>
-        <Pressable
+        <TouchableOpacity
           style={[styles.resetButton, { backgroundColor: colorTheme.button }]}
           onPress={() => generateNewBoard()}
         >
@@ -760,16 +760,16 @@ const FreePlay = () => {
           >
             New Board
           </Text>
-        </Pressable>
-        <Pressable
+        </TouchableOpacity>
+        <TouchableOpacity
           style={[styles.resetButton, { backgroundColor: colorTheme.button }]}
           onPress={() => handleRetry()}
         >
           <Text style={{ userSelect: 'none', color: colorTheme.text }}>Retry</Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
       <View style={styles.colorRow}>
-        <Pressable
+        <TouchableOpacity
           style={[
             styles.color,
             {
@@ -778,8 +778,8 @@ const FreePlay = () => {
             { opacity: selectedColor == colors[0] ? 0.25 : 1 },
           ]}
           onPress={() => colorChange(colorOption[0])}
-        ></Pressable>
-        <Pressable
+        ></TouchableOpacity>
+        <TouchableOpacity
           style={[
             styles.color,
             {
@@ -788,8 +788,8 @@ const FreePlay = () => {
             { opacity: selectedColor == colors[1] ? 0.25 : 1 },
           ]}
           onPress={() => colorChange(colorOption[1])}
-        ></Pressable>
-        <Pressable
+        ></TouchableOpacity>
+        <TouchableOpacity
           style={[
             styles.color,
             {
@@ -798,8 +798,8 @@ const FreePlay = () => {
             { opacity: selectedColor == colors[2] ? 0.25 : 1 },
           ]}
           onPress={() => colorChange(colorOption[2])}
-        ></Pressable>
-        <Pressable
+        ></TouchableOpacity>
+        <TouchableOpacity
           style={[
             styles.color,
             {
@@ -808,8 +808,8 @@ const FreePlay = () => {
             { opacity: selectedColor == colors[3] ? 0.25 : 1 },
           ]}
           onPress={() => colorChange(colorOption[3])}
-        ></Pressable>
-        <Pressable
+        ></TouchableOpacity>
+        <TouchableOpacity
           style={[
             styles.color,
             {
@@ -818,7 +818,7 @@ const FreePlay = () => {
             { opacity: selectedColor == colors[4] ? 0.25 : 1 },
           ]}
           onPress={() => colorChange(colorOption[4])}
-        ></Pressable>
+        ></TouchableOpacity>
       </View>
     </View>
   )
