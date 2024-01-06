@@ -46,9 +46,11 @@ const queryOptions = [
 const animationDelay = 50
 const animationDuration = 500
 let animatedValues = []
+let newAnimatedValues = []
 
 let lowestScoresMap = new Map()
-let prevLowestScoresMap = null
+let prevLowestScores = null
+let updatedIndexArr = []
 
 const Leaderboard = () => {
   const { useColors } = useColorSchemeContext()
@@ -90,7 +92,8 @@ const Leaderboard = () => {
 
   useEffect(() => {
     // lowestScoresMap = new Map()
-    prevLowestScoresMap = null
+    prevLowestScores = null
+    console.log('hi')
     setUpdate(true)
   }, [size, gamemode, queryOptionState])
 
@@ -144,7 +147,7 @@ const Leaderboard = () => {
   }, [gamemode])
 
   useEffect(() => {
-    // console.log(gamemode)
+    console.log(gamemode)
     if (gamemode != 'PVP') {
       const q = query(
         collection(db, 'Scores'),
@@ -155,7 +158,7 @@ const Leaderboard = () => {
       )
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         lowestScoresMap = new Map()
-        let updatedIndexArr = []
+        updatedIndexArr = []
         querySnapshot.forEach((doc) => {
           const boardId = doc.data().boardId
           const score = doc.data().score
@@ -181,9 +184,10 @@ const Leaderboard = () => {
           }
         })
         const scoreList = Array.from(lowestScoresMap.values())
-        let newAnimatedValues = []
-        if (prevLowestScoresMap != null) {
-          const prevScoreList = Array.from(prevLowestScoresMap.values())
+        newAnimatedValues = []
+        if (prevLowestScores != null) {
+          console.log('not null')
+          const prevScoreList = Array.from(prevLowestScores.values())
           let y = 0 //number to add to previous scores to offset index in case new score came in
           for (let x = 0; x < scoreList.length; x++) {
             // console.log(`scorelist[${x}]`,scoreList[x])
@@ -218,7 +222,7 @@ const Leaderboard = () => {
         animatedValues = [...newAnimatedValues]
         setScores(scoreList)
         // setAnimatedValues(newAnimatedValues)
-        prevLowestScoresMap = new Map([...lowestScoresMap])
+        prevLowestScores = new Map([...lowestScoresMap])
         // console.log(scoreList)
         updatedIndexArr = []
       })
@@ -271,8 +275,35 @@ const Leaderboard = () => {
         topScores.reverse()
         bottomScores.reverse()
         let fullArr = topScores.concat(bottomScores)
+        newAnimatedValues = []
+        if (prevLowestScores != null) {
+          console.log('prevscores', prevLowestScores)
+          let y = 0
+          for (let i = 0; i < fullArr.length; i++) {
+            if (
+              prevLowestScores[i - y] &&
+              fullArr[i].id != prevLowestScores[i - y].id
+            ) {
+              updatedIndexArr.push(0)
+              y++
+            } else {
+              updatedIndexArr.push(1)
+            }
+          }
+          updatedIndexArr.forEach((val) => {
+            newAnimatedValues.push(new Animated.Value(val))
+          })
+        } else {
+          fullArr.forEach((val) => {
+            newAnimatedValues.push(new Animated.Value(0))
+          })
+        }
+        animatedValues = []
+        animatedValues = [...newAnimatedValues]
         // fullArr.reverse()
-        setPVPResults(fullArr)
+        setScores(fullArr)
+        prevLowestScores = [...fullArr]
+        updatedIndexArr = []
       })
       setUpdate(false)
       return unsubscribe
@@ -548,11 +579,25 @@ const Leaderboard = () => {
             <EmptyRow />
           ) : (
             <FlatList
-              data={pvpResults}
+              data={scores}
               keyExtractor={(item) => item.id}
               renderItem={({ item, index }) => (
-                <View
-                  style={[styles.tableRow, { backgroundColor: colors.tableRow }]}
+                <Animated.View
+                  style={[
+                    styles.tableRow,
+                    {
+                      opacity: animatedValues[index],
+                      backgroundColor: colors.tableRow,
+                      transform: [
+                        {
+                          translateX: animatedValues[index].interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [-50, 0],
+                          }),
+                        },
+                      ],
+                    },
+                  ]}
                 >
                   <View
                     style={[
@@ -620,7 +665,7 @@ const Leaderboard = () => {
                         : item.queryData}
                     </Text>
                   </View>
-                </View>
+                </Animated.View>
               )}
             />
           )}
