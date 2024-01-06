@@ -21,7 +21,7 @@ import {
   updateDoc,
 } from 'firebase/firestore'
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useIsFocused, StackActions } from '@react-navigation/native'
 import { useColorSchemeContext } from '../../App'
 
 let docId
@@ -31,6 +31,7 @@ const PVPLobby = () => {
   const colors = useColors()
 
   const navigation = useNavigation()
+  const isFocused = useIsFocused()
   const route = useRoute()
   const auth = FIREBASE_AUTH
   const db = FIRESTORE_DB
@@ -41,13 +42,11 @@ const PVPLobby = () => {
 
   const userNameRef = useRef(null)
 
-  //check if user leaves the lobby
   useEffect(() => {
-    const unsubscribeBlur = navigation.addListener('blur', () => {
-      console.log('leaving')
+    const unsubscribe = navigation.addListener('beforeRemove', () => {
       handleLeave()
     })
-    // return unsubscribeBlur
+    return unsubscribe
   }, [navigation])
 
   async function handleLeave() {
@@ -63,7 +62,7 @@ const PVPLobby = () => {
         } catch (error) {
           alert(error)
         }
-        navigation.pop()
+        // navigation.pop()
       } else if (userNameRef.current == docSnap.data().opponentName) {
         console.log('opponent left, reopening lobby')
         try {
