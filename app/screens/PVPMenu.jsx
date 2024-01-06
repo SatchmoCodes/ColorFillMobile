@@ -49,10 +49,18 @@ const PVPMenu = ({ navigation }) => {
       querySnapshot.forEach((doc, index) => {
         const gameData = doc.data()
         if (gameData.gameState !== 'Playing' && gameData.gameState !== 'Deleting') {
-          gameList.push({
-            id: doc.id,
-            data: doc.data(),
-          })
+          let dateObj = gameData.createdAt.toDate()
+          let timeCreated = dateObj.getTime() / 1000
+          let currentTime = Math.floor(new Date().getTime() / 1000)
+          console.log('timeCreated', timeCreated)
+          console.log('currentTime', currentTime)
+          console.log('currenttime - timecreatd', currentTime - timeCreated)
+          if (currentTime - timeCreated <= 300) {
+            gameList.push({
+              id: doc.id,
+              data: doc.data(),
+            })
+          }
         }
       })
       setGames(gameList)
@@ -95,10 +103,17 @@ const PVPMenu = ({ navigation }) => {
       querySnapshot.forEach((doc, index) => {
         const gameData = doc.data()
         if (gameData.gameState !== 'Playing' && gameData.gameState !== 'Deleting') {
-          gameList.push({
-            id: doc.id,
-            data: doc.data(),
-          })
+          if (gameData.createdAt) {
+            let dateObj = gameData.createdAt.toDate()
+            let timeCreated = dateObj.getTime() / 1000
+            let currentTime = Math.floor(new Date().getTime() / 1000)
+            if (currentTime - timeCreated <= 300) {
+              gameList.push({
+                id: doc.id,
+                data: doc.data(),
+              })
+            }
+          }
         }
       })
       setGames(gameList)
