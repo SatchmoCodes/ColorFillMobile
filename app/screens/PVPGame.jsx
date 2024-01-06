@@ -15,7 +15,7 @@ import React from 'react'
 import { useState, useEffect, useRef } from 'react'
 import generateBoard from './squareGenerator.js'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { useIsFocused } from '@react-navigation/native'
+import { useIsFocused, useNavigation } from '@react-navigation/native'
 import { useRoute } from '@react-navigation/native'
 import {
   query,
@@ -52,10 +52,10 @@ let boardSize = 19
 let sizeName = 'Medium'
 let screenWidth = Dimensions.get('window').width * 0.95
 let gridItemSize = Math.floor(screenWidth / boardSize)
-// console.log(gridItemSize)
+// // console.log(gridItemSize)
 if (screenWidth >= 1000) {
   screenWidth = Dimensions.get('window').height * 0.55
-  // console.log(screenWidth)
+  // // console.log(screenWidth)
   gridItemSize = Math.floor(screenWidth / boardSize)
 }
 
@@ -122,9 +122,10 @@ let randomColor
 
 const totalTime = 10
 
-const PVPGame = ({ navigation }) => {
+const PVPGame = () => {
   const { useColors } = useColorSchemeContext()
   const colorTheme = useColors()
+  const navigation = useNavigation()
 
   const db = FIRESTORE_DB
   const auth = FIREBASE_AUTH
@@ -161,6 +162,7 @@ const PVPGame = ({ navigation }) => {
   const [boardLoaded, setBoardLoaded] = useState(false)
   const userNameRef = useRef(null)
   const completeRef = useRef(null)
+  const leaveRef = useState(null)
 
   //timer stuff
   const [timer, setTimer] = useState(11)
@@ -188,21 +190,21 @@ const PVPGame = ({ navigation }) => {
     if (!resetTimer) {
       if (timer == 0) {
         if (turn == 'Owner' && userNameRef.current == ownerName) {
-          console.log('owner ran out of time')
+          // console.log('owner ran out of time')
           randomColor = Math.floor(Math.random() * 5)
           while (randomColor == colors.indexOf(ownerSelectedColor)) {
             randomColor = Math.floor(Math.random() * 5)
           }
           colorChange(colors[randomColor])
         } else if (turn == 'Opponent' && userNameRef.current == opponentName) {
-          console.log('opponent ran out of time')
+          // console.log('opponent ran out of time')
           randomColor = Math.floor(Math.random() * 5)
           while (randomColor == colors.indexOf(opponentSelectedColor)) {
             randomColor = Math.floor(Math.random() * 5)
           }
           colorChange(colors[randomColor])
         }
-        console.log('no time')
+        // console.log('no time')
       }
     }
   }, [timer])
@@ -230,6 +232,47 @@ const PVPGame = ({ navigation }) => {
     }
     getUserData()
   }, [uid])
+
+  //handle user leaving game
+  useEffect(() => {
+    const unsubscribeBlur = navigation.addListener('beforeRemove', () => {
+      if (completeRef.current != true && leaveRef.current != true) {
+        // console.log(userNameRef.current)
+        // console.log(ownerNameVar)
+        if (userNameRef.current === ownerNameVar) {
+          // navigation.navigate('PVPMenu')
+          leaveRef.current = true
+          handleLeave('Owner')
+        } else if (userNameRef.current == opponentNameVar) {
+          // navigation.navigate('PVPMenu')
+          leaveRef.current = true
+          handleLeave('Opponent')
+        }
+      }
+    })
+  }, [navigation])
+
+  async function handleLeave(leaver) {
+    // console.log(leaver)
+    const docRef = doc(db, 'Games', docId)
+    if (leaver === 'Owner') {
+      try {
+        const update = await updateDoc(docRef, {
+          ownerLeaver: true,
+        })
+      } catch (error) {
+        // console.log(error)
+      }
+    } else if (leaver === 'Opponent') {
+      try {
+        const update = await updateDoc(docRef, {
+          opponentLeaver: true,
+        })
+      } catch (error) {
+        // console.log(error)
+      }
+    }
+  }
 
   async function initialLoad() {
     await getColor()
@@ -274,114 +317,141 @@ const PVPGame = ({ navigation }) => {
   //listener for updates to board
   useEffect(() => {
     const docRef = doc(db, 'Games', docId)
-    const unsubscribe = onSnapshot(docRef, async (doc) => {
-      if (doc.exists() && completeRef.current == null) {
-        // console.log(doc.data())
-        let boardState = JSON.parse(doc.data().boardState)
-        // console.log('board 0', boardState[0].colorIndex)
-        // console.log('board end', boardState[boardState.length - 1].colorIndex)
-        // console.log(boardState)
-        tempSquareArr = []
-        tempSquareArr = [...boardState]
-        if (doc.data().turn == 'Owner') {
-          setTurn('Owner')
-          setOpponentSelectedColor(boardState[boardState.length - 1].color)
-        } else {
-          setTurn('Opponent')
-          setOwnerSelectedColor(boardState[0].color)
-        }
-        //timer testing
-        setTimer(11)
-        setResetTimer(true)
+    if (leaveRef.current != true) {
+      const unsubscribe = onSnapshot(docRef, async (doc) => {
+        if (doc.exists() && completeRef.current == null) {
+          // console.log('ownerLeaver', doc.data().ownerLeaver)
+          // console.log('oppleave', doc.data().opponentLeaver)
+          if (doc.data().ownerLeaver === true) {
+            winner = 'Opponent'
+            // console.log(winner)
+            completeRef.current = true
+            setTimer(0)
+            setResetTimer(false)
+            setComplete(true)
+            handleComplete()
+            return
+          } else if (doc.data().opponentLeaver === true) {
+            winner = 'Owner'
+            // console.log(winner)
+            completeRef.current = true
+            setTimer(0)
+            setComplete(true)
+            handleComplete()
+            return
+          }
+          // // console.log(doc.data())
+          let boardState = JSON.parse(doc.data().boardState)
+          // // console.log('board 0', boardState[0].colorIndex)
+          // // console.log('board end', boardState[boardState.length - 1].colorIndex)
+          // // console.log(boardState)
+          tempSquareArr = []
+          tempSquareArr = [...boardState]
+          if (doc.data().turn == 'Owner') {
+            setTurn('Owner')
+            setOpponentSelectedColor(boardState[boardState.length - 1].color)
+          } else {
+            setTurn('Opponent')
+            setOwnerSelectedColor(boardState[0].color)
+          }
+          //timer testing
+          setTimer(11)
+          setResetTimer(true)
 
-        boardState.forEach((sq) => {
-          sq.color = colors[sq.colorIndex]
-        })
-        tempSquareArr.forEach((sq) => {
-          sq.color = colors[sq.colorIndex]
-        })
-        //animate squares for opposite player
-        if (
-          doc.data().turn == 'Owner' &&
-          userNameRef.current == doc.data().ownerName
-        ) {
-          let animatedValues = JSON.parse(doc.data().animationIndex)
-          animatedValues.forEach((val) => {
-            const growAnimation = Animated.timing(squareAnimArr[val], {
-              toValue: 1,
-              duration: 250,
-              easing: Easing.linear,
-              useNativeDriver: true,
-            })
-            const reverseAnimation = Animated.timing(squareAnimArr[val], {
-              toValue: 0,
-              duration: 250,
-              easing: Easing.linear,
-              useNativeDriver: true,
-            })
-            Animated.sequence([growAnimation, reverseAnimation]).start()
+          boardState.forEach((sq) => {
+            sq.color = colors[sq.colorIndex]
           })
-          setSquareAnim(squareAnimArr)
-        } else if (
-          doc.data().turn == 'Opponent' &&
-          userNameRef.current == doc.data().opponentName
-        ) {
-          let animatedValues = JSON.parse(doc.data().animationIndex)
-          animatedValues.forEach((val) => {
-            const growAnimation = Animated.timing(squareAnimArr[val], {
-              toValue: 1,
-              duration: 250,
-              easing: Easing.linear,
-              useNativeDriver: true,
-            })
-            const reverseAnimation = Animated.timing(squareAnimArr[val], {
-              toValue: 0,
-              duration: 250,
-              easing: Easing.linear,
-              useNativeDriver: true,
-            })
-            Animated.sequence([growAnimation, reverseAnimation]).start()
+          tempSquareArr.forEach((sq) => {
+            sq.color = colors[sq.colorIndex]
           })
-          setSquareAnim(squareAnimArr)
-        }
-        squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
-        setColorState(boardState)
-        setOwnerScore(doc.data().ownerScore)
-        setOpponentScore(doc.data().opponentScore)
-        if (doc.data().ownerScore > Math.floor(tempSquareArr.length / 2)) {
-          winner = 'Owner'
-          completeRef.current = true
-          setTimer(0)
-          setResetTimer(false)
-          setComplete(true)
-          handleComplete()
-          return
-        } else if (doc.data().opponentScore > Math.floor(tempSquareArr.length / 2)) {
-          winner = 'Opponent'
-          completeRef.current = true
-          setComplete(true)
-          handleComplete()
-          return
-        } else {
-          remainingSquares =
-            boardState.length - (doc.data().ownerScore + doc.data().opponentScore)
+          //animate squares for opposite player
           if (
             doc.data().turn == 'Owner' &&
-            userNameRef.current == doc.data().opponentName
-          ) {
-            setRadar(true)
-            console.log('checking radar')
-          } else if (
-            doc.data().turn == 'Opponent' &&
             userNameRef.current == doc.data().ownerName
           ) {
-            setRadar(true)
-            console.log('checking radar')
+            let animatedValues = JSON.parse(doc.data().animationIndex)
+            animatedValues.forEach((val) => {
+              const growAnimation = Animated.timing(squareAnimArr[val], {
+                toValue: 1,
+                duration: 250,
+                easing: Easing.linear,
+                useNativeDriver: true,
+              })
+              const reverseAnimation = Animated.timing(squareAnimArr[val], {
+                toValue: 0,
+                duration: 250,
+                easing: Easing.linear,
+                useNativeDriver: true,
+              })
+              Animated.sequence([growAnimation, reverseAnimation]).start()
+            })
+            setSquareAnim(squareAnimArr)
+          } else if (
+            doc.data().turn == 'Opponent' &&
+            userNameRef.current == doc.data().opponentName
+          ) {
+            let animatedValues = JSON.parse(doc.data().animationIndex)
+            animatedValues.forEach((val) => {
+              const growAnimation = Animated.timing(squareAnimArr[val], {
+                toValue: 1,
+                duration: 250,
+                easing: Easing.linear,
+                useNativeDriver: true,
+              })
+              const reverseAnimation = Animated.timing(squareAnimArr[val], {
+                toValue: 0,
+                duration: 250,
+                easing: Easing.linear,
+                useNativeDriver: true,
+              })
+              Animated.sequence([growAnimation, reverseAnimation]).start()
+            })
+            setSquareAnim(squareAnimArr)
+          }
+          squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
+          setColorState(boardState)
+          setOwnerScore(doc.data().ownerScore)
+          setOpponentScore(doc.data().opponentScore)
+          if (doc.data().ownerScore > Math.floor(tempSquareArr.length / 2)) {
+            winner = 'Owner'
+            // console.log(winner)
+            completeRef.current = true
+            setTimer(0)
+            setResetTimer(false)
+            setComplete(true)
+            handleComplete()
+            return
+          } else if (
+            doc.data().opponentScore > Math.floor(tempSquareArr.length / 2)
+          ) {
+            winner = 'Opponent'
+            // console.log(winner)
+            completeRef.current = true
+            setTimer(0)
+            setComplete(true)
+            handleComplete()
+            return
+          } else {
+            remainingSquares =
+              boardState.length - (doc.data().ownerScore + doc.data().opponentScore)
+            if (
+              doc.data().turn == 'Owner' &&
+              userNameRef.current == doc.data().opponentName
+            ) {
+              setRadar(true)
+              // console.log('checking radar')
+            } else if (
+              doc.data().turn == 'Opponent' &&
+              userNameRef.current == doc.data().ownerName
+            ) {
+              setRadar(true)
+              // console.log('checking radar')
+            }
           }
         }
-      }
-    })
-    return unsubscribe
+      })
+      return unsubscribe
+    }
   }, [])
 
   useEffect(() => {
@@ -393,15 +463,15 @@ const PVPGame = ({ navigation }) => {
           colorChange(colors[i])
         }
         if (fakeCaptured < 1) {
-          console.log('no squares can be captured for opponent')
-          console.log('opponentScore', opponentScore)
-          console.log('remainingsquares', remainingSquares)
+          // console.log('no squares can be captured for opponent')
+          // console.log('opponentScore', opponentScore)
+          // console.log('remainingsquares', remainingSquares)
           if (opponentScore <= Math.floor(tempSquareArr.length / 2)) {
             turnCaptured = remainingSquares
             noCaptureUpdate()
           }
         } else {
-          // console.log('squares can still be captured')
+          // // console.log('squares can still be captured')
         }
       } else {
         fakeTurn = 'Owner'
@@ -409,15 +479,15 @@ const PVPGame = ({ navigation }) => {
           colorChange(colors[i])
         }
         if (fakeCaptured < 1) {
-          console.log('no squares can be captured for owner')
-          console.log('ownerScore', ownerScore)
-          console.log('remainingsquares', remainingSquares)
+          // console.log('no squares can be captured for owner')
+          // console.log('ownerScore', ownerScore)
+          // console.log('remainingsquares', remainingSquares)
           if (ownerScore <= Math.floor(tempSquareArr.length / 2)) {
             turnCaptured = remainingSquares
             noCaptureUpdate()
           }
         } else {
-          // console.log('squares can still be captured')
+          // // console.log('squares can still be captured')
         }
       }
       tempSquareArr = [...tempArrCopy]
@@ -428,7 +498,7 @@ const PVPGame = ({ navigation }) => {
   }, [radar])
 
   const noCaptureUpdate = async () => {
-    console.log('i am running')
+    // console.log('i am running')
     const docRef = doc(db, 'Games', docId)
     let ownerCaptured
     let opponentCaptured
@@ -440,7 +510,7 @@ const PVPGame = ({ navigation }) => {
       ownerCaptured = 0
     }
     const newTempArr = JSON.parse(JSON.stringify(tempSquareArr))
-    // console.log(newTempArr)
+    // // console.log(newTempArr)
     const newData = {
       boardState: JSON.stringify(newTempArr),
       // squareAnimArr: squareAnim,
@@ -454,7 +524,7 @@ const PVPGame = ({ navigation }) => {
         opponentScore: increment(opponentCaptured),
       })
     } catch (error) {
-      // console.log(error)
+      // // console.log(error)
     }
   }
 
@@ -486,7 +556,7 @@ const PVPGame = ({ navigation }) => {
   //         initialLoad()
   //         setChange(true)
   //         hasRun = true
-  //         // console.log('testing to seesasdfasdf')
+  //         // // console.log('testing to seesasdfasdf')
   //     }
   // }, [])
 
@@ -500,9 +570,9 @@ const PVPGame = ({ navigation }) => {
           colors.push(colorArr[x][y])
         }
         setSelectedColorOption(colors)
-        // console.log('colros',colors)
+        // // console.log('colros',colors)
         if (ownerColorIndex != null) {
-          // console.log('ownerindex',ownerColorIndex)
+          // // console.log('ownerindex',ownerColorIndex)
           setOwnerColor(colors[ownerColorIndex])
           setOpponentColor(colors[opponentColorIndex])
           setOwnerSelectedColor(colors[tempSquareArr[0].colorIndex])
@@ -512,7 +582,7 @@ const PVPGame = ({ navigation }) => {
         }
       }
     } catch (e) {
-      // console.log(e)
+      // // console.log(e)
     }
   }
 
@@ -532,7 +602,7 @@ const PVPGame = ({ navigation }) => {
       }
       updateBoard()
     } else {
-      // console.log('fake turn at initial:',fakeTurn)
+      // // console.log('fake turn at initial:',fakeTurn)
       tempSquareArr.forEach((sq, index) => {
         if (sq.captured && sq.owner == fakeTurn) {
           captureCheck(color, index)
@@ -574,7 +644,7 @@ const PVPGame = ({ navigation }) => {
       setTurn('Owner')
     }
     const newTempArr = JSON.parse(JSON.stringify(tempSquareArr))
-    // console.log(newTempArr)
+    // // console.log(newTempArr)
     const newData = {
       boardState: JSON.stringify(newTempArr),
       // squareAnimArr: squareAnim,
@@ -589,7 +659,7 @@ const PVPGame = ({ navigation }) => {
         opponentScore: increment(opponentCaptured),
       })
     } catch (error) {
-      // console.log(error)
+      // // console.log(error)
     }
     turnCaptured = 0
     animationIndex = []
@@ -597,7 +667,7 @@ const PVPGame = ({ navigation }) => {
 
   async function handleComplete() {
     const docRef = doc(db, 'Games', docId)
-    console.log(ownerName)
+    // console.log(ownerName)
     const ownerQuery = query(
       collection(db, 'Users'),
       where('username', '==', ownerNameVar),
@@ -621,7 +691,7 @@ const PVPGame = ({ navigation }) => {
     let newWinStreak
     if (userNameRef.current == ownerNameVar) {
       if (winner == 'Owner') {
-        console.log('owner win')
+        // console.log('owner win')
         if (
           ownerSnapshot.docs[0].data().currentWinStreak + 1 >
           ownerSnapshot.docs[0].data().bestWinStreak
@@ -637,7 +707,7 @@ const PVPGame = ({ navigation }) => {
             bestWinStreak: newWinStreak,
           })
         } catch (error) {
-          console.log(error)
+          // console.log(error)
         }
         try {
           await updateDoc(opponentRef, {
@@ -645,12 +715,12 @@ const PVPGame = ({ navigation }) => {
             currentWinStreak: 0,
           })
         } catch (error) {
-          console.log(error)
+          // console.log(error)
         }
       }
     } else if (userNameRef.current == opponentNameVar) {
       if (winner == 'Opponent') {
-        console.log('opponent win')
+        // console.log('opponent win')
         if (
           opponentSnapshot.docs[0].data().currentWinStreak + 1 >
           opponentSnapshot.docs[0].data().bestWinStreak
@@ -666,7 +736,7 @@ const PVPGame = ({ navigation }) => {
             bestWinStreak: newWinStreak,
           })
         } catch (error) {
-          console.log(error)
+          // console.log(error)
         }
         try {
           await updateDoc(ownerRef, {
@@ -674,7 +744,7 @@ const PVPGame = ({ navigation }) => {
             currentWinStreak: 0,
           })
         } catch (error) {
-          console.log(error)
+          // console.log(error)
         }
       }
     }
@@ -689,9 +759,9 @@ const PVPGame = ({ navigation }) => {
         tempSquareArr[index].rowIndex == tempSquareArr[index + 1].rowIndex
       ) {
         if (radar) {
-          // console.log('fake captured right')
-          // console.log(tempSquareArr[index])
-          // console.log(tempSquareArr[index + 1])
+          // // console.log('fake captured right')
+          // // console.log(tempSquareArr[index])
+          // // console.log(tempSquareArr[index + 1])
           fakeCaptured++
           return
         }
@@ -730,9 +800,9 @@ const PVPGame = ({ navigation }) => {
         tempSquareArr[index].rowIndex == tempSquareArr[index - 1].rowIndex
       ) {
         if (radar) {
-          // console.log('fake captured left')
-          // console.log(tempSquareArr[index])
-          // console.log(tempSquareArr[index - 1])
+          // // console.log('fake captured left')
+          // // console.log(tempSquareArr[index])
+          // // console.log(tempSquareArr[index - 1])
           fakeCaptured++
           return
         }
@@ -767,9 +837,9 @@ const PVPGame = ({ navigation }) => {
     ) {
       if (tempSquareArr[index].color == tempSquareArr[index + boardSize].color) {
         if (radar) {
-          // console.log('fake captured down')
-          // console.log(tempSquareArr[index])
-          // console.log(tempSquareArr[index + boardSize])
+          // // console.log('fake captured down')
+          // // console.log(tempSquareArr[index])
+          // // console.log(tempSquareArr[index + boardSize])
           fakeCaptured++
           return
         }
@@ -804,9 +874,9 @@ const PVPGame = ({ navigation }) => {
     ) {
       if (tempSquareArr[index].color == tempSquareArr[index - boardSize].color) {
         if (radar) {
-          // console.log('fake captured up')
-          // console.log(tempSquareArr[index])
-          // console.log(tempSquareArr[index - boardSize])
+          // // console.log('fake captured up')
+          // // console.log(tempSquareArr[index])
+          // // console.log(tempSquareArr[index - boardSize])
           fakeCaptured++
           return
         }
