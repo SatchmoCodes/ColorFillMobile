@@ -274,6 +274,7 @@ const Progressive = () => {
       setSelectedColor(tempSquareArr[0].color)
       setSquareAnim(squareAnimArr)
       setSelectedColorOption(colors)
+      setTotalScore(totalScoreValue)
       if (totalCaptured == squares[hole].length) {
         if (hole == 9) {
           handleHoleChange()
