@@ -123,7 +123,7 @@ function AuthView() {
             <TouchableOpacity
               style={[
                 {
-                  marginRight: Platform.OS === 'web' && 50,
+                  marginRight: Platform.OS === 'web' && 20,
                   backgroundColor: 'blue',
                   padding: 8,
                 },
@@ -145,7 +145,7 @@ function AuthView() {
             <TouchableOpacity
               style={[
                 {
-                  marginRight: Platform.OS === 'web' && 50,
+                  marginRight: Platform.OS === 'web' && 20,
                   backgroundColor: 'blue',
                   padding: 8,
                 },
@@ -166,7 +166,7 @@ function AuthView() {
             <TouchableOpacity
               style={[
                 {
-                  marginRight: Platform.OS === 'web' && 50,
+                  marginRight: Platform.OS === 'web' && 20,
                   backgroundColor: 'blue',
                   padding: 8,
                 },
@@ -187,7 +187,7 @@ function AuthView() {
             <TouchableOpacity
               style={[
                 {
-                  marginRight: Platform.OS === 'web' && 50,
+                  marginRight: Platform.OS === 'web' && 20,
                   backgroundColor: 'blue',
                   padding: 8,
                 },
@@ -210,7 +210,7 @@ function AuthView() {
             <TouchableOpacity
               style={[
                 {
-                  marginRight: Platform.OS === 'web' && 50,
+                  marginRight: Platform.OS === 'web' && 20,
                   backgroundColor: 'blue',
                   padding: 8,
                 },
@@ -231,7 +231,7 @@ function AuthView() {
             <TouchableOpacity
               style={[
                 {
-                  marginRight: Platform.OS === 'web' && 50,
+                  marginRight: Platform.OS === 'web' && 20,
                   backgroundColor: 'blue',
                   padding: 8,
                 },
@@ -252,7 +252,7 @@ function AuthView() {
             <TouchableOpacity
               style={[
                 {
-                  marginRight: Platform.OS === 'web' && 50,
+                  marginRight: Platform.OS === 'web' && 20,
                   backgroundColor: 'blue',
                   padding: 8,
                 },
@@ -273,7 +273,7 @@ function AuthView() {
             <TouchableOpacity
               style={[
                 {
-                  marginRight: Platform.OS === 'web' && 50,
+                  marginRight: Platform.OS === 'web' && 20,
                   backgroundColor: 'blue',
                   padding: 8,
                 },
@@ -294,7 +294,7 @@ function AuthView() {
             <TouchableOpacity
               style={[
                 {
-                  marginRight: Platform.OS === 'web' && 50,
+                  marginRight: Platform.OS === 'web' && 20,
                   backgroundColor: 'blue',
                   padding: 8,
                 },
