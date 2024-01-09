@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   FlatList,
   TouchableOpacity,
+  Platform,
 } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { useNavigation, useRoute } from '@react-navigation/native'
@@ -122,15 +123,17 @@ const BoardInfo = ({ navigation }) => {
   const LoadedView = ({ createdBy, highScore, scoreList }) => {
     return (
       <>
-        <Text style={{ textAlign: 'center', fontSize: 30, color: colors.text }}>
+        <Text
+          style={{
+            textAlign: 'center',
+            fontSize: 30,
+            marginBottom: 30,
+            marginTop: 30,
+            color: colors.text,
+          }}
+        >
           Board Info
         </Text>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => loadBoard(highScore.id, highScore.data.size)}
-        >
-          <Text style={styles.buttonText}>Play this board</Text>
-        </TouchableOpacity>
         {/* <Text style={{textAlign: 'center', fontSize: 20, color: colors.text}}>Board Code: {createdBy.boardId}</Text> */}
         <Text
           style={{
@@ -174,7 +177,7 @@ const BoardInfo = ({ navigation }) => {
           All Scores
         </Text>
         <View style={styles.table}>
-          <View style={[styles.tableRow, { backgroundColor: colors.tableRow }]}>
+          <View style={[styles.tableRow, { backgroundColor: colors.tableTop }]}>
             <View
               style={[
                 styles.tableCol,
@@ -203,6 +206,7 @@ const BoardInfo = ({ navigation }) => {
           <FlatList
             data={scoreList}
             keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
             renderItem={({ item, index }) => (
               <View style={[styles.tableRow, { backgroundColor: colors.tableRow }]}>
                 <View
@@ -248,6 +252,12 @@ const BoardInfo = ({ navigation }) => {
             )}
           />
         </View>
+        <TouchableOpacity
+          style={[styles.button, { marginTop: Platform.OS === 'web' && 30 }]}
+          onPress={() => loadBoard(highScore.id, highScore.data.size)}
+        >
+          <Text style={styles.buttonText}>Play this board</Text>
+        </TouchableOpacity>
       </>
     )
   }
@@ -278,7 +288,7 @@ const styles = StyleSheet.create({
   table: {
     minWidth: 320,
     maxWidth: '90%',
-    maxHeight: '60%',
+    maxHeight: '50%',
     overflow: 'hidden',
   },
   tableRow: {
@@ -286,6 +296,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1,
     maxHeight: 50,
+    borderTopWidth: 1,
   },
   tableCol: {
     flexGrow: 1,
