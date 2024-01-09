@@ -68,7 +68,6 @@ for (let i = 0; i < boardSize * boardSize; i++) {
 
 let squares = generateBoard(randomArr).flat()
 let tempSquareArr = JSON.parse(JSON.stringify(squares))
-// let squareAnimArr = new Array(tempSquareArr.length).fill(new Animated.Value(0))
 let squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
 let squareCounterArr = [
   {
@@ -98,7 +97,6 @@ let squareCounterArr = [
   },
 ]
 
-let hasRun = false
 let countNumber = 0
 let totalCaptured = 1
 let turnCaptured = 0
@@ -141,6 +139,7 @@ const PVPGame = () => {
   const [squareAnim, setSquareAnim] = useState(squareAnimArr)
   const [change, setChange] = useState(false)
   const [complete, setComplete] = useState(false)
+  const [hasRun, setHasRun] = useState(false)
 
   const [modalVisible, setModalVisible] = useState(false)
 
@@ -244,21 +243,18 @@ const PVPGame = () => {
 
   //handle user leaving game
   useEffect(() => {
-    const unsubscribeBlur = navigation.addListener('beforeRemove', () => {
+    const unsubscribeBlur = navigation.addListener('blur', () => {
       if (completeRef.current != true && leaveRef.current != true) {
         // console.log(userNameRef.current)
         // console.log(ownerNameVar)
         if (userNameRef.current === ownerNameVar) {
-          // navigation.navigate('PVPMenu')
           leaveRef.current = true
-          handleLeave('Owner')
         } else if (userNameRef.current == opponentNameVar) {
-          // navigation.navigate('PVPMenu')
           leaveRef.current = true
-          handleLeave('Opponent')
         }
       }
     })
+    return unsubscribeBlur
   }, [navigation])
 
   async function handleLeave(leaver) {
@@ -318,8 +314,13 @@ const PVPGame = () => {
   }
 
   useEffect(() => {
-    if (route) {
+    if (route && !hasRun) {
+      setHasRun(true)
       docId = route.params?.id
+      boardSize = route.params?.boardSize
+      console.log(boardSize)
+      squareAnimArr = new Array(boardSize * boardSize).fill(0)
+      // setSquareAnim(squareAnimArr)
     }
   }, [route])
 
@@ -328,7 +329,7 @@ const PVPGame = () => {
     const docRef = doc(db, 'Games', docId)
     if (leaveRef.current != true) {
       const unsubscribe = onSnapshot(docRef, async (doc) => {
-        if (doc.exists() && completeRef.current == null) {
+        if (doc.exists() && completeRef.current === null) {
           // console.log('ownerLeaver', doc.data().ownerLeaver)
           // console.log('oppleave', doc.data().opponentLeaver)
           if (doc.data().ownerLeaver === true) {
@@ -952,13 +953,13 @@ const PVPGame = () => {
               {
                 borderWidth: 1,
                 borderColor:
-                  ownerScore > opponentScore && userName == ownerName
+                  winner === 'Owner' && userName == ownerName
                     ? 'green'
-                    : opponentScore > ownerScore && userName == opponentName
+                    : winner === 'Opponent' && userName == opponentName
                       ? 'green'
-                      : ownerScore < opponentScore && userName == ownerName
+                      : winner === 'Opponent' && userName == ownerName
                         ? 'red'
-                        : opponentScore < ownerScore && userName == opponentName
+                        : winner === 'Owner' && userName == opponentName
                           ? 'red'
                           : '',
                 backgroundColor: colorTheme.button,
@@ -969,31 +970,31 @@ const PVPGame = () => {
               style={{
                 fontSize: 30,
                 color:
-                  ownerScore > opponentScore && userName == ownerName
+                  winner === 'Owner' && userName == ownerName
                     ? 'green'
-                    : opponentScore > ownerScore && userName == opponentName
+                    : winner === 'Opponent' && userName == opponentName
                       ? 'green'
-                      : ownerScore < opponentScore && userName == ownerName
+                      : winner === 'Opponent' && userName == ownerName
                         ? 'red'
-                        : opponentScore < ownerScore && userName == opponentName
+                        : winner === 'Owner' && userName == opponentName
                           ? 'red'
                           : '',
               }}
             >
-              {ownerScore > opponentScore && userName == ownerName
+              {winner === 'Owner' && userName == ownerName
                 ? 'Victory'
-                : opponentScore > ownerScore && userName == opponentName
+                : winner === 'Opponent' && userName == opponentName
                   ? 'Victory'
-                  : ownerScore < opponentScore && userName == ownerName
+                  : winner === 'Opponent' && userName == ownerName
                     ? 'Defeat'
-                    : opponentScore < ownerScore && userName == opponentName
+                    : winner === 'Owner' && userName == opponentName
                       ? 'Defeat'
                       : ''}
             </Text>
             <Text
               style={[styles.modalText, { fontSize: 20, color: colorTheme.text }]}
             >
-              {ownerScore > opponentScore
+              {winner === 'Owner'
                 ? `${ownerName} wins the game!`
                 : `${opponentName} wins the game!`}
             </Text>
@@ -1078,6 +1079,7 @@ const PVPGame = () => {
               onPress={() =>
                 turn == 'Opponent' &&
                 userName == opponentName &&
+                opponentSelectedColor != colors[0] &&
                 colorChange(colorOption[0])
               }
             ></TouchableOpacity>
@@ -1093,6 +1095,7 @@ const PVPGame = () => {
               onPress={() =>
                 turn == 'Opponent' &&
                 userName == opponentName &&
+                opponentSelectedColor != colors[1] &&
                 colorChange(colorOption[1])
               }
             ></TouchableOpacity>
@@ -1108,6 +1111,7 @@ const PVPGame = () => {
               onPress={() =>
                 turn == 'Opponent' &&
                 userName == opponentName &&
+                opponentSelectedColor != colors[2] &&
                 colorChange(colorOption[2])
               }
             ></TouchableOpacity>
@@ -1123,6 +1127,7 @@ const PVPGame = () => {
               onPress={() =>
                 turn == 'Opponent' &&
                 userName == opponentName &&
+                opponentSelectedColor != colors[3] &&
                 colorChange(colorOption[3])
               }
             ></TouchableOpacity>
@@ -1138,6 +1143,7 @@ const PVPGame = () => {
               onPress={() =>
                 turn == 'Opponent' &&
                 userName == opponentName &&
+                opponentSelectedColor != colors[4] &&
                 colorChange(colorOption[4])
               }
             ></TouchableOpacity>
@@ -1156,6 +1162,7 @@ const PVPGame = () => {
               onPress={() =>
                 turn == 'Owner' &&
                 userName == ownerName &&
+                ownerSelectedColor != colors[0] &&
                 colorChange(colorOption[0])
               }
             ></TouchableOpacity>
@@ -1171,6 +1178,7 @@ const PVPGame = () => {
               onPress={() =>
                 turn == 'Owner' &&
                 userName == ownerName &&
+                ownerSelectedColor != colors[1] &&
                 colorChange(colorOption[1])
               }
             ></TouchableOpacity>
@@ -1186,6 +1194,7 @@ const PVPGame = () => {
               onPress={() =>
                 turn == 'Owner' &&
                 userName == ownerName &&
+                ownerSelectedColor != colors[2] &&
                 colorChange(colorOption[2])
               }
             ></TouchableOpacity>
@@ -1201,6 +1210,7 @@ const PVPGame = () => {
               onPress={() =>
                 turn == 'Owner' &&
                 userName == ownerName &&
+                ownerSelectedColor != colors[3] &&
                 colorChange(colorOption[3])
               }
             ></TouchableOpacity>
@@ -1216,6 +1226,7 @@ const PVPGame = () => {
               onPress={() =>
                 turn == 'Owner' &&
                 userName == ownerName &&
+                ownerSelectedColor != colors[4] &&
                 colorChange(colorOption[4])
               }
             ></TouchableOpacity>
@@ -1244,10 +1255,13 @@ const PVPGame = () => {
                     height: gridItemSize,
                     transform: [
                       {
-                        scale: squareAnim[index].interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [1, 1.2], // grow by 20%
-                        }),
+                        scale:
+                          squareAnim[index] == undefined
+                            ? 1
+                            : squareAnim[index].interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [1, 1.2], // grow by 20%
+                              }),
                       },
                     ],
                   },
@@ -1281,12 +1295,15 @@ const PVPGame = () => {
                       height: gridItemSize,
                       transform: [
                         {
-                          scale: squareAnim[
-                            squareAnim.length - 1 - index
-                          ].interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [1, 1.2], // grow by 20%
-                          }),
+                          scale:
+                            squareAnim[squareAnim.length - 1 - index] == undefined
+                              ? 1
+                              : squareAnim[
+                                  squareAnim.length - 1 - index
+                                ].interpolate({
+                                  inputRange: [0, 1],
+                                  outputRange: [1, 1.2], // grow by 20%
+                                }),
                         },
                       ],
                     },
