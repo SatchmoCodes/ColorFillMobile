@@ -62,7 +62,10 @@ export const lightModeColors = {
   background: 'rgb(245,245,245)',
   game: 'lightblue',
   tableRow: 'rgb(220,220,220)',
-  button: 'rgb(220,220,220)',
+  tableTop: 'rgb(180,180,180)',
+  button: 'rgb(230,230,230)',
+  radioSelected: 'black',
+  outline: 'black',
 }
 
 export const darkModeColors = {
@@ -71,7 +74,9 @@ export const darkModeColors = {
   background: 'rgb(50,50,50)',
   button: 'rgb(30,30,30)',
   tableRow: 'rgb(30,30,30)',
+  tableTop: 'rgb(20,20,20)',
   game: 'rgb(6,37,105)',
+  radioSelected: 'darkgreen',
 }
 
 // const isDark = Appearance.getColorScheme() == 'dark'
