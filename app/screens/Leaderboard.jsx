@@ -38,7 +38,7 @@ const gamemodeOptions = [
 
 const queryOptions = [
   { label: 'Win Rate', value: 'Win Rate' },
-  { label: 'Wins/Losses', value: 'Wins/Losses' },
+  { label: 'Wins-Losses', value: 'Wins-Losses' },
   { label: 'Current Winstreak', value: 'Current Winstreak' },
   { label: 'Best Winstreak', value: 'Best Winstreak' },
 ]
@@ -136,6 +136,56 @@ const Leaderboard = () => {
     )
   }
 
+  const TopRow = () => {
+    return (
+      <>
+        {gamemode != 'PVP' ? (
+          <View style={[styles.tableRow, { backgroundColor: colors.tableTop }]}>
+            <View style={[styles.tableCol, { width: '15%', maxWidth: '15%' }]}>
+              <Text style={{ textAlign: 'center', padding: 10, color: colors.text }}>
+                Rank
+              </Text>
+            </View>
+            <View style={[styles.tableCol, { width: '45%', maxWidth: '45%' }]}>
+              <Text style={{ textAlign: 'center', padding: 10, color: colors.text }}>
+                User
+              </Text>
+            </View>
+            <View style={[styles.tableCol, { width: '20%', maxWidth: '20%' }]}>
+              <Text style={{ textAlign: 'center', padding: 10, color: colors.text }}>
+                Score
+              </Text>
+            </View>
+
+            <View style={[styles.tableCol, { width: '20%', maxWidth: '20%' }]}>
+              <Text style={{ textAlign: 'center', padding: 10, color: colors.text }}>
+                Link
+              </Text>
+            </View>
+          </View>
+        ) : (
+          <View style={[styles.tableRow, { backgroundColor: colors.tableTop }]}>
+            <View style={[styles.tableCol, { width: '15%', maxWidth: '15%' }]}>
+              <Text style={{ textAlign: 'center', padding: 10, color: colors.text }}>
+                Rank
+              </Text>
+            </View>
+            <View style={[styles.tableCol, { width: '42.5%', maxWidth: '42.5%' }]}>
+              <Text style={{ textAlign: 'center', padding: 10, color: colors.text }}>
+                Username
+              </Text>
+            </View>
+            <View style={[styles.tableCol, { width: '42.5%', maxWidth: '42.5%' }]}>
+              <Text style={{ textAlign: 'center', padding: 10, color: colors.text }}>
+                {queryOptionState}
+              </Text>
+            </View>
+          </View>
+        )}
+      </>
+    )
+  }
+
   const db = FIRESTORE_DB
 
   useEffect(() => {
@@ -186,8 +236,9 @@ const Leaderboard = () => {
         const scoreList = Array.from(lowestScoresMap.values())
         newAnimatedValues = []
         if (prevLowestScores != null) {
-          console.log('not null')
           const prevScoreList = Array.from(prevLowestScores.values())
+          console.log(scoreList)
+          console.log(prevScoreList)
           let y = 0 //number to add to previous scores to offset index in case new score came in
           for (let x = 0; x < scoreList.length; x++) {
             // console.log(`scorelist[${x}]`,scoreList[x])
@@ -199,13 +250,14 @@ const Leaderboard = () => {
               // console.log('boardId not equal here',x)
               updatedIndexArr.push(0)
               y++
-            } else if (
-              prevScoreList[x + y] &&
-              scoreList[x].score != prevScoreList[x - y].score
-            ) {
-              // console.log('score not equal here',x)
-              updatedIndexArr.push(0)
-              y++
+
+              // } else if (
+              //   prevScoreList[x + y] &&
+              //   scoreList[x].score != prevScoreList[x - y].score
+              // ) {
+              //   // console.log('score not equal here',x)
+              //   updatedIndexArr.push(0)
+              //   y++
             } else {
               updatedIndexArr.push(1)
             }
@@ -244,11 +296,11 @@ const Leaderboard = () => {
                     100,
                 ) + '%',
             })
-          } else if (queryOptionState == 'Wins/Losses') {
+          } else if (queryOptionState == 'Wins-Losses') {
             queryArr.push({
               id: doc.id,
               ...doc.data(),
-              queryData: doc.data().wins + '-' + doc.data().losses,
+              queryData: doc.data().wins + ' - ' + doc.data().losses,
             })
           } else if (queryOptionState == 'Current Winstreak') {
             queryArr.push({
@@ -417,257 +469,235 @@ const Leaderboard = () => {
       </View> */}
       {gamemode != 'PVP' ? (
         <View style={styles.table}>
-          <View style={[styles.tableRow, { backgroundColor: colors.tableRow }]}>
-            <View style={[styles.tableCol, { width: '15%', maxWidth: '15%' }]}>
-              <Text style={{ textAlign: 'center', padding: 5, color: colors.text }}>
-                Rank
-              </Text>
-            </View>
-            <View style={[styles.tableCol, { width: '45%', maxWidth: '45%' }]}>
-              <Text style={{ textAlign: 'center', padding: 5, color: colors.text }}>
-                User
-              </Text>
-            </View>
-            {/* <View style={[styles.tableCol, {width: '25%', maxWidth: '25%'}]}>
-            <Text style={{textAlign: 'center', padding: 5}}>Gamemode</Text>
-          </View> */}
-            <View style={[styles.tableCol, { width: '20%', maxWidth: '20%' }]}>
-              <Text style={{ textAlign: 'center', padding: 5, color: colors.text }}>
-                Score
-              </Text>
-            </View>
-            {/* <View style={[styles.tableCol, ]}>
-            <Text style={{textAlign: 'center', padding: 5}}>Size</Text>
-          </View> */}
-            <View style={[styles.tableCol, { width: '20%', maxWidth: '20%' }]}>
-              <Text style={{ textAlign: 'center', padding: 5, color: colors.text }}>
-                Link
-              </Text>
-            </View>
-          </View>
           {scores.length == 0 ? (
             <EmptyRow />
           ) : (
-            <FlatList
-              data={scores}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item, index }) => (
-                <Animated.View
-                  style={[
-                    styles.tableRow,
-                    {
-                      opacity: animatedValues[index],
-                      backgroundColor: colors.tableRow,
-                      transform: [
+            <>
+              <TopRow />
+              <FlatList
+                data={scores}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                renderItem={({ item, index }) => (
+                  <Animated.View
+                    style={[
+                      styles.tableRow,
+                      {
+                        opacity: animatedValues[index],
+                        backgroundColor: colors.tableRow,
+                        transform: [
+                          {
+                            translateX: animatedValues[index].interpolate({
+                              inputRange: [0, 1],
+                              outputRange: [-50, 0],
+                            }),
+                          },
+                        ],
+                      },
+                    ]}
+                  >
+                    <View
+                      style={[
+                        styles.tableCol,
                         {
-                          translateX: animatedValues[index].interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [-50, 0],
-                          }),
+                          width: '15%',
+                          maxWidth: '15%',
+                          alignItems: 'center',
+                          padding: 15,
                         },
-                      ],
-                    },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.tableCol,
-                      {
-                        width: '15%',
-                        maxWidth: '15%',
-                        alignItems: 'center',
-                        padding: 15,
-                      },
-                    ]}
-                  >
-                    <Text
-                      style={{ textAlign: 'center', padding: 5, color: colors.text }}
+                      ]}
                     >
-                      {index + 1}
-                    </Text>
-                  </View>
-                  <View
-                    style={[
-                      styles.tableCol,
-                      {
-                        width: '25%',
-                        maxWidth: '50%',
-                        alignItems: 'center',
-                        padding: 15,
-                      },
-                    ]}
-                  >
-                    <Text
-                      style={{ textAlign: 'center', padding: 5, color: colors.text }}
+                      <Text
+                        style={{
+                          textAlign: 'center',
+                          padding: 5,
+                          color: colors.text,
+                        }}
+                      >
+                        {index + 1}
+                      </Text>
+                    </View>
+                    <View
+                      style={[
+                        styles.tableCol,
+                        {
+                          width: '25%',
+                          maxWidth: '50%',
+                          alignItems: 'center',
+                          padding: 15,
+                        },
+                      ]}
                     >
-                      {item.createdBy}
-                    </Text>
-                  </View>
-                  {/* <View style={[styles.tableCol, {width: '25%', maxWidth: '25%', alignItems: 'center', padding: 15}]}>
+                      <Text
+                        style={{
+                          textAlign: 'center',
+                          padding: 5,
+                          color: colors.text,
+                        }}
+                      >
+                        {item.createdBy}
+                      </Text>
+                    </View>
+                    {/* <View style={[styles.tableCol, {width: '25%', maxWidth: '25%', alignItems: 'center', padding: 15}]}>
                 <Text style={{textAlign: 'center', padding: 5}}>{item.data.gamemode}</Text>
               </View> */}
-                  <View
-                    style={[
-                      styles.tableCol,
-                      {
-                        width: '20%',
-                        maxWidth: '20%',
-                        alignItems: 'center',
-                        padding: 15,
-                      },
-                    ]}
-                  >
-                    <Text
-                      style={{
-                        textAlign: 'center',
-                        padding: 5,
-                        color:
-                          gamemode == 'Progressive' && item.score < 0
-                            ? 'green'
-                            : gamemode == 'Progressive' && item.score > 0
-                              ? 'red'
-                              : colors.text,
-                      }}
+                    <View
+                      style={[
+                        styles.tableCol,
+                        {
+                          width: '20%',
+                          maxWidth: '20%',
+                          alignItems: 'center',
+                          padding: 15,
+                        },
+                      ]}
                     >
-                      {item.score}
-                    </Text>
-                  </View>
-                  {/* <View style={[styles.tableCol]}>
+                      <Text
+                        style={{
+                          textAlign: 'center',
+                          padding: 5,
+                          color:
+                            gamemode == 'Progressive' && item.score < 0
+                              ? 'green'
+                              : gamemode == 'Progressive' && item.score > 0
+                                ? 'red'
+                                : colors.text,
+                        }}
+                      >
+                        {item.score}
+                      </Text>
+                    </View>
+                    {/* <View style={[styles.tableCol]}>
                 <Text style={{textAlign: 'center', padding: 5}}>Medium</Text>
               </View> */}
-                  <View
-                    style={[
-                      styles.tableCol,
-                      { width: '20%', maxWidth: '20%', justifyContent: 'center' },
-                    ]}
-                  >
-                    {/* <TouchableOpacity style={{padding: 5}} onPress={() => handleLink(item.id, item.data.size)}> */}
-                    <TouchableOpacity
-                      style={{ padding: 5 }}
-                      onPress={() => handleLink(item.boardId)}
+                    <View
+                      style={[
+                        styles.tableCol,
+                        { width: '20%', maxWidth: '20%', justifyContent: 'center' },
+                      ]}
                     >
-                      <Text style={{ textAlign: 'center', color: colors.text }}>
-                        Board Info
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </Animated.View>
-              )}
-            />
+                      {/* <TouchableOpacity style={{padding: 5}} onPress={() => handleLink(item.id, item.data.size)}> */}
+                      <TouchableOpacity
+                        style={{ padding: 5 }}
+                        onPress={() => handleLink(item.boardId)}
+                      >
+                        <Text style={{ textAlign: 'center', color: colors.text }}>
+                          Board Info
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </Animated.View>
+                )}
+              />
+            </>
           )}
         </View>
       ) : (
         <View style={styles.table}>
-          <View style={[styles.tableRow, { backgroundColor: colors.tableRow }]}>
-            <View style={[styles.tableCol, { width: '15%', maxWidth: '15%' }]}>
-              <Text style={{ textAlign: 'center', padding: 5, color: colors.text }}>
-                Rank
-              </Text>
-            </View>
-            <View style={[styles.tableCol, { width: '42.5%', maxWidth: '42.5%' }]}>
-              <Text style={{ textAlign: 'center', padding: 5, color: colors.text }}>
-                Username
-              </Text>
-            </View>
-            <View style={[styles.tableCol, { width: '42.5%', maxWidth: '42.5%' }]}>
-              <Text style={{ textAlign: 'center', padding: 5, color: colors.text }}>
-                {queryOptionState}
-              </Text>
-            </View>
-          </View>
           {scores.length == 0 ? (
             <EmptyRow />
           ) : (
-            <FlatList
-              data={scores}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item, index }) => (
-                <Animated.View
-                  style={[
-                    styles.tableRow,
-                    {
-                      opacity: animatedValues[index],
-                      backgroundColor: colors.tableRow,
-                      transform: [
+            <>
+              <TopRow />
+              <FlatList
+                data={scores}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item, index }) => (
+                  <Animated.View
+                    style={[
+                      styles.tableRow,
+                      {
+                        opacity: animatedValues[index],
+                        backgroundColor: colors.tableRow,
+                        transform: [
+                          {
+                            translateX: animatedValues[index].interpolate({
+                              inputRange: [0, 1],
+                              outputRange: [-50, 0],
+                            }),
+                          },
+                        ],
+                      },
+                    ]}
+                  >
+                    <View
+                      style={[
+                        styles.tableCol,
                         {
-                          translateX: animatedValues[index].interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [-50, 0],
-                          }),
+                          width: '15%',
+                          maxWidth: '15%',
+                          alignItems: 'center',
+                          padding: 15,
                         },
-                      ],
-                    },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.tableCol,
-                      {
-                        width: '15%',
-                        maxWidth: '15%',
-                        alignItems: 'center',
-                        padding: 15,
-                      },
-                    ]}
-                  >
-                    <Text
-                      style={{ textAlign: 'center', padding: 5, color: colors.text }}
+                      ]}
                     >
-                      {index + 1}
-                    </Text>
-                  </View>
-                  <View
-                    style={[
-                      styles.tableCol,
-                      {
-                        width: '42.5%',
-                        maxWidth: '42.5%',
-                        alignItems: 'center',
-                        padding: 15,
-                      },
-                    ]}
-                  >
-                    <Text
-                      style={{ textAlign: 'center', padding: 5, color: colors.text }}
+                      <Text
+                        style={{
+                          textAlign: 'center',
+                          padding: 5,
+                          color: colors.text,
+                        }}
+                      >
+                        {index + 1}
+                      </Text>
+                    </View>
+                    <View
+                      style={[
+                        styles.tableCol,
+                        {
+                          width: '42.5%',
+                          maxWidth: '42.5%',
+                          alignItems: 'center',
+                          padding: 15,
+                        },
+                      ]}
                     >
-                      {item.username}
-                    </Text>
-                  </View>
-                  <View
-                    style={[
-                      styles.tableCol,
-                      {
-                        width: '42.5%',
-                        maxWidth: '42.5%',
-                        alignItems: 'center',
-                        padding: 15,
-                      },
-                    ]}
-                  >
-                    <Text
-                      style={{
-                        textAlign: 'center',
-                        padding: 5,
-                        color:
-                          queryOptionState == 'Win Rate' &&
-                          parseInt(item.queryData) > 50 &&
-                          item.wins + item.losses > 9
-                            ? 'green'
-                            : queryOptionState == 'Win Rate' &&
-                                parseInt(item.queryData) < 50 &&
-                                item.wins + item.losses > 9
-                              ? 'red'
-                              : colors.text,
-                      }}
+                      <Text
+                        style={{
+                          textAlign: 'center',
+                          padding: 5,
+                          color: colors.text,
+                        }}
+                      >
+                        {item.username}
+                      </Text>
+                    </View>
+                    <View
+                      style={[
+                        styles.tableCol,
+                        {
+                          width: '42.5%',
+                          maxWidth: '42.5%',
+                          alignItems: 'center',
+                          padding: 15,
+                        },
+                      ]}
                     >
-                      {item.wins + item.losses < 10
-                        ? `${item.wins + item.losses}/10 Games Played`
-                        : item.queryData}
-                    </Text>
-                  </View>
-                </Animated.View>
-              )}
-            />
+                      <Text
+                        style={{
+                          textAlign: 'center',
+                          padding: 5,
+                          color:
+                            queryOptionState == 'Win Rate' &&
+                            parseInt(item.queryData) > 50 &&
+                            item.wins + item.losses > 9
+                              ? 'green'
+                              : queryOptionState == 'Win Rate' &&
+                                  parseInt(item.queryData) < 50 &&
+                                  item.wins + item.losses > 9
+                                ? 'red'
+                                : colors.text,
+                        }}
+                      >
+                        {item.wins + item.losses < 10
+                          ? `${item.wins + item.losses}/10 Games Played`
+                          : item.queryData}
+                      </Text>
+                    </View>
+                  </Animated.View>
+                )}
+              />
+            </>
           )}
         </View>
       )}
