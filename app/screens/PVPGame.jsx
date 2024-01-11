@@ -286,6 +286,10 @@ const PVPGame = () => {
       const docSnap = await getDoc(docRef)
       if (docSnap.exists()) {
         setBoardLoaded(true)
+        console.log(
+          'initial board state: ',
+          JSON.parse(docSnap.data().boardState).flat(),
+        )
         let boardState = JSON.parse(docSnap.data().boardState).flat()
         tempSquareArr = JSON.parse(JSON.stringify(boardState))
         squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
@@ -351,7 +355,9 @@ const PVPGame = () => {
             return
           }
           // // console.log(doc.data())
-          let boardState = JSON.parse(doc.data().boardState)
+          let boardState = []
+          boardState = JSON.parse(doc.data().boardState).flat()
+          console.log('boardState', boardState)
           // // console.log('board 0', boardState[0].colorIndex)
           // // console.log('board end', boardState[boardState.length - 1].colorIndex)
           // // console.log(boardState)
@@ -669,17 +675,19 @@ const PVPGame = () => {
       setTurn('Owner')
     }
     const newTempArr = JSON.parse(JSON.stringify(tempSquareArr))
-    // // console.log(newTempArr)
+    console.log('newtemparr', newTempArr)
     const newData = {
       boardState: JSON.stringify(newTempArr),
-      // squareAnimArr: squareAnim,
       turn: nextTurn,
       updatedAt: serverTimestamp(),
       animationIndex: JSON.stringify(animationIndex),
     }
     try {
       const update = await updateDoc(docRef, {
-        ...newData,
+        boardState: JSON.stringify(newTempArr),
+        turn: nextTurn,
+        updatedAt: serverTimestamp(),
+        animationIndex: JSON.stringify(animationIndex),
         ownerScore: increment(ownerCaptured),
         opponentScore: increment(opponentCaptured),
       })
@@ -1066,7 +1074,7 @@ const PVPGame = () => {
         </View>
 
         {userName != opponentName ? (
-          <View style={[styles.colorRow, turn == 'Owner' && { opacity: 0.25 }]}>
+          <View style={[styles.colorRow, turn == 'Owner' && { opacity: 0.1 }]}>
             <TouchableOpacity
               style={[
                 styles.color,
@@ -1074,14 +1082,8 @@ const PVPGame = () => {
                   backgroundColor:
                     opponentSelectedColor == colors[0] ? 'gray' : colorOption[0],
                 },
-                { opacity: opponentSelectedColor == colors[0] ? 0.25 : 1 },
+                { opacity: opponentSelectedColor == colors[0] ? 0.1 : 1 },
               ]}
-              onPress={() =>
-                turn == 'Opponent' &&
-                userName == opponentName &&
-                opponentSelectedColor != colors[0] &&
-                colorChange(colorOption[0])
-              }
             ></TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -1090,14 +1092,8 @@ const PVPGame = () => {
                   backgroundColor:
                     opponentSelectedColor == colors[1] ? 'gray' : colorOption[1],
                 },
-                { opacity: opponentSelectedColor == colors[1] ? 0.25 : 1 },
+                { opacity: opponentSelectedColor == colors[1] ? 0.1 : 1 },
               ]}
-              onPress={() =>
-                turn == 'Opponent' &&
-                userName == opponentName &&
-                opponentSelectedColor != colors[1] &&
-                colorChange(colorOption[1])
-              }
             ></TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -1106,14 +1102,8 @@ const PVPGame = () => {
                   backgroundColor:
                     opponentSelectedColor == colors[2] ? 'gray' : colorOption[2],
                 },
-                { opacity: opponentSelectedColor == colors[2] ? 0.25 : 1 },
+                { opacity: opponentSelectedColor == colors[2] ? 0.1 : 1 },
               ]}
-              onPress={() =>
-                turn == 'Opponent' &&
-                userName == opponentName &&
-                opponentSelectedColor != colors[2] &&
-                colorChange(colorOption[2])
-              }
             ></TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -1122,14 +1112,8 @@ const PVPGame = () => {
                   backgroundColor:
                     opponentSelectedColor == colors[3] ? 'gray' : colorOption[3],
                 },
-                { opacity: opponentSelectedColor == colors[3] ? 0.25 : 1 },
+                { opacity: opponentSelectedColor == colors[3] ? 0.1 : 1 },
               ]}
-              onPress={() =>
-                turn == 'Opponent' &&
-                userName == opponentName &&
-                opponentSelectedColor != colors[3] &&
-                colorChange(colorOption[3])
-              }
             ></TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -1138,18 +1122,12 @@ const PVPGame = () => {
                   backgroundColor:
                     opponentSelectedColor == colors[4] ? 'gray' : colorOption[4],
                 },
-                { opacity: opponentSelectedColor == colors[4] ? 0.25 : 1 },
+                { opacity: opponentSelectedColor == colors[4] ? 0.1 : 1 },
               ]}
-              onPress={() =>
-                turn == 'Opponent' &&
-                userName == opponentName &&
-                opponentSelectedColor != colors[4] &&
-                colorChange(colorOption[4])
-              }
             ></TouchableOpacity>
           </View>
         ) : (
-          <View style={[styles.colorRow, turn == 'Opponent' && { opacity: 0.25 }]}>
+          <View style={[styles.colorRow, turn == 'Opponent' && { opacity: 0.1 }]}>
             <TouchableOpacity
               style={[
                 styles.color,
@@ -1157,14 +1135,8 @@ const PVPGame = () => {
                   backgroundColor:
                     ownerSelectedColor == colors[0] ? 'gray' : colorOption[0],
                 },
-                { opacity: ownerSelectedColor == colors[0] ? 0.25 : 1 },
+                { opacity: ownerSelectedColor == colors[0] ? 0.1 : 1 },
               ]}
-              onPress={() =>
-                turn == 'Owner' &&
-                userName == ownerName &&
-                ownerSelectedColor != colors[0] &&
-                colorChange(colorOption[0])
-              }
             ></TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -1173,14 +1145,8 @@ const PVPGame = () => {
                   backgroundColor:
                     ownerSelectedColor == colors[1] ? 'gray' : colorOption[1],
                 },
-                { opacity: ownerSelectedColor == colors[1] ? 0.25 : 1 },
+                { opacity: ownerSelectedColor == colors[1] ? 0.1 : 1 },
               ]}
-              onPress={() =>
-                turn == 'Owner' &&
-                userName == ownerName &&
-                ownerSelectedColor != colors[1] &&
-                colorChange(colorOption[1])
-              }
             ></TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -1189,14 +1155,8 @@ const PVPGame = () => {
                   backgroundColor:
                     ownerSelectedColor == colors[2] ? 'gray' : colorOption[2],
                 },
-                { opacity: ownerSelectedColor == colors[2] ? 0.25 : 1 },
+                { opacity: ownerSelectedColor == colors[2] ? 0.1 : 1 },
               ]}
-              onPress={() =>
-                turn == 'Owner' &&
-                userName == ownerName &&
-                ownerSelectedColor != colors[2] &&
-                colorChange(colorOption[2])
-              }
             ></TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -1205,14 +1165,8 @@ const PVPGame = () => {
                   backgroundColor:
                     ownerSelectedColor == colors[3] ? 'gray' : colorOption[3],
                 },
-                { opacity: ownerSelectedColor == colors[3] ? 0.25 : 1 },
+                { opacity: ownerSelectedColor == colors[3] ? 0.1 : 1 },
               ]}
-              onPress={() =>
-                turn == 'Owner' &&
-                userName == ownerName &&
-                ownerSelectedColor != colors[3] &&
-                colorChange(colorOption[3])
-              }
             ></TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -1221,14 +1175,8 @@ const PVPGame = () => {
                   backgroundColor:
                     ownerSelectedColor == colors[4] ? 'gray' : colorOption[4],
                 },
-                { opacity: ownerSelectedColor == colors[4] ? 0.25 : 1 },
+                { opacity: ownerSelectedColor == colors[4] ? 0.1 : 1 },
               ]}
-              onPress={() =>
-                turn == 'Owner' &&
-                userName == ownerName &&
-                ownerSelectedColor != colors[4] &&
-                colorChange(colorOption[4])
-              }
             ></TouchableOpacity>
           </View>
         )}
@@ -1314,7 +1262,7 @@ const PVPGame = () => {
         </View>
       )}
       {userName != opponentName ? (
-        <View style={[styles.colorRow, turn == 'Opponent' && { opacity: 0.25 }]}>
+        <View style={[styles.colorRow, turn == 'Opponent' && { opacity: 0.1 }]}>
           <TouchableOpacity
             style={[
               styles.color,
@@ -1322,10 +1270,13 @@ const PVPGame = () => {
                 backgroundColor:
                   ownerSelectedColor == colors[0] ? 'gray' : colorOption[0],
               },
-              { opacity: ownerSelectedColor == colors[0] ? 0.25 : 1 },
+              { opacity: ownerSelectedColor == colors[0] ? 0.1 : 1 },
             ]}
             onPress={() =>
-              turn == 'Owner' && userName == ownerName && colorChange(colorOption[0])
+              turn == 'Owner' &&
+              userName == ownerName &&
+              ownerSelectedColor != colors[0] &&
+              colorChange(colorOption[0])
             }
           ></TouchableOpacity>
           <TouchableOpacity
@@ -1335,10 +1286,13 @@ const PVPGame = () => {
                 backgroundColor:
                   ownerSelectedColor == colors[1] ? 'gray' : colorOption[1],
               },
-              { opacity: ownerSelectedColor == colors[1] ? 0.25 : 1 },
+              { opacity: ownerSelectedColor == colors[1] ? 0.1 : 1 },
             ]}
             onPress={() =>
-              turn == 'Owner' && userName == ownerName && colorChange(colorOption[1])
+              turn == 'Owner' &&
+              userName == ownerName &&
+              ownerSelectedColor != colors[1] &&
+              colorChange(colorOption[1])
             }
           ></TouchableOpacity>
           <TouchableOpacity
@@ -1348,10 +1302,13 @@ const PVPGame = () => {
                 backgroundColor:
                   ownerSelectedColor == colors[2] ? 'gray' : colorOption[2],
               },
-              { opacity: ownerSelectedColor == colors[2] ? 0.25 : 1 },
+              { opacity: ownerSelectedColor == colors[2] ? 0.1 : 1 },
             ]}
             onPress={() =>
-              turn == 'Owner' && userName == ownerName && colorChange(colorOption[2])
+              turn == 'Owner' &&
+              userName == ownerName &&
+              ownerSelectedColor != colors[2] &&
+              colorChange(colorOption[2])
             }
           ></TouchableOpacity>
           <TouchableOpacity
@@ -1361,10 +1318,13 @@ const PVPGame = () => {
                 backgroundColor:
                   ownerSelectedColor == colors[3] ? 'gray' : colorOption[3],
               },
-              { opacity: ownerSelectedColor == colors[3] ? 0.25 : 1 },
+              { opacity: ownerSelectedColor == colors[3] ? 0.1 : 1 },
             ]}
             onPress={() =>
-              turn == 'Owner' && userName == ownerName && colorChange(colorOption[3])
+              turn == 'Owner' &&
+              userName == ownerName &&
+              ownerSelectedColor != colors[3] &&
+              colorChange(colorOption[3])
             }
           ></TouchableOpacity>
           <TouchableOpacity
@@ -1374,15 +1334,18 @@ const PVPGame = () => {
                 backgroundColor:
                   ownerSelectedColor == colors[4] ? 'gray' : colorOption[4],
               },
-              { opacity: ownerSelectedColor == colors[4] ? 0.25 : 1 },
+              { opacity: ownerSelectedColor == colors[4] ? 0.1 : 1 },
             ]}
             onPress={() =>
-              turn == 'Owner' && userName == ownerName && colorChange(colorOption[4])
+              turn == 'Owner' &&
+              userName == ownerName &&
+              ownerSelectedColor != colors[4] &&
+              colorChange(colorOption[4])
             }
           ></TouchableOpacity>
         </View>
       ) : (
-        <View style={[styles.colorRow, turn == 'Owner' && { opacity: 0.25 }]}>
+        <View style={[styles.colorRow, turn == 'Owner' && { opacity: 0.1 }]}>
           <TouchableOpacity
             style={[
               styles.color,
@@ -1390,11 +1353,12 @@ const PVPGame = () => {
                 backgroundColor:
                   opponentSelectedColor == colors[0] ? 'gray' : colorOption[0],
               },
-              { opacity: opponentSelectedColor == colors[0] ? 0.25 : 1 },
+              { opacity: opponentSelectedColor == colors[0] ? 0.1 : 1 },
             ]}
             onPress={() =>
               turn == 'Opponent' &&
               userName == opponentName &&
+              opponentSelectedColor != colors[0] &&
               colorChange(colorOption[0])
             }
           ></TouchableOpacity>
@@ -1405,11 +1369,12 @@ const PVPGame = () => {
                 backgroundColor:
                   opponentSelectedColor == colors[1] ? 'gray' : colorOption[1],
               },
-              { opacity: opponentSelectedColor == colors[1] ? 0.25 : 1 },
+              { opacity: opponentSelectedColor == colors[1] ? 0.1 : 1 },
             ]}
             onPress={() =>
               turn == 'Opponent' &&
               userName == opponentName &&
+              opponentSelectedColor != colors[1] &&
               colorChange(colorOption[1])
             }
           ></TouchableOpacity>
@@ -1420,11 +1385,12 @@ const PVPGame = () => {
                 backgroundColor:
                   opponentSelectedColor == colors[2] ? 'gray' : colorOption[2],
               },
-              { opacity: opponentSelectedColor == colors[2] ? 0.25 : 1 },
+              { opacity: opponentSelectedColor == colors[2] ? 0.1 : 1 },
             ]}
             onPress={() =>
               turn == 'Opponent' &&
               userName == opponentName &&
+              opponentSelectedColor != colors[2] &&
               colorChange(colorOption[2])
             }
           ></TouchableOpacity>
@@ -1435,11 +1401,12 @@ const PVPGame = () => {
                 backgroundColor:
                   opponentSelectedColor == colors[3] ? 'gray' : colorOption[3],
               },
-              { opacity: opponentSelectedColor == colors[3] ? 0.25 : 1 },
+              { opacity: opponentSelectedColor == colors[3] ? 0.1 : 1 },
             ]}
             onPress={() =>
               turn == 'Opponent' &&
               userName == opponentName &&
+              opponentSelectedColor != colors[3] &&
               colorChange(colorOption[3])
             }
           ></TouchableOpacity>
@@ -1450,11 +1417,12 @@ const PVPGame = () => {
                 backgroundColor:
                   opponentSelectedColor == colors[4] ? 'gray' : colorOption[4],
               },
-              { opacity: opponentSelectedColor == colors[4] ? 0.25 : 1 },
+              { opacity: opponentSelectedColor == colors[4] ? 0.1 : 1 },
             ]}
             onPress={() =>
               turn == 'Opponent' &&
               userName == opponentName &&
+              opponentSelectedColor != colors[4] &&
               colorChange(colorOption[4])
             }
           ></TouchableOpacity>
