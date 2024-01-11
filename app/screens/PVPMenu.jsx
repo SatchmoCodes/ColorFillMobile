@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
   Platform,
+  ActivityIndicator,
 } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import {
@@ -148,7 +149,10 @@ const PVPMenu = ({ navigation }) => {
       }
       const id = querySnapshot.docs[0].id
       const docRef = doc(db, 'Games', id)
-      const newData = { opponentName: userName }
+      const newData = {
+        opponentName: userName,
+        opponentUid: uid,
+      }
       try {
         const update = await updateDoc(docRef, newData)
         navigation.navigate('PVPLobby', { id })
@@ -195,11 +199,22 @@ const PVPMenu = ({ navigation }) => {
               <Text style={[{ fontSize: 15, color: colors.text }]}>
                 {item.data.ownerName}
               </Text>
-              <Text style={[{ fontSize: 15, color: colors.text }]}>
-                {item.data.opponentName == ''
-                  ? 'Waiting on Player...'
-                  : item.data.opponentName}
-              </Text>
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text style={[{ fontSize: 15, color: colors.text }]}>
+                  {item.data.opponentName == ''
+                    ? 'Waiting on Player...'
+                    : item.data.opponentName}
+                </Text>
+                {item.data.opponentName === '' && (
+                  <ActivityIndicator color="darkgreen"></ActivityIndicator>
+                )}
+              </View>
               {item.data.opponentName == '' && (
                 <TouchableOpacity
                   style={styles.buttonSmall}
