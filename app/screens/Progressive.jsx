@@ -9,6 +9,7 @@ import {
   Animated,
   Easing,
   Alert,
+  ActivityIndicator,
 } from 'react-native'
 import React from 'react'
 import { useState, useEffect, useRef } from 'react'
@@ -130,6 +131,7 @@ const Progressive = () => {
   const [userName, setUserName] = useState(null)
 
   const [boardLoaded, setBoardLoaded] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -277,6 +279,7 @@ const Progressive = () => {
       setTotalScore(totalScoreValue)
       if (totalCaptured == squares[hole].length) {
         if (hole == 9) {
+          setLoading(true)
           handleHoleChange()
           handleComplete()
         } else {
@@ -448,27 +451,30 @@ const Progressive = () => {
   }
 
   async function handleComplete() {
-    const newScore = await addDoc(collection(db, 'Scores'), {
-      boardId: boardId,
-      score: totalScoreValue,
-      size: 'Default',
-      boardData: randomArr.toString(),
-      createdBy: userName,
-      gamemode: 'Progressive',
-      createdAt: serverTimestamp(),
-    })
-    console.log(totalScoreValue)
-    originalScore = scoreToBeat
-    console.log('totalscore', totalScoreValue)
-    console.log('originalscore', originalScore)
-    if (totalScoreValue < highScore || highScore == '') {
-      setHighScore(totalScoreValue)
+    if (!complete) {
+      setComplete(true)
+      const newScore = await addDoc(collection(db, 'Scores'), {
+        boardId: boardId,
+        score: totalScoreValue,
+        size: 'Default',
+        boardData: randomArr.toString(),
+        createdBy: userName,
+        gamemode: 'Progressive',
+        createdAt: serverTimestamp(),
+      })
+      console.log(totalScoreValue)
+      originalScore = scoreToBeat
+      console.log('totalscore', totalScoreValue)
+      console.log('originalscore', originalScore)
+      if (totalScoreValue < highScore || highScore === '') {
+        setHighScore(totalScoreValue)
+      }
+      if (totalScoreValue < scoreToBeat || scoreToBeat == null) {
+        // setPreviousScore(scoreToBeat)
+        setScoreToBeat(totalScoreValue)
+      }
+      setLoading(false)
     }
-    if (totalScoreValue < scoreToBeat) {
-      // setPreviousScore(scoreToBeat)
-      setScoreToBeat(totalScoreValue)
-    }
-    setComplete(true)
   }
 
   function generateNewBoard() {
@@ -638,19 +644,26 @@ const Progressive = () => {
       >
         <View style={styles.centeredView}>
           <View style={[styles.modalView, { backgroundColor: colorTheme.button }]}>
-            <Text style={[styles.modalText, { color: colorTheme.text }]}>
-              {originalScore == null
-                ? `You completed the game ${
-                    totalScore < 0 ? totalScore + ' under ' : totalScore + ' over'
-                  } par!`
-                : totalScore >= originalScore
-                  ? `You did not beat the previous score!`
-                  : `You beat the previous record (${
-                      originalScore > 0 ? `+${originalScore}` : originalScore
-                    }) with a score of ${
-                      totalScore > 0 ? `+${totalScore}` : totalScore
-                    }!`}
-            </Text>
+            {loading ? (
+              <ActivityIndicator color="darkgreen"></ActivityIndicator>
+            ) : (
+              <Text style={[styles.modalText, { color: colorTheme.text }]}>
+                {originalScore == null
+                  ? `You completed the game ${
+                      totalScoreValue < 0
+                        ? totalScoreValue + ' under '
+                        : totalScoreValue + ' over'
+                    } par!`
+                  : totalScoreValue >= originalScore
+                    ? `You did not beat the previous score!`
+                    : `You beat the previous record (${
+                        originalScore > 0 ? `+${originalScore}` : originalScore
+                      }) with a score of ${
+                        totalScoreValue > 0 ? `+${totalScoreValue}` : totalScoreValue
+                      }!`}
+              </Text>
+            )}
+
             <TouchableOpacity
               style={[styles.button, styles.buttonClose]}
               onPress={() => generateNewBoard()}
@@ -813,9 +826,9 @@ const Progressive = () => {
             {
               backgroundColor: selectedColor == colors[0] ? 'gray' : colorOption[0],
             },
-            { opacity: selectedColor == colors[0] ? 0.25 : 1 },
+            { opacity: selectedColor == colors[0] ? 0.1 : 1 },
           ]}
-          onPress={() => colorChange(colorOption[0])}
+          onPress={() => selectedColor != colors[0] && colorChange(colorOption[0])}
         ></TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -823,9 +836,9 @@ const Progressive = () => {
             {
               backgroundColor: selectedColor == colors[1] ? 'gray' : colorOption[1],
             },
-            { opacity: selectedColor == colors[1] ? 0.25 : 1 },
+            { opacity: selectedColor == colors[1] ? 0.1 : 1 },
           ]}
-          onPress={() => colorChange(colorOption[1])}
+          onPress={() => selectedColor != colors[1] && colorChange(colorOption[1])}
         ></TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -833,9 +846,9 @@ const Progressive = () => {
             {
               backgroundColor: selectedColor == colors[2] ? 'gray' : colorOption[2],
             },
-            { opacity: selectedColor == colors[2] ? 0.25 : 1 },
+            { opacity: selectedColor == colors[2] ? 0.1 : 1 },
           ]}
-          onPress={() => colorChange(colorOption[2])}
+          onPress={() => selectedColor != colors[2] && colorChange(colorOption[2])}
         ></TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -843,9 +856,9 @@ const Progressive = () => {
             {
               backgroundColor: selectedColor == colors[3] ? 'gray' : colorOption[3],
             },
-            { opacity: selectedColor == colors[3] ? 0.25 : 1 },
+            { opacity: selectedColor == colors[3] ? 0.1 : 1 },
           ]}
-          onPress={() => colorChange(colorOption[3])}
+          onPress={() => selectedColor != colors[3] && colorChange(colorOption[3])}
         ></TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -853,9 +866,9 @@ const Progressive = () => {
             {
               backgroundColor: selectedColor == colors[4] ? 'gray' : colorOption[4],
             },
-            { opacity: selectedColor == colors[4] ? 0.25 : 1 },
+            { opacity: selectedColor == colors[4] ? 0.1 : 1 },
           ]}
-          onPress={() => colorChange(colorOption[4])}
+          onPress={() => selectedColor != colors[4] && colorChange(colorOption[4])}
         ></TouchableOpacity>
       </View>
     </View>
