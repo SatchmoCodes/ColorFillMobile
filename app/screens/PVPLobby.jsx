@@ -68,6 +68,7 @@ const PVPLobby = () => {
         try {
           const update = await updateDoc(docRef, {
             opponentName: '',
+            opponentUid: '',
           })
         } catch (error) {
           console.log(error)
@@ -118,9 +119,21 @@ const PVPLobby = () => {
     const unsubscribe = onSnapshot(docRef, (doc) => {
       if (doc.exists()) {
         let id = doc.id
+        let boardSize
+        switch (doc.data().size) {
+          case 'Small':
+            boardSize = 11
+            break
+          case 'Medium':
+            boardSize = 15
+            break
+          case 'Large':
+            boardSize = 19
+            break
+        }
         setGameInfo(doc.data())
         if (doc.data().gameState == 'Playing') {
-          navigation.navigate('PVPGame', { id })
+          navigation.navigate('PVPGame', { id, boardSize })
         }
         if (
           doc.data().gameState == 'Deleting' &&
@@ -169,38 +182,43 @@ const PVPLobby = () => {
         <View
           style={[styles.players, { width: 300, backgroundColor: colors.tableRow }]}
         >
-          <Text
-            style={{
-              fontSize: 20,
-              width: '45%',
-              textAlign: 'center',
-              color: colors.text,
-            }}
+          <View
+            style={{ justifyContent: 'center', alignItems: 'center', width: '45%' }}
           >
-            {gameInfo != null && gameInfo.ownerName}
-          </Text>
+            <Text
+              style={{
+                fontSize: 20,
+                flexGrow: 1,
+                textAlign: 'center',
+                color: colors.text,
+              }}
+            >
+              {gameInfo != null && gameInfo.ownerName}
+            </Text>
+          </View>
           <View
             style={{ justifyContent: 'center', alignItems: 'center', width: '10%' }}
           >
             <Text style={{ color: 'red' }}>VS</Text>
           </View>
-          <Text
-            style={{
-              fontSize: 20,
-              width: '45%',
-              textAlign: 'center',
-              justifyContent: 'center',
-              color: colors.text,
-            }}
+          <View
+            style={{ justifyContent: 'center', alignItems: 'center', width: '45%' }}
           >
             {gameInfo != null && gameInfo.opponentName == '' ? (
               <ActivityIndicator color="darkgreen"></ActivityIndicator>
             ) : (
-              gameInfo != null &&
-              gameInfo.opponentName != '' &&
-              gameInfo.opponentName
+              <Text
+                style={{
+                  fontSize: 20,
+                  textAlign: 'center',
+                  justifyContent: 'center',
+                  color: colors.text,
+                }}
+              >
+                {gameInfo != null && gameInfo.opponentName}
+              </Text>
             )}
-          </Text>
+          </View>
         </View>
         <Text style={{ fontSize: 20, color: colors.text }}>
           Code: {gameInfo != null && gameInfo.code}
@@ -239,10 +257,12 @@ const styles = StyleSheet.create({
   players: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
-    gap: 20,
     marginBottom: 20,
     borderWidth: 1,
     padding: 10,
+    minWidth: 300,
+    width: '90%',
+    maxWidth: 400,
   },
   button: {
     padding: 20,
