@@ -9,6 +9,7 @@ import {
   Animated,
   Easing,
   Alert,
+  ActivityIndicator,
 } from 'react-native'
 import React from 'react'
 import { useState, useEffect, useRef } from 'react'
@@ -141,6 +142,7 @@ const FreePlay = () => {
   const [userName, setUserName] = useState(null)
 
   const [boardLoaded, setBoardLoaded] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -338,6 +340,7 @@ const FreePlay = () => {
       setSelectedColor(tempSquareArr[0].color)
       setSelectedColorOption(colors)
       if (totalCaptured == boardSize * boardSize) {
+        setLoading(true)
         handleComplete()
       }
       setChange(false)
@@ -346,25 +349,28 @@ const FreePlay = () => {
   }, [change])
 
   async function handleComplete() {
-    const newScore = await addDoc(collection(db, 'Scores'), {
-      boardId: boardId,
-      score: countNumber,
-      size: sizeName,
-      boardData: randomArr.toString(),
-      createdBy: userName,
-      gamemode: 'FreePlay',
-      createdAt: serverTimestamp(),
-    })
-    originalScore = scoreToBeat
-    if (countNumber < highScore || highScore == '') {
-      setHighScore(countNumber)
+    if (!complete) {
+      setComplete(true)
+      setModalVisible(true)
+      const newScore = await addDoc(collection(db, 'Scores'), {
+        boardId: boardId,
+        score: countNumber,
+        size: sizeName,
+        boardData: randomArr.toString(),
+        createdBy: userName,
+        gamemode: 'FreePlay',
+        createdAt: serverTimestamp(),
+      })
+      originalScore = scoreToBeat
+      if (countNumber < highScore || highScore === '') {
+        setHighScore(countNumber)
+      }
+      if (countNumber < scoreToBeat || scoreToBeat == null) {
+        // setPreviousScore(scoreToBeat)
+        setScoreToBeat(countNumber)
+      }
     }
-    if (countNumber < scoreToBeat) {
-      // setPreviousScore(scoreToBeat)
-      setScoreToBeat(countNumber)
-    }
-    setComplete(true)
-    setModalVisible(true)
+    setLoading(false)
   }
 
   function captureCheck(color, index) {
@@ -664,27 +670,36 @@ const FreePlay = () => {
         }}
       >
         <View style={[styles.centeredView]}>
-          <View style={[styles.modalView, { backgroundColor: colorTheme.button }]}>
-            <Text style={[styles.modalText, { color: colorTheme.text }]}>
-              {originalScore == null
-                ? `You completed the board in ${counter} turns!`
-                : counter < originalScore
-                  ? `You beat the previous record (${originalScore}) with ${counter} turns!`
-                  : `You did not beat the previous record!`}
-            </Text>
-            <TouchableOpacity
-              style={[styles.button, styles.buttonClose, { marginBottom: 10 }]}
-              onPress={() => generateNewBoard()}
-            >
-              <Text style={[styles.textStyle]}>New Board</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => handleRetry()}
-            >
-              <Text style={[styles.textStyle]}>Retry Board</Text>
-            </TouchableOpacity>
-          </View>
+          {loading ? (
+            <View style={[styles.modalView, { backgroundColor: colorTheme.button }]}>
+              <ActivityIndicator
+                size={'large'}
+                color="darkgreen"
+              ></ActivityIndicator>
+            </View>
+          ) : (
+            <View style={[styles.modalView, { backgroundColor: colorTheme.button }]}>
+              <Text style={[styles.modalText, { color: colorTheme.text }]}>
+                {originalScore == null
+                  ? `You completed the board in ${counter} turns!`
+                  : counter < originalScore
+                    ? `You beat the previous record (${originalScore}) with ${counter} turns!`
+                    : `You did not beat the previous record!`}
+              </Text>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonClose, { marginBottom: 10 }]}
+                onPress={() => generateNewBoard()}
+              >
+                <Text style={[styles.textStyle]}>New Board</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonClose]}
+                onPress={() => handleRetry()}
+              >
+                <Text style={[styles.textStyle]}>Retry Board</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </Modal>
       <View style={styles.top}>
@@ -746,79 +761,86 @@ const FreePlay = () => {
           )
         })}
       </View>
-      <View style={styles.extraRow}>
-        <TouchableOpacity
-          style={[styles.resetButton, { backgroundColor: colorTheme.button }]}
-          onPress={() => generateNewBoard()}
-        >
-          <Text
-            style={{
-              textAlign: 'center',
-              userSelect: 'none',
-              color: colorTheme.text,
-            }}
+      <View style={styles.bottom}>
+        <View style={styles.extraRow}>
+          <TouchableOpacity
+            style={[styles.resetButton, { backgroundColor: colorTheme.button }]}
+            onPress={() => generateNewBoard()}
           >
-            New Board
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.resetButton, { backgroundColor: colorTheme.button }]}
-          onPress={() => handleRetry()}
-        >
-          <Text style={{ userSelect: 'none', color: colorTheme.text }}>Retry</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.colorRow}>
-        <TouchableOpacity
-          style={[
-            styles.color,
-            {
-              backgroundColor: selectedColor == colors[0] ? 'gray' : colorOption[0],
-            },
-            { opacity: selectedColor == colors[0] ? 0.25 : 1 },
-          ]}
-          onPress={() => colorChange(colorOption[0])}
-        ></TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.color,
-            {
-              backgroundColor: selectedColor == colors[1] ? 'gray' : colorOption[1],
-            },
-            { opacity: selectedColor == colors[1] ? 0.25 : 1 },
-          ]}
-          onPress={() => colorChange(colorOption[1])}
-        ></TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.color,
-            {
-              backgroundColor: selectedColor == colors[2] ? 'gray' : colorOption[2],
-            },
-            { opacity: selectedColor == colors[2] ? 0.25 : 1 },
-          ]}
-          onPress={() => colorChange(colorOption[2])}
-        ></TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.color,
-            {
-              backgroundColor: selectedColor == colors[3] ? 'gray' : colorOption[3],
-            },
-            { opacity: selectedColor == colors[3] ? 0.25 : 1 },
-          ]}
-          onPress={() => colorChange(colorOption[3])}
-        ></TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.color,
-            {
-              backgroundColor: selectedColor == colors[4] ? 'gray' : colorOption[4],
-            },
-            { opacity: selectedColor == colors[4] ? 0.25 : 1 },
-          ]}
-          onPress={() => colorChange(colorOption[4])}
-        ></TouchableOpacity>
+            <Text
+              style={{
+                textAlign: 'center',
+                userSelect: 'none',
+                color: colorTheme.text,
+              }}
+            >
+              New Board
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.resetButton, { backgroundColor: colorTheme.button }]}
+            onPress={() => handleRetry()}
+          >
+            <Text style={{ userSelect: 'none', color: colorTheme.text }}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.colorRow}>
+          <TouchableOpacity
+            style={[
+              styles.color,
+              {
+                backgroundColor:
+                  selectedColor == colors[0] ? 'gray' : colorOption[0],
+              },
+              { opacity: selectedColor == colors[0] ? 0.1 : 1 },
+            ]}
+            onPress={() => selectedColor != colors[0] && colorChange(colorOption[0])}
+          ></TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.color,
+              {
+                backgroundColor:
+                  selectedColor == colors[1] ? 'gray' : colorOption[1],
+              },
+              { opacity: selectedColor == colors[1] ? 0.1 : 1 },
+            ]}
+            onPress={() => selectedColor != colors[1] && colorChange(colorOption[1])}
+          ></TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.color,
+              {
+                backgroundColor:
+                  selectedColor == colors[2] ? 'gray' : colorOption[2],
+              },
+              { opacity: selectedColor == colors[2] ? 0.1 : 1 },
+            ]}
+            onPress={() => selectedColor != colors[2] && colorChange(colorOption[2])}
+          ></TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.color,
+              {
+                backgroundColor:
+                  selectedColor == colors[3] ? 'gray' : colorOption[3],
+              },
+              { opacity: selectedColor == colors[3] ? 0.1 : 1 },
+            ]}
+            onPress={() => selectedColor != colors[3] && colorChange(colorOption[3])}
+          ></TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.color,
+              {
+                backgroundColor:
+                  selectedColor == colors[4] ? 'gray' : colorOption[4],
+              },
+              { opacity: selectedColor == colors[4] ? 0.1 : 1 },
+            ]}
+            onPress={() => selectedColor != colors[4] && colorChange(colorOption[4])}
+          ></TouchableOpacity>
+        </View>
       </View>
     </View>
   )
@@ -828,9 +850,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
+    height: '100%',
+    // justifyContent: 'center',
   },
   top: {
     justifyContent: 'center',
+    // maxHeight: '20%',
   },
   topText: {
     textAlign: 'center',
@@ -887,6 +912,10 @@ const styles = StyleSheet.create({
     height: gridItemSize,
   },
   //bottom buttons
+  bottom: {
+    display: 'flex',
+    justifyContent: 'bottom',
+  },
   extraRow: {
     display: 'flex',
     flexDirection: 'row',
