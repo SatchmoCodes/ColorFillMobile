@@ -121,7 +121,7 @@ const Options = () => {
         Board Size
       </Text>
       <RadioGroup
-        radioButtons={radioButtons}
+        radioButtons={radioButtons.map(option => ({...option, labelStyle: {fontSize: 20, color: colors.text}, borderColor: option.id === selectedId && colors.radioSelected}))}
         onPress={(e) => setSize(e)}
         selectedId={selectedId}
         layout="row"
@@ -345,7 +345,7 @@ const Options = () => {
               { color: userColorScheme == 'light' ? 'white' : 'rgb(50,50,50)' },
             ]}
           >
-            {userColorScheme == 'light' ? 'Light' : 'Dark'} Mode
+            {userColorScheme == 'light' ? 'Dark' : 'Light'} Mode
           </Text>
         </Pressable>
       </View>
@@ -355,7 +355,11 @@ const Options = () => {
 
 export default Options
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create({ 
+  poop: {
+    backgroundColor: 'blue',
+    borderColor: 'white'
+  },
   container: {
     flex: 1,
     // justifyContent: 'center',
@@ -386,7 +390,6 @@ const styles = StyleSheet.create({
     width: 75,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 5,
   },
   square: {
     width: 25,
