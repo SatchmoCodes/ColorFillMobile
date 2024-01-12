@@ -278,6 +278,8 @@ const PVPCreate = ({ navigation }) => {
       opponentColor = colorOptionsArr[0]
     }
     const boardState = JSON.stringify(generateBoard(boardData))
+    let parsedBoardState = JSON.parse(boardState).flat()
+    console.log(boardState)
     const squareGrowthArr = new Array(dimensions * dimensions).fill(0)
     squareGrowthArr[0] = 1
     squareGrowthArr[squareGrowthArr.length - 1] = 1
@@ -293,8 +295,10 @@ const PVPCreate = ({ navigation }) => {
       code: code,
       ownerName: userName,
       ownerUid: uid,
+      ownerSelectedColor: parsedBoardState[0].color,
       opponentName: '',
       opponentUid: '',
+      opponentSelectedColor: parsedBoardState[parsedBoardState.length - 1].color,
       ownerScore: 1,
       opponentScore: 1,
       ownerLeaver: false,

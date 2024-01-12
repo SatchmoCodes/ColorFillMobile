@@ -365,10 +365,10 @@ const PVPGame = () => {
           tempSquareArr = [...boardState]
           if (doc.data().turn == 'Owner') {
             setTurn('Owner')
-            setOpponentSelectedColor(boardState[boardState.length - 1].color)
+            setOpponentSelectedColor(doc.data().ownerSelectedColor)
           } else {
             setTurn('Opponent')
-            setOwnerSelectedColor(boardState[0].color)
+            setOwnerSelectedColor(doc.data().ownerSelectedColor)
           }
           //timer testing
           setTimer(11)
@@ -631,7 +631,7 @@ const PVPGame = () => {
       } else {
         setOpponentSelectedColor(color)
       }
-      updateBoard()
+      updateBoard(color)
     } else {
       // // console.log('fake turn at initial:',fakeTurn)
       tempSquareArr.forEach((sq, index) => {
@@ -658,37 +658,43 @@ const PVPGame = () => {
     }
   }, [change])
 
-  async function updateBoard() {
+  async function updateBoard(color) {
     const docRef = doc(db, 'Games', docId)
     let nextTurn
     let ownerCaptured
     let opponentCaptured
+    let newData
+    const newTempArr = JSON.parse(JSON.stringify(tempSquareArr))
     if (turn == 'Owner') {
       nextTurn = 'Opponent'
       ownerCaptured = turnCaptured
       opponentCaptured = 0
+      newData = {
+        boardState: JSON.stringify(newTempArr),
+        ownerSelectedColor: color,
+        turn: nextTurn,
+        updatedAt: serverTimestamp(),
+        animationIndex: JSON.stringify(animationIndex),
+      }
       setTurn('Opponent')
     } else if (turn == 'Opponent') {
       nextTurn = 'Owner'
       opponentCaptured = turnCaptured
       ownerCaptured = 0
-      setTurn('Owner')
-    }
-    const newTempArr = JSON.parse(JSON.stringify(tempSquareArr))
-    console.log('newtemparr', newTempArr)
-    const newData = {
-      boardState: JSON.stringify(newTempArr),
-      turn: nextTurn,
-      updatedAt: serverTimestamp(),
-      animationIndex: JSON.stringify(animationIndex),
-    }
-    try {
-      const update = await updateDoc(docRef, {
+      newData = {
         boardState: JSON.stringify(newTempArr),
+        opponentSelectedColor: color,
         turn: nextTurn,
         updatedAt: serverTimestamp(),
         animationIndex: JSON.stringify(animationIndex),
-        ownerScore: increment(ownerCaptured),
+      }
+      setTurn('Owner')
+    }
+    
+    console.log('newtemparr', newTempArr)
+    try {
+      const update = await updateDoc(docRef, {
+        ...newData,
         opponentScore: increment(opponentCaptured),
       })
     } catch (error) {
@@ -784,11 +790,11 @@ const PVPGame = () => {
   }
 
   function captureCheck(color, index) {
-    tempSquareArr[index].color = color
+    // tempSquareArr[index].color = color
     //right
     if (tempSquareArr[index + 1] && tempSquareArr[index + 1].captured == false) {
       if (
-        tempSquareArr[index].color == tempSquareArr[index + 1].color &&
+        color == tempSquareArr[index + 1].color &&
         tempSquareArr[index].rowIndex == tempSquareArr[index + 1].rowIndex
       ) {
         if (radar) {
@@ -798,7 +804,7 @@ const PVPGame = () => {
           fakeCaptured++
           return
         }
-        tempSquareArr[index + 1].color = color
+        // tempSquareArr[index + 1].color = color
         tempSquareArr[index + 1].captured = true
         tempSquareArr[index + 1].owner = turn
         animationIndex.push(index + 1)
@@ -816,7 +822,7 @@ const PVPGame = () => {
     //left
     if (tempSquareArr[index - 1] && tempSquareArr[index - 1].captured == false) {
       if (
-        tempSquareArr[index].color == tempSquareArr[index - 1].color &&
+          color == tempSquareArr[index - 1].color &&
         tempSquareArr[index].rowIndex == tempSquareArr[index - 1].rowIndex
       ) {
         if (radar) {
@@ -826,7 +832,7 @@ const PVPGame = () => {
           fakeCaptured++
           return
         }
-        tempSquareArr[index - 1].color = color
+        // tempSquareArr[index - 1].color = color
         tempSquareArr[index - 1].captured = true
         tempSquareArr[index - 1].owner = turn
         animationIndex.push(index - 1)
@@ -842,7 +848,7 @@ const PVPGame = () => {
       tempSquareArr[index + boardSize] &&
       tempSquareArr[index + boardSize].captured == false
     ) {
-      if (tempSquareArr[index].color == tempSquareArr[index + boardSize].color) {
+      if (color == tempSquareArr[index + boardSize].color) {
         if (radar) {
           // // console.log('fake captured down')
           // // console.log(tempSquareArr[index])
@@ -850,7 +856,7 @@ const PVPGame = () => {
           fakeCaptured++
           return
         }
-        tempSquareArr[index + boardSize].color = color
+        // tempSquareArr[index + boardSize].color = color
         tempSquareArr[index + boardSize].captured = true
         tempSquareArr[index + boardSize].owner = turn
         animationIndex.push(index + boardSize)
@@ -866,7 +872,7 @@ const PVPGame = () => {
       tempSquareArr[index - boardSize] &&
       tempSquareArr[index - boardSize].captured == false
     ) {
-      if (tempSquareArr[index].color == tempSquareArr[index - boardSize].color) {
+      if (color == tempSquareArr[index - boardSize].color) {
         if (radar) {
           // // console.log('fake captured up')
           // // console.log(tempSquareArr[index])
@@ -874,7 +880,7 @@ const PVPGame = () => {
           fakeCaptured++
           return
         }
-        tempSquareArr[index - boardSize].color = color
+        // tempSquareArr[index - boardSize].color = color
         tempSquareArr[index - boardSize].captured = true
         tempSquareArr[index - boardSize].owner = turn
         animationIndex.push(index - boardSize)
