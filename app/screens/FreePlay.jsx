@@ -32,6 +32,7 @@ import { FIRESTORE_DB, FIREBASE_AUTH } from '../../firebaseConfig.js'
 import uuid from 'react-native-uuid'
 import { useColorSchemeContext } from '../../App'
 import { squareColors } from './colors.js'
+// import { AdEventType, InterstitialAd, TestIds } from 'react-native-google-mobile-ads'
 
 console.log(squareColors)
 
@@ -114,10 +115,44 @@ let docId = null
 let originalSize
 let originalScore //initial score of board when challenging/resetting
 
+// const interstitial = InterstitialAd.createForAdRequest(TestIds.INTERSTITIAL, {
+//   requestNonPersonalizedAdsOnly: true,
+// })
+
 const FreePlay = () => {
   const route = useRoute()
   const { useColors } = useColorSchemeContext()
   const colorTheme = useColors()
+
+  // const [interstitialLoaded, setInterstitialLoaded] = useState(false)
+
+  // const loadInterstitial = () => {
+  //   const unsubscribeLoaded = interstitial.addAdEventListener(
+  //     AdEventType.LOADED,
+  //     () => {
+  //       setInterstitialLoaded(true)
+  //     },
+  //   )
+
+  //   interstitial.load()
+
+  //   const unsubscribeClosed = interstitial.addAdEventListener(
+  //     AdEventType.CLOSED,
+  //     () => {
+  //       setInterstitialLoaded(false)
+  //       interstitial.load()
+  //     },
+  //   )
+  //   return () => {
+  //     unsubscribeClosed()
+  //     unsubscribeLoaded()
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   const unsubscribe = loadInterstitial()
+  //   return unsubscribe
+  // }, [])
 
   const [colorState, setColorState] = useState(tempSquareArr)
   const [selectedColor, setSelectedColor] = useState(tempSquareArr[0].color)
@@ -229,7 +264,7 @@ const FreePlay = () => {
         return
       }
     }
-    if (originalSize != size.boardSize) {
+    if (originalSize != size.boardSize || size == undefined) {
       console.log('original size not equal')
       generateNewBoard()
       return
@@ -296,6 +331,11 @@ const FreePlay = () => {
             break
         }
         // gridItemSize = Math.floor(screenWidth / boardSize);
+        return { boardSize, sizeName }
+      } else {
+        console.log('no size yet')
+        boardSize = 12
+        sizeName = 'Medium'
         return { boardSize, sizeName }
       }
     } catch (e) {
@@ -498,7 +538,7 @@ const FreePlay = () => {
     })
   }
 
-  function generateNewBoard() {
+  function generateNewBoard(showAd) {
     randomArr = []
     squareAnimArr = []
     // getSize()
@@ -516,6 +556,9 @@ const FreePlay = () => {
     resetColors()
     // handleReset()
     handleReset()
+    // if (showAd) {
+    //   interstitial.show()
+    // }
   }
 
   function resetColors() {
@@ -661,14 +704,7 @@ const FreePlay = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: colorTheme.background }]}>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible)
-        }}
-      >
+      <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <View style={[styles.centeredView]}>
           {loading ? (
             <View style={[styles.modalView, { backgroundColor: colorTheme.button }]}>
@@ -688,7 +724,7 @@ const FreePlay = () => {
               </Text>
               <TouchableOpacity
                 style={[styles.button, styles.buttonClose, { marginBottom: 10 }]}
-                onPress={() => generateNewBoard()}
+                onPress={() => generateNewBoard(true)}
               >
                 <Text style={[styles.textStyle]}>New Board</Text>
               </TouchableOpacity>
