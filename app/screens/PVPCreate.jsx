@@ -16,6 +16,7 @@ import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig.js'
 import uuid from 'react-native-uuid'
 import generateBoard from './pvpGenerator.js'
 import { useColorSchemeContext } from '../../App'
+import { squareColors } from './colors.js'
 
 const PVPCreate = ({ navigation }) => {
   const { useColors } = useColorSchemeContext()
@@ -62,12 +63,12 @@ const PVPCreate = ({ navigation }) => {
       {
         id: 'Medium',
         label: 'Medium',
-        value: '15',
+        value: '13',
       },
       {
         id: 'Large',
         label: 'Large',
-        value: '19',
+        value: '15',
       },
     ],
     [],
@@ -129,10 +130,10 @@ const PVPCreate = ({ navigation }) => {
         dimensions = 11
         break
       case 'Medium':
-        dimensions = 15
+        dimensions = 13
         break
       case 'Large':
-        dimensions = 19
+        dimensions = 15
         break
     }
 
@@ -295,10 +296,12 @@ const PVPCreate = ({ navigation }) => {
       code: code,
       ownerName: userName,
       ownerUid: uid,
-      ownerSelectedColor: parsedBoardState[0].color,
+      ownerSelectedColor: squareColors[0].indexOf(parsedBoardState[0].color),
       opponentName: '',
       opponentUid: '',
-      opponentSelectedColor: parsedBoardState[parsedBoardState.length - 1].color,
+      opponentSelectedColor: squareColors[0].indexOf(
+        parsedBoardState[parsedBoardState.length - 1].color,
+      ),
       ownerScore: 1,
       opponentScore: 1,
       ownerLeaver: false,
