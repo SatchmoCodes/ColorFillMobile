@@ -49,7 +49,11 @@ const PVPMenu = ({ navigation }) => {
     if (!querySnapshot.empty) {
       querySnapshot.forEach((doc, index) => {
         const gameData = doc.data()
-        if (gameData.gameState !== 'Playing' && gameData.gameState !== 'Deleting') {
+        if (
+          gameData.gameState !== 'Playing' &&
+          gameData.gameState !== 'Deleting' &&
+          gameData.lobbyType !== 'Private'
+        ) {
           let dateObj = gameData.createdAt.toDate()
           let timeCreated = dateObj.getTime() / 1000
           let currentTime = Math.floor(new Date().getTime() / 1000)
@@ -125,7 +129,10 @@ const PVPMenu = ({ navigation }) => {
 
   async function handleJoin(id) {
     const docRef = doc(db, 'Games', id)
-    const newData = { opponentName: userName }
+    const newData = {
+      opponentName: userName,
+      opponentUid: uid,
+    }
     try {
       const update = await updateDoc(docRef, newData)
       navigation.navigate('PVPLobby', { id })
