@@ -9,10 +9,12 @@ import {
 import React, { useState, useEffect } from 'react'
 import { FIREBASE_AUTH } from '../../firebaseConfig'
 import { useColorSchemeContext } from '../../App'
+import { useNavigation, CommonActions } from '@react-navigation/native'
 
-const Home = ({ navigation }) => {
+const Home = () => {
   const { getColors } = useColorSchemeContext()
   const colors = getColors()
+  const navigation = useNavigation()
 
   const [colorTheme, setColorTheme] = useState(colors)
 
@@ -24,7 +26,12 @@ const Home = ({ navigation }) => {
 
   function handleLogOut() {
     FIREBASE_AUTH.signOut().then(() => {
-      navigation.navigate('Login')
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Login' }],
+        }),
+      )
     })
   }
 
