@@ -27,6 +27,7 @@ import { User, onAuthStateChanged } from 'firebase/auth'
 import { FIREBASE_AUTH } from './firebaseConfig.js'
 import LeaderboardOptions from './app/LeaderboardOptions.jsx'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+// import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads'
 
 import PVPMenu from './app/screens/PVPMenu.jsx'
 import PVPCreate from './app/screens/PVPCreate.jsx'
@@ -310,6 +311,20 @@ function AuthView() {
         name="PVPGame"
         component={PVPGame}
         options={({ navigation, route }) => ({
+          headerRight: () => (
+            <TouchableOpacity
+              style={[
+                {
+                  marginRight: Platform.OS === 'web' && 20,
+                  backgroundColor: 'blue',
+                  padding: 8,
+                },
+              ]}
+              onPress={() => navigation.navigate('Options')}
+            >
+              <Text style={{ color: 'white' }}>Options</Text>
+            </TouchableOpacity>
+          ),
           // Add a placeholder button without the `onPress` to avoid flicker
         })}
       />
@@ -322,6 +337,7 @@ function NonAuthView() {
     <Stack.Navigator>
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Register" component={Register} />
+      <Stack.Screen name="HomePage" component={Home} />
     </Stack.Navigator>
   )
 }
@@ -329,6 +345,9 @@ function NonAuthView() {
 function RootNavigator() {
   const { user, setUser } = useContext(AuthenticatedUserContext)
   const [loading, setLoading] = useState(true)
+  const { useColors, userColorScheme } = useColorSchemeContext()
+  const colors = useColors()
+  console.log(colors)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
@@ -349,7 +368,28 @@ function RootNavigator() {
   }
   return (
     <NavigationContainer>
+      <StatusBar
+        style={userColorScheme === 'dark' ? 'light' : 'dark'}
+        backgroundColor={colors.tableRow}
+      />
       {user ? <AuthView /> : <NonAuthView />}
+      {user && (
+        <View
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: colors.background,
+          }}
+        >
+          {/* <BannerAd
+            unitId={TestIds.BANNER}
+            size={BannerAdSize.BANNER}
+            requestOptions={{
+              requestNonPersonalizedAdsOnly: true,
+            }}
+          /> */}
+        </View>
+      )}
     </NavigationContainer>
   )
 }

@@ -35,6 +35,7 @@ import { FIRESTORE_DB, FIREBASE_AUTH } from '../../firebaseConfig.js'
 import uuid from 'react-native-uuid'
 import { useColorSchemeContext } from '../../App'
 import { squareColors } from './colors.js'
+// import { AdEventType, InterstitialAd, TestIds } from 'react-native-google-mobile-ads'
 
 let red = 'hsl(0, 100%, 40%)'
 let orange = 'hsl(22, 100%, 50%)'
@@ -50,7 +51,7 @@ const colorArr = squareColors
 
 let boardSize = 19
 let sizeName = 'Medium'
-let screenWidth = Dimensions.get('window').width * 0.95
+let screenWidth = Dimensions.get('window').width * 0.98
 let gridItemSize = Math.floor(screenWidth / boardSize)
 // // console.log(gridItemSize)
 if (screenWidth >= 1000) {
@@ -120,6 +121,10 @@ let randomColor
 
 const totalTime = 10
 
+// const interstitial = InterstitialAd.createForAdRequest(TestIds.INTERSTITIAL, {
+//   requestNonPersonalizedAdsOnly: true,
+// })
+
 const PVPGame = () => {
   const { useColors } = useColorSchemeContext()
   const colorTheme = useColors()
@@ -129,6 +134,36 @@ const PVPGame = () => {
   const auth = FIREBASE_AUTH
   const route = useRoute()
   const isFocused = useIsFocused()
+
+  // const [interstitialLoaded, setInterstitialLoaded] = useState(false)
+
+  // const loadInterstitial = () => {
+  //   const unsubscribeLoaded = interstitial.addAdEventListener(
+  //     AdEventType.LOADED,
+  //     () => {
+  //       setInterstitialLoaded(true)
+  //     },
+  //   )
+
+  //   interstitial.load()
+
+  //   const unsubscribeClosed = interstitial.addAdEventListener(
+  //     AdEventType.CLOSED,
+  //     () => {
+  //       setInterstitialLoaded(false)
+  //       interstitial.load()
+  //     },
+  //   )
+  //   return () => {
+  //     unsubscribeClosed()
+  //     unsubscribeLoaded()
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   const unsubscribe = loadInterstitial()
+  //   return unsubscribe
+  // }, [])
 
   const [colorState, setColorState] = useState(tempSquareArr)
   const [selectedColor, setSelectedColor] = useState(tempSquareArr[0].color)
@@ -365,10 +400,11 @@ const PVPGame = () => {
           tempSquareArr = [...boardState]
           if (doc.data().turn == 'Owner') {
             setTurn('Owner')
-            setOpponentSelectedColor(doc.data().ownerSelectedColor)
+            console.log(doc.data().ownerSelectedColor)
+            setOpponentSelectedColor(colors[doc.data().opponentSelectedColor])
           } else {
             setTurn('Opponent')
-            setOwnerSelectedColor(doc.data().ownerSelectedColor)
+            setOwnerSelectedColor(colors[doc.data().ownerSelectedColor])
           }
           //timer testing
           setTimer(11)
@@ -627,9 +663,11 @@ const PVPGame = () => {
       })
       setSquareAnim(squareAnimArr)
       if (turn == 'Owner') {
-        setOwnerSelectedColor(color)
+        console.log('local color set for owner', colors.indexOf(color))
+        setOwnerSelectedColor(colors.indexOf(color))
       } else {
-        setOpponentSelectedColor(color)
+        console.log('local color set for opp', colors.indexOf(color))
+        setOpponentSelectedColor(colors.indexOf(color))
       }
       updateBoard(color)
     } else {
@@ -671,7 +709,7 @@ const PVPGame = () => {
       opponentCaptured = 0
       newData = {
         boardState: JSON.stringify(newTempArr),
-        ownerSelectedColor: color,
+        ownerSelectedColor: colors.indexOf(color),
         turn: nextTurn,
         updatedAt: serverTimestamp(),
         animationIndex: JSON.stringify(animationIndex),
@@ -683,18 +721,19 @@ const PVPGame = () => {
       ownerCaptured = 0
       newData = {
         boardState: JSON.stringify(newTempArr),
-        opponentSelectedColor: color,
+        opponentSelectedColor: colors.indexOf(color),
         turn: nextTurn,
         updatedAt: serverTimestamp(),
         animationIndex: JSON.stringify(animationIndex),
       }
       setTurn('Owner')
     }
-    
+
     console.log('newtemparr', newTempArr)
     try {
       const update = await updateDoc(docRef, {
         ...newData,
+        ownerScore: increment(ownerCaptured),
         opponentScore: increment(opponentCaptured),
       })
     } catch (error) {
@@ -822,7 +861,7 @@ const PVPGame = () => {
     //left
     if (tempSquareArr[index - 1] && tempSquareArr[index - 1].captured == false) {
       if (
-          color == tempSquareArr[index - 1].color &&
+        color == tempSquareArr[index - 1].color &&
         tempSquareArr[index].rowIndex == tempSquareArr[index - 1].rowIndex
       ) {
         if (radar) {
@@ -950,16 +989,14 @@ const PVPGame = () => {
     setChange(true)
   }
 
+  function handleEnd() {
+    // interstitial.show()
+    navigation.navigate('PVPMenu')
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: colorTheme.background }]}>
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={complete}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible)
-        }}
-      >
+      <Modal animationType="fade" transparent={true} visible={complete}>
         <View style={styles.centeredView}>
           <View
             style={[
@@ -1022,7 +1059,7 @@ const PVPGame = () => {
             </Text>
             <TouchableOpacity
               style={[styles.button, styles.buttonClose]}
-              onPress={() => navigation.navigate('PVPMenu')}
+              onPress={() => handleEnd()}
             >
               <Text>Return to Menu</Text>
             </TouchableOpacity>
@@ -1031,43 +1068,57 @@ const PVPGame = () => {
       </Modal>
       <View style={styles.top}>
         <View style={[styles.playerNames, { width: gridItemSize * boardSize }]}>
-          <View style={styles.playerView}>
-            <Text style={{ textAlign: 'center', color: colorTheme.text }}>
-              {userName != opponentName ? ownerName : opponentName}
+          <View
+            style={[
+              styles.playerView,
+              {
+                opacity: turn == 'Owner' ? 1 : 0.5,
+                order: userName != opponentName ? 1 : 3,
+              },
+            ]}
+          >
+            <Text
+              style={{ fontSize: 20, textAlign: 'center', color: colorTheme.text }}
+            >
+              {ownerName}
             </Text>
             <View
               style={[
                 styles.fakeSquare,
                 {
-                  backgroundColor:
-                    userName != opponentName ? ownerColor : opponentColor,
+                  backgroundColor: ownerColor,
                 },
               ]}
             >
-              <Text style={styles.fakeText}>
-                {userName != opponentName ? ownerScore : opponentScore}
-              </Text>
+              <Text style={styles.fakeText}>{ownerScore}</Text>
             </View>
           </View>
-          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ color: colorTheme.text }}>VS</Text>
+          <View style={{ justifyContent: 'center', alignItems: 'center', order: 2 }}>
+            <Text style={{ fontSize: 15, color: colorTheme.text }}>VS</Text>
           </View>
-          <View style={styles.playerView}>
-            <Text style={{ textAlign: 'center', color: colorTheme.text }}>
-              {userName != opponentName ? opponentName : ownerName}
+          <View
+            style={[
+              styles.playerView,
+              {
+                opacity: turn == 'Owner' ? 0.5 : 1,
+                order: userName != opponentName ? 3 : 1,
+              },
+            ]}
+          >
+            <Text
+              style={{ fontSize: 20, textAlign: 'center', color: colorTheme.text }}
+            >
+              {opponentName}
             </Text>
             <View
               style={[
                 styles.fakeSquare,
                 {
-                  backgroundColor:
-                    userName != opponentName ? opponentColor : ownerColor,
+                  backgroundColor: opponentColor,
                 },
               ]}
             >
-              <Text style={styles.fakeText}>
-                {userName != opponentName ? opponentScore : ownerScore}
-              </Text>
+              <Text style={styles.fakeText}>{opponentScore}</Text>
             </View>
           </View>
         </View>
@@ -1469,13 +1520,16 @@ const styles = StyleSheet.create({
   playerNames: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: 5,
+    marginBottom: 5,
+    fontSize: 20,
   },
   fakeSquare: {
     alignItems: 'center',
     justifyContent: 'center',
     textAlign: 'center',
+    marginLeft: 'auto',
+    marginRight: 'auto',
     borderWidth: 1,
     width: 50,
     height: 50,
@@ -1519,8 +1573,8 @@ const styles = StyleSheet.create({
   },
   resetButton: {
     marginTop: 10,
-    width: 70,
-    height: 70,
+    width: 65,
+    height: 65,
     borderWidth: 1,
     borderRadius: 50,
     justifyContent: 'center',
@@ -1531,12 +1585,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 5,
     justifyContent: 'center',
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: 10,
+    marginBottom: 10,
   },
   color: {
-    width: 70,
-    height: 70,
+    width: 65,
+    height: 65,
     borderWidth: 1,
     borderRadius: 50,
   },

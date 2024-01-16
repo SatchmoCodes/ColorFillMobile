@@ -32,6 +32,7 @@ import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig.js'
 import uuid from 'react-native-uuid'
 import { useColorSchemeContext } from '../../App'
 import { squareColors } from './colors.js'
+// import { AdEventType, InterstitialAd, TestIds } from 'react-native-google-mobile-ads'
 
 let red = 'hsl(0, 100%, 40%)'
 let orange = 'hsl(22, 100%, 50%)'
@@ -44,7 +45,8 @@ let colors = [red, orange, yellow, green, blue]
 const colorArr = squareColors
 
 let boardSize = 5
-let screenWidth = Dimensions.get('window').width * 0.95
+let screenWidth = Dimensions.get('window').width * 0.98
+let screenHeight = Dimensions.get('window').height
 let gridItemSize = Math.floor(screenWidth / boardSize)
 if (screenWidth >= 1000) {
   screenWidth = Dimensions.get('window').height * 0.55
@@ -61,6 +63,7 @@ for (let i = 0; i < 1210; i++) {
 
 let squares = generateBoard(randomArr)
 let hole = 0
+let round = 1
 let parValue = 10
 let roundScore
 let totalScoreValue = 0
@@ -105,11 +108,45 @@ let originalScore //score before challenge/reset
 const db = FIRESTORE_DB
 const auth = FIREBASE_AUTH
 
+// const interstitial = InterstitialAd.createForAdRequest(TestIds.INTERSTITIAL, {
+//   requestNonPersonalizedAdsOnly: true,
+// })
+
 const Progressive = () => {
   const { useColors } = useColorSchemeContext()
   const colorTheme = useColors()
 
   const route = useRoute()
+
+  // const [interstitialLoaded, setInterstitialLoaded] = useState(false)
+
+  // const loadInterstitial = () => {
+  //   const unsubscribeLoaded = interstitial.addAdEventListener(
+  //     AdEventType.LOADED,
+  //     () => {
+  //       setInterstitialLoaded(true)
+  //     },
+  //   )
+
+  //   interstitial.load()
+
+  //   const unsubscribeClosed = interstitial.addAdEventListener(
+  //     AdEventType.CLOSED,
+  //     () => {
+  //       setInterstitialLoaded(false)
+  //       interstitial.load()
+  //     },
+  //   )
+  //   return () => {
+  //     unsubscribeClosed()
+  //     unsubscribeLoaded()
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   const unsubscribe = loadInterstitial()
+  //   return unsubscribe
+  // }, [])
 
   const [colorState, setColorState] = useState(tempSquareArr)
   const [selectedColor, setSelectedColor] = useState(tempSquareArr[0].color)
@@ -132,6 +169,8 @@ const Progressive = () => {
 
   const [boardLoaded, setBoardLoaded] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  const [block, setBlock] = useState(false)
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -278,6 +317,7 @@ const Progressive = () => {
       setSelectedColorOption(colors)
       setTotalScore(totalScoreValue)
       if (totalCaptured == squares[hole].length) {
+        setBlock(true)
         if (hole == 9) {
           setLoading(true)
           handleHoleChange()
@@ -422,9 +462,11 @@ const Progressive = () => {
     roundScore = countNumber - parValue
     totalScoreValue += roundScore
     parValue += 2
+    round < 10 && round++
     if (hole >= 10) {
       return
     }
+    console.log('i aM running')
     boardSize++
     getSize()
     tempSquareArr = JSON.parse(JSON.stringify(squares[hole]))
@@ -447,6 +489,7 @@ const Progressive = () => {
     })
     countNumber = 0
     modalVisible && setModalVisible(!modalVisible)
+    setBlock(false)
     setChange(true)
   }
 
@@ -477,7 +520,7 @@ const Progressive = () => {
     }
   }
 
-  function generateNewBoard() {
+  function generateNewBoard(showAd) {
     randomArr = []
     for (let i = 0; i < 1210; i++) {
       randomArr.push(Math.floor(Math.random() * 5))
@@ -492,6 +535,9 @@ const Progressive = () => {
     setScoreToBeat(null)
     resetColors()
     handleReset()
+    // if (showAd) {
+    //   interstitial.show()
+    // }
   }
 
   function resetColors() {
@@ -540,14 +586,14 @@ const Progressive = () => {
   //     setChange(true)
   // }
 
-  function handleReset() {
+  function handleReset(showAd) {
     boardSize = 5
     gridItemSize = Math.floor(screenWidth / 5)
     setTotalScore(0)
     parValue = 10
     roundScore = 0
     hole = 0
-
+    round = 1
     countNumber = 0
     squares.forEach((arr) => {
       arr.forEach((sq) => {
@@ -596,19 +642,16 @@ const Progressive = () => {
     totalScoreValue = 0
     modalVisible && setModalVisible(!modalVisible)
     setComplete(false)
+    // if (showAd) {
+    //   interstitial.show()
+    // }
+    setBlock(false)
     setChange(true)
   }
 
   return (
     <View style={[styles.container, { backgroundColor: colorTheme.background }]}>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible)
-        }}
-      >
+      <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <View style={styles.centeredView}>
           <View style={[styles.modalView, { backgroundColor: colorTheme.button }]}>
             <Text style={[styles.modalText, { color: colorTheme.text }]}>
@@ -634,14 +677,7 @@ const Progressive = () => {
           </View>
         </View>
       </Modal>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={complete}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible)
-        }}
-      >
+      <Modal animationType="slide" transparent={true} visible={complete}>
         <View style={styles.centeredView}>
           <View style={[styles.modalView, { backgroundColor: colorTheme.button }]}>
             {loading ? (
@@ -666,7 +702,7 @@ const Progressive = () => {
 
             <TouchableOpacity
               style={[styles.button, styles.buttonClose]}
-              onPress={() => generateNewBoard()}
+              onPress={() => generateNewBoard(true)}
             >
               <Text style={[styles.textStyle, { color: colorTheme.text }]}>
                 New Game
@@ -674,7 +710,7 @@ const Progressive = () => {
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.button, styles.buttonClose]}
-              onPress={() => handleReset()}
+              onPress={() => handleReset(true)}
             >
               <Text style={[styles.textStyle, { color: colorTheme.text }]}>
                 Retry Game
@@ -689,28 +725,30 @@ const Progressive = () => {
             ? `High Score: ${highScore > 0 ? `+${highScore}` : highScore}`
             : `Score to beat: ${scoreToBeat > 0 ? `+${scoreToBeat}` : scoreToBeat}`}
         </Text>
-        <Text
+        {/* <Text
           style={[styles.topText, styles.remainText, { color: colorTheme.text }]}
         >
           Squares Remaining
-        </Text>
-        <View style={styles.squareCounter}>
-          <View style={[styles.fakeSquare, { backgroundColor: colorOption[0] }]}>
-            <Text style={styles.fakeText}>{squareCounter[0].count}</Text>
+        </Text> */}
+        {screenHeight > 700 && (
+          <View style={styles.squareCounter}>
+            <View style={[styles.fakeSquare, { backgroundColor: colorOption[0] }]}>
+              <Text style={styles.fakeText}>{squareCounter[0].count}</Text>
+            </View>
+            <View style={[styles.fakeSquare, { backgroundColor: colorOption[1] }]}>
+              <Text style={styles.fakeText}>{squareCounter[1].count}</Text>
+            </View>
+            <View style={[styles.fakeSquare, { backgroundColor: colorOption[2] }]}>
+              <Text style={styles.fakeText}>{squareCounter[2].count}</Text>
+            </View>
+            <View style={[styles.fakeSquare, { backgroundColor: colorOption[3] }]}>
+              <Text style={styles.fakeText}>{squareCounter[3].count}</Text>
+            </View>
+            <View style={[styles.fakeSquare, { backgroundColor: colorOption[4] }]}>
+              <Text style={styles.fakeText}>{squareCounter[4].count}</Text>
+            </View>
           </View>
-          <View style={[styles.fakeSquare, { backgroundColor: colorOption[1] }]}>
-            <Text style={styles.fakeText}>{squareCounter[1].count}</Text>
-          </View>
-          <View style={[styles.fakeSquare, { backgroundColor: colorOption[2] }]}>
-            <Text style={styles.fakeText}>{squareCounter[2].count}</Text>
-          </View>
-          <View style={[styles.fakeSquare, { backgroundColor: colorOption[3] }]}>
-            <Text style={styles.fakeText}>{squareCounter[3].count}</Text>
-          </View>
-          <View style={[styles.fakeSquare, { backgroundColor: colorOption[4] }]}>
-            <Text style={styles.fakeText}>{squareCounter[4].count}</Text>
-          </View>
-        </View>
+        )}
       </View>
       <View style={styles.scoreInfo}>
         <Text
@@ -725,7 +763,7 @@ const Progressive = () => {
             },
           ]}
         >
-          Round {hole > 10 ? 10 : hole + 1}
+          Round {round}
         </Text>
         <Text
           style={[
@@ -828,7 +866,9 @@ const Progressive = () => {
             },
             { opacity: selectedColor == colors[0] ? 0.1 : 1 },
           ]}
-          onPress={() => selectedColor != colors[0] && colorChange(colorOption[0])}
+          onPress={() =>
+            selectedColor != colors[0] && !block && colorChange(colorOption[0])
+          }
         ></TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -838,7 +878,9 @@ const Progressive = () => {
             },
             { opacity: selectedColor == colors[1] ? 0.1 : 1 },
           ]}
-          onPress={() => selectedColor != colors[1] && colorChange(colorOption[1])}
+          onPress={() =>
+            selectedColor != colors[1] && !block && colorChange(colorOption[1])
+          }
         ></TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -848,7 +890,9 @@ const Progressive = () => {
             },
             { opacity: selectedColor == colors[2] ? 0.1 : 1 },
           ]}
-          onPress={() => selectedColor != colors[2] && colorChange(colorOption[2])}
+          onPress={() =>
+            selectedColor != colors[2] && !block && colorChange(colorOption[2])
+          }
         ></TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -858,7 +902,9 @@ const Progressive = () => {
             },
             { opacity: selectedColor == colors[3] ? 0.1 : 1 },
           ]}
-          onPress={() => selectedColor != colors[3] && colorChange(colorOption[3])}
+          onPress={() =>
+            selectedColor != colors[3] && !block && colorChange(colorOption[3])
+          }
         ></TouchableOpacity>
         <TouchableOpacity
           style={[
@@ -868,7 +914,9 @@ const Progressive = () => {
             },
             { opacity: selectedColor == colors[4] ? 0.1 : 1 },
           ]}
-          onPress={() => selectedColor != colors[4] && colorChange(colorOption[4])}
+          onPress={() =>
+            selectedColor != colors[4] && !block && colorChange(colorOption[4])
+          }
         ></TouchableOpacity>
       </View>
     </View>
@@ -890,13 +938,15 @@ const styles = StyleSheet.create({
   scoreInfo: {
     width: screenWidth,
     flexDirection: 'row',
+    marginTop: 3,
+    marginBottom: 3,
     // justifyContent: 'space-between'
   },
   remainText: {
     marginBottom: 5,
   },
   highScore: {
-    fontSize: 30,
+    fontSize: 25,
     marginBottom: 5,
   },
   squareCounter: {
@@ -904,15 +954,15 @@ const styles = StyleSheet.create({
     gap: 10,
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 10,
+    marginBottom: 5,
   },
   fakeSquare: {
     alignItems: 'center',
     justifyContent: 'center',
     textAlign: 'center',
     borderWidth: 1,
-    width: 50,
-    height: 50,
+    width: 45,
+    height: 45,
   },
   fakeText: {
     display: 'flex',
@@ -948,13 +998,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '90%',
     gap: 5,
-    marginBottom: 5,
+    marginTop: 5,
     justifyContent: 'center',
   },
   resetButton: {
-    marginTop: 10,
-    width: 70,
-    height: 70,
+    width: screenWidth <= 320 ? screenWidth * 0.18 : 70,
+    height: screenWidth <= 320 ? screenWidth * 0.18 : 70,
     borderWidth: 1,
     borderRadius: 50,
     justifyContent: 'center',
@@ -968,8 +1017,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   color: {
-    width: 70,
-    height: 70,
+    width: screenWidth <= 320 ? screenWidth * 0.18 : 70,
+    height: screenWidth <= 320 ? screenWidth * 0.18 : 70,
     borderWidth: 1,
     borderRadius: 50,
   },

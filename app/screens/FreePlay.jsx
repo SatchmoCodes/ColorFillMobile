@@ -57,7 +57,8 @@ const colorArr = squareColors
 
 let boardSize = 12
 let sizeName = 'Medium'
-let screenWidth = Dimensions.get('window').width * 0.95
+let screenWidth = Dimensions.get('window').width * 0.98
+let screenHeight = Dimensions.get('window').height
 let gridItemSize = Math.floor(screenWidth / boardSize)
 console.log(gridItemSize)
 if (screenWidth >= 1000) {
@@ -556,9 +557,12 @@ const FreePlay = () => {
     resetColors()
     // handleReset()
     handleReset()
-    // if (showAd) {
-    //   interstitial.show()
-    // }
+    if (showAd) {
+      let rand = Math.floor(Math.random() * 4)
+      if (rand === 0) {
+        interstitial.show()
+      }
+    }
   }
 
   function resetColors() {
@@ -575,7 +579,7 @@ const FreePlay = () => {
     setChange(true)
   }
 
-  function handleReset() {
+  function handleReset(showAd) {
     squareCounterArr.forEach((counter, index) => {
       counter.count = 0
     })
@@ -607,6 +611,12 @@ const FreePlay = () => {
     Animated.sequence([growAnimation, reverseAnimation]).start()
     countNumber = 0
     modalVisible && setModalVisible(!modalVisible)
+    // if (showAd) {
+    //   let rand = Math.floor(Math.random() * 4)
+    //   if (rand === 0) {
+    //     interstitial.show()
+    //   }
+    // }
     setChange(true)
   }
 
@@ -654,7 +664,7 @@ const FreePlay = () => {
   //     setChange(true)
   // }
 
-  function handleRetry() {
+  function handleRetry(showAd) {
     tempSquareArr.forEach((sq) => {
       sq.color = colors[sq.colorIndex]
       if (sq.index != 0) {
@@ -699,6 +709,12 @@ const FreePlay = () => {
     }
     countNumber = 0
     modalVisible && setModalVisible(!modalVisible)
+    // if (showAd) {
+    //   let rand = Math.floor(Math.random() * 4)
+    //   if (rand === 0) {
+    //     interstitial.show()
+    //   }
+    // }
     setChange(true)
   }
 
@@ -730,7 +746,7 @@ const FreePlay = () => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.button, styles.buttonClose]}
-                onPress={() => handleRetry()}
+                onPress={() => handleRetry(true)}
               >
                 <Text style={[styles.textStyle]}>Retry Board</Text>
               </TouchableOpacity>
@@ -744,28 +760,30 @@ const FreePlay = () => {
             ? `High Score: ${highScore}`
             : `Score to beat: ${scoreToBeat}`}
         </Text>
-        <Text
+        {/* <Text
           style={[styles.topText, styles.remainText, { color: colorTheme.text }]}
         >
           Squares Remaining
-        </Text>
-        <View style={styles.squareCounter}>
-          <View style={[styles.fakeSquare, { backgroundColor: colorOption[0] }]}>
-            <Text style={[styles.fakeText]}>{squareCounter[0].count}</Text>
+        </Text> */}
+        {screenHeight > 700 && (
+          <View style={styles.squareCounter}>
+            <View style={[styles.fakeSquare, { backgroundColor: colorOption[0] }]}>
+              <Text style={[styles.fakeText]}>{squareCounter[0].count}</Text>
+            </View>
+            <View style={[styles.fakeSquare, { backgroundColor: colorOption[1] }]}>
+              <Text style={[styles.fakeText]}>{squareCounter[1].count}</Text>
+            </View>
+            <View style={[styles.fakeSquare, { backgroundColor: colorOption[2] }]}>
+              <Text style={[styles.fakeText]}>{squareCounter[2].count}</Text>
+            </View>
+            <View style={[styles.fakeSquare, { backgroundColor: colorOption[3] }]}>
+              <Text style={[styles.fakeText]}>{squareCounter[3].count}</Text>
+            </View>
+            <View style={[styles.fakeSquare, { backgroundColor: colorOption[4] }]}>
+              <Text style={[styles.fakeText]}>{squareCounter[4].count}</Text>
+            </View>
           </View>
-          <View style={[styles.fakeSquare, { backgroundColor: colorOption[1] }]}>
-            <Text style={[styles.fakeText]}>{squareCounter[1].count}</Text>
-          </View>
-          <View style={[styles.fakeSquare, { backgroundColor: colorOption[2] }]}>
-            <Text style={[styles.fakeText]}>{squareCounter[2].count}</Text>
-          </View>
-          <View style={[styles.fakeSquare, { backgroundColor: colorOption[3] }]}>
-            <Text style={[styles.fakeText]}>{squareCounter[3].count}</Text>
-          </View>
-          <View style={[styles.fakeSquare, { backgroundColor: colorOption[4] }]}>
-            <Text style={[styles.fakeText]}>{squareCounter[4].count}</Text>
-          </View>
-        </View>
+        )}
       </View>
       <Text style={[styles.counter, { color: colorTheme.text }]}>
         {scoreToBeat == null ? counter : `${counter} / ${scoreToBeat}`}
@@ -909,15 +927,14 @@ const styles = StyleSheet.create({
     gap: 10,
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 10,
   },
   fakeSquare: {
     alignItems: 'center',
     justifyContent: 'center',
     textAlign: 'center',
     borderWidth: 1,
-    width: 50,
-    height: 50,
+    width: 45,
+    height: 45,
   },
   fakeText: {
     display: 'flex',
@@ -934,6 +951,8 @@ const styles = StyleSheet.create({
   },
   counter: {
     fontSize: 30,
+    marginTop: 2,
+    marginBottom: 2,
   },
   board: {
     flexDirection: 'row',
@@ -957,13 +976,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '90%',
     gap: 5,
-    marginBottom: 5,
+    marginTop: 5,
     justifyContent: 'center',
   },
   resetButton: {
-    marginTop: 10,
-    width: 70,
-    height: 70,
+    width: screenWidth <= 320 ? screenWidth * 0.18 : 70,
+    height: screenWidth <= 320 ? screenWidth * 0.18 : 70,
     borderWidth: 1,
     borderRadius: 50,
     justifyContent: 'center',
@@ -977,8 +995,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   color: {
-    width: 70,
-    height: 70,
+    width: screenWidth <= 320 ? screenWidth * 0.18 : 70,
+    height: screenWidth <= 320 ? screenWidth * 0.18 : 70,
     borderWidth: 1,
     borderRadius: 50,
   },
