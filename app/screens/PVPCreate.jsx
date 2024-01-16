@@ -327,14 +327,22 @@ const PVPCreate = ({ navigation }) => {
       </View>
       <View style={styles.bottom}>
         <View style={styles.optionsContainer}>
-          <Text style={{ textAlign: 'center', fontSize: 35, color: colors.text }}>
+          <Text
+            style={[
+              {
+                textAlign: 'center',
+                fontSize: 30,
+                color: colors.text,
+              },
+            ]}
+          >
             Game Options
           </Text>
           <View style={[styles.sizeOptions, styles.optionBlock]}>
             <Text
               style={{
                 textAlign: 'center',
-                fontSize: 25,
+                fontSize: 20,
                 marginBottom: 10,
                 color: colors.text,
               }}
@@ -345,7 +353,7 @@ const PVPCreate = ({ navigation }) => {
               containerStyle={{ justifyContent: 'center' }}
               radioButtons={sizeOptions.map((option) => ({
                 ...option,
-                labelStyle: { fontSize: 15, color: colors.text },
+                labelStyle: { fontSize: 12, color: colors.text },
                 borderColor: option.id === size && colors.radioSelected,
               }))}
               onPress={(e) => setSize(e)}
@@ -358,7 +366,7 @@ const PVPCreate = ({ navigation }) => {
             <Text
               style={{
                 textAlign: 'center',
-                fontSize: 25,
+                fontSize: 20,
                 marginBottom: 10,
                 color: colors.text,
               }}
@@ -366,9 +374,10 @@ const PVPCreate = ({ navigation }) => {
               Board Type
             </Text>
             <RadioGroup
+              containerStyle={{ flexWrap: 'wrap', justifyContent: 'center' }}
               radioButtons={boardOptions.map((option) => ({
                 ...option,
-                labelStyle: { fontSize: 15, color: colors.text },
+                labelStyle: { fontSize: 12, color: colors.text },
                 borderColor: option.id === boardType && colors.radioSelected,
               }))}
               onPress={(e) => setBoardType(e)}
@@ -380,7 +389,7 @@ const PVPCreate = ({ navigation }) => {
             <Text
               style={{
                 textAlign: 'center',
-                fontSize: 25,
+                fontSize: 20,
                 marginBottom: 10,
                 color: colors.text,
               }}
@@ -391,7 +400,7 @@ const PVPCreate = ({ navigation }) => {
               containerStyle={{ justifyContent: 'center' }}
               radioButtons={lobbyOptions.map((option) => ({
                 ...option,
-                labelStyle: { fontSize: 15, color: colors.text },
+                labelStyle: { fontSize: 12, color: colors.text },
                 borderColor: option.id === lobbyType && colors.radioSelected,
               }))}
               onPress={(e) => setLobbyType(e)}
@@ -420,20 +429,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   top: {
-    height: '30%',
+    height: '20%',
   },
   colorImage: {
     maxWidth: '100%',
     height: '100%',
   },
   bottom: {
-    height: '70%',
+    height: '80%',
     // justifyContent: 'center',
     alignItems: 'center',
   },
   optionBlock: {
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: 10,
+    marginBottom: 10,
   },
   button: {
     padding: 20,

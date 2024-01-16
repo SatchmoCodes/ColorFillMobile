@@ -276,14 +276,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   top: {
-    height: '30%',
+    height: '20%',
   },
   colorImage: {
     maxWidth: '100%',
     height: '100%',
   },
   bottom: {
-    height: '70%',
+    height: '80%',
     // justifyContent: 'center',
     alignItems: 'center',
   },
