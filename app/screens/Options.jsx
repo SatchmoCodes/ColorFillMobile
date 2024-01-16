@@ -121,7 +121,11 @@ const Options = () => {
         Board Size
       </Text>
       <RadioGroup
-        radioButtons={radioButtons.map(option => ({...option, labelStyle: {fontSize: 20, color: colors.text}, borderColor: option.id === selectedId && colors.radioSelected}))}
+        radioButtons={radioButtons.map((option) => ({
+          ...option,
+          labelStyle: { fontSize: 20, color: colors.text },
+          borderColor: option.id === selectedId && colors.radioSelected,
+        }))}
         onPress={(e) => setSize(e)}
         selectedId={selectedId}
         layout="row"
@@ -135,7 +139,12 @@ const Options = () => {
         <Pressable
           style={[
             styles.colorOption,
-            selectedColor == '0' && { borderWidth: 1, borderColor: colors.outline },
+            { borderWidth: 1 },
+            selectedColor == '0'
+              ? { borderColor: colors.outline }
+              : {
+                  borderColor: colors.background,
+                },
           ]}
           onPress={() => setColor('0')}
         >
@@ -164,7 +173,12 @@ const Options = () => {
         <Pressable
           style={[
             styles.colorOption,
-            selectedColor == '1' && { borderWidth: 1, borderColor: colors.outline },
+            { borderWidth: 1 },
+            selectedColor == '1'
+              ? { borderColor: colors.outline }
+              : {
+                  borderColor: colors.background,
+                },
           ]}
           onPress={() => setColor('1')}
         >
@@ -195,7 +209,12 @@ const Options = () => {
         <Pressable
           style={[
             styles.colorOption,
-            selectedColor == '2' && { borderWidth: 1, borderColor: colors.outline },
+            { borderWidth: 1 },
+            selectedColor == '2'
+              ? { borderColor: colors.outline }
+              : {
+                  borderColor: colors.background,
+                },
           ]}
           onPress={() => setColor('2')}
         >
@@ -226,7 +245,12 @@ const Options = () => {
         <Pressable
           style={[
             styles.colorOption,
-            selectedColor == '3' && { borderWidth: 1, borderColor: colors.outline },
+            { borderWidth: 1 },
+            selectedColor == '3'
+              ? { borderColor: colors.outline }
+              : {
+                  borderColor: colors.background,
+                },
           ]}
           onPress={() => setColor('3')}
         >
@@ -257,7 +281,12 @@ const Options = () => {
         <Pressable
           style={[
             styles.colorOption,
-            selectedColor == '4' && { borderWidth: 1, borderColor: colors.outline },
+            { borderWidth: 1 },
+            selectedColor == '4'
+              ? { borderColor: colors.outline }
+              : {
+                  borderColor: colors.background,
+                },
           ]}
           onPress={() => setColor('4')}
         >
@@ -288,7 +317,12 @@ const Options = () => {
         <Pressable
           style={[
             styles.colorOption,
-            selectedColor == '5' && { borderWidth: 1, borderColor: colors.outline },
+            { borderWidth: 1 },
+            selectedColor == '5'
+              ? { borderColor: colors.outline }
+              : {
+                  borderColor: colors.background,
+                },
           ]}
           onPress={() => setColor('5')}
         >
@@ -355,10 +389,10 @@ const Options = () => {
 
 export default Options
 
-const styles = StyleSheet.create({ 
+const styles = StyleSheet.create({
   poop: {
     backgroundColor: 'blue',
-    borderColor: 'white'
+    borderColor: 'white',
   },
   container: {
     flex: 1,
