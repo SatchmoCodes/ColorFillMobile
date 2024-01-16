@@ -7,7 +7,7 @@ import {
   View,
 } from 'react-native'
 import React, { useState, useEffect } from 'react'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, CommonActions } from '@react-navigation/native'
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { query, collection, doc, addDoc, where, getDocs } from 'firebase/firestore'
@@ -25,7 +25,12 @@ const Register = () => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        navigation.navigate('HomePage')
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: 'HomePage' }], // replace 'HomePage' with the actual route name
+          }),
+        )
       }
     })
 
@@ -68,7 +73,10 @@ const Register = () => {
   }
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
+    <KeyboardAvoidingView
+      style={styles.container}
+      contentContainerStyle={{ alignItems: 'center' }}
+    >
       <View style={styles.inputContainer}>
         <TextInput
           placeholder="Email"

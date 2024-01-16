@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/core'
+import { useNavigation, CommonActions } from '@react-navigation/core'
 import React, { useEffect, useState } from 'react'
 import {
   KeyboardAvoidingView,
@@ -27,7 +27,12 @@ const LoginScreen = ({}) => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        navigation.navigate('HomePage')
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: 'HomePage' }], // replace 'HomePage' with the actual route name
+          }),
+        )
       }
     })
 
@@ -68,7 +73,10 @@ const LoginScreen = ({}) => {
   }
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
+    <KeyboardAvoidingView
+      style={styles.container}
+      contentContainerStyle={{ alignItems: 'center' }}
+    >
       <View style={styles.inputContainer}>
         <TextInput
           placeholder="Email or Username"
