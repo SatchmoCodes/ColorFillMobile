@@ -76,7 +76,7 @@ export const darkModeColors = {
   tableRow: 'rgb(30,30,30)',
   tableTop: 'rgb(20,20,20)',
   game: 'rgb(6,37,105)',
-  radioSelected: 'darkgreen',
+  radioSelected: 'white',
 }
 
 // const isDark = Appearance.getColorScheme() == 'dark'
