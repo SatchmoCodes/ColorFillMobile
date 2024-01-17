@@ -989,6 +989,60 @@ const PVPGame = () => {
     setChange(true)
   }
 
+  const OwnerView = () => {
+    return (
+      <View
+        style={[
+          styles.playerView,
+          {
+            opacity: turn == 'Owner' ? 1 : 0.5,
+          },
+        ]}
+      >
+        <Text style={{ fontSize: 20, textAlign: 'center', color: colorTheme.text }}>
+          {ownerName}
+        </Text>
+        <View
+          style={[
+            styles.fakeSquare,
+            {
+              backgroundColor: ownerColor,
+            },
+          ]}
+        >
+          <Text style={styles.fakeText}>{ownerScore}</Text>
+        </View>
+      </View>
+    )
+  }
+
+  const OpponentView = () => {
+    return (
+      <View
+        style={[
+          styles.playerView,
+          {
+            opacity: turn == 'Owner' ? 0.5 : 1,
+          },
+        ]}
+      >
+        <Text style={{ fontSize: 20, textAlign: 'center', color: colorTheme.text }}>
+          {opponentName}
+        </Text>
+        <View
+          style={[
+            styles.fakeSquare,
+            {
+              backgroundColor: opponentColor,
+            },
+          ]}
+        >
+          <Text style={styles.fakeText}>{opponentScore}</Text>
+        </View>
+      </View>
+    )
+  }
+
   function handleEnd() {
     // interstitial.show()
     navigation.navigate('PVPMenu')
@@ -1068,59 +1122,11 @@ const PVPGame = () => {
       </Modal>
       <View style={styles.top}>
         <View style={[styles.playerNames, { width: gridItemSize * boardSize }]}>
-          <View
-            style={[
-              styles.playerView,
-              {
-                opacity: turn == 'Owner' ? 1 : 0.5,
-                order: userName != opponentName ? 1 : 3,
-              },
-            ]}
-          >
-            <Text
-              style={{ fontSize: 20, textAlign: 'center', color: colorTheme.text }}
-            >
-              {ownerName}
-            </Text>
-            <View
-              style={[
-                styles.fakeSquare,
-                {
-                  backgroundColor: ownerColor,
-                },
-              ]}
-            >
-              <Text style={styles.fakeText}>{ownerScore}</Text>
-            </View>
-          </View>
-          <View style={{ justifyContent: 'center', alignItems: 'center', order: 2 }}>
+          {userName != opponentName ? <OwnerView /> : <OpponentView />}
+          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ fontSize: 15, color: colorTheme.text }}>VS</Text>
           </View>
-          <View
-            style={[
-              styles.playerView,
-              {
-                opacity: turn == 'Owner' ? 0.5 : 1,
-                order: userName != opponentName ? 3 : 1,
-              },
-            ]}
-          >
-            <Text
-              style={{ fontSize: 20, textAlign: 'center', color: colorTheme.text }}
-            >
-              {opponentName}
-            </Text>
-            <View
-              style={[
-                styles.fakeSquare,
-                {
-                  backgroundColor: opponentColor,
-                },
-              ]}
-            >
-              <Text style={styles.fakeText}>{opponentScore}</Text>
-            </View>
-          </View>
+          {userName != opponentName ? <OpponentView /> : <OwnerView />}
         </View>
         <View>
           <Text
@@ -1573,8 +1579,8 @@ const styles = StyleSheet.create({
   },
   resetButton: {
     marginTop: 10,
-    width: 65,
-    height: 65,
+    width: screenWidth <= 320 ? screenWidth * 0.18 : 65,
+    height: screenWidth <= 320 ? screenWidth * 0.18 : 65,
     borderWidth: 1,
     borderRadius: 50,
     justifyContent: 'center',
@@ -1589,8 +1595,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   color: {
-    width: 65,
-    height: 65,
+    width: screenWidth <= 320 ? screenWidth * 0.18 : 65,
+    height: screenWidth <= 320 ? screenWidth * 0.18 : 65,
     borderWidth: 1,
     borderRadius: 50,
   },
