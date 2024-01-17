@@ -189,7 +189,7 @@ const BoardInfo = ({ navigation }) => {
             <View
               style={[
                 styles.tableCol,
-                { padding: 15, alignItems: 'center', width: '40%', maxWidth: '40%' },
+                { padding: 15, alignItems: 'center', width: '55%', maxWidth: '55%' },
               ]}
             >
               <Text style={[{ color: colors.text }]}>Username</Text>
@@ -197,7 +197,7 @@ const BoardInfo = ({ navigation }) => {
             <View
               style={[
                 styles.tableCol,
-                { padding: 15, alignItems: 'center', width: '40%', maxWidth: '40%' },
+                { padding: 15, alignItems: 'center', width: '25%', maxWidth: '25%' },
               ]}
             >
               <Text style={[{ color: colors.text }]}>Score</Text>
@@ -228,8 +228,8 @@ const BoardInfo = ({ navigation }) => {
                     {
                       padding: 15,
                       alignItems: 'center',
-                      width: '40%',
-                      maxWidth: '40%',
+                      width: '55%',
+                      maxWidth: '55%',
                     },
                   ]}
                 >
@@ -241,8 +241,8 @@ const BoardInfo = ({ navigation }) => {
                     {
                       padding: 15,
                       alignItems: 'center',
-                      width: '40%',
-                      maxWidth: '40%',
+                      width: '25%',
+                      maxWidth: '25%',
                     },
                   ]}
                 >
@@ -282,14 +282,15 @@ export default BoardInfo
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    // justifyContent: 'center',
     alignItems: 'center',
   },
   table: {
     minWidth: 320,
     maxWidth: '90%',
-    maxHeight: '50%',
+    maxHeight: '40%',
     overflow: 'hidden',
+    marginBottom: 10,
   },
   tableRow: {
     display: 'flex',
