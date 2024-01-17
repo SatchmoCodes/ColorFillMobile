@@ -9,6 +9,7 @@ import {
   TextInput,
   Animated,
   Easing,
+  Dimensions,
 } from 'react-native'
 import { Dropdown } from 'react-native-element-dropdown'
 import {
@@ -51,6 +52,8 @@ let newAnimatedValues = []
 let lowestScoresMap = new Map()
 let prevLowestScores = null
 let updatedIndexArr = []
+
+let screenWidth = Dimensions.get('window').width
 
 const Leaderboard = () => {
   const { useColors } = useColorSchemeContext()
@@ -142,41 +145,90 @@ const Leaderboard = () => {
         {gamemode != 'PVP' ? (
           <View style={[styles.tableRow, { backgroundColor: colors.tableTop }]}>
             <View style={[styles.tableCol, { width: '15%', maxWidth: '15%' }]}>
-              <Text style={{ textAlign: 'center', padding: 10, color: colors.text }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  color: colors.text,
+                }}
+              >
                 Rank
               </Text>
             </View>
             <View style={[styles.tableCol, { width: '45%', maxWidth: '45%' }]}>
-              <Text style={{ textAlign: 'center', padding: 10, color: colors.text }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  color: colors.text,
+                }}
+              >
                 User
               </Text>
             </View>
             <View style={[styles.tableCol, { width: '20%', maxWidth: '20%' }]}>
-              <Text style={{ textAlign: 'center', padding: 10, color: colors.text }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  color: colors.text,
+                }}
+              >
                 Score
               </Text>
             </View>
 
             <View style={[styles.tableCol, { width: '20%', maxWidth: '20%' }]}>
-              <Text style={{ textAlign: 'center', padding: 10, color: colors.text }}>
-                Link
+              <Text
+                style={{
+                  textAlign: 'center',
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  color: colors.text,
+                }}
+              >
+                Stats
               </Text>
             </View>
           </View>
         ) : (
           <View style={[styles.tableRow, { backgroundColor: colors.tableTop }]}>
             <View style={[styles.tableCol, { width: '15%', maxWidth: '15%' }]}>
-              <Text style={{ textAlign: 'center', padding: 10, color: colors.text }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  color: colors.text,
+                }}
+              >
                 Rank
               </Text>
             </View>
             <View style={[styles.tableCol, { width: '42.5%', maxWidth: '42.5%' }]}>
-              <Text style={{ textAlign: 'center', padding: 10, color: colors.text }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  color: colors.text,
+                }}
+              >
                 Username
               </Text>
             </View>
             <View style={[styles.tableCol, { width: '42.5%', maxWidth: '42.5%' }]}>
-              <Text style={{ textAlign: 'center', padding: 10, color: colors.text }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  color: colors.text,
+                }}
+              >
                 {queryOptionState}
               </Text>
             </View>
@@ -503,14 +555,16 @@ const Leaderboard = () => {
                           width: '15%',
                           maxWidth: '15%',
                           alignItems: 'center',
-                          padding: 15,
+                          justifyContent: 'center',
+                          paddingTop: 15,
+                          paddingBottom: 15,
                         },
                       ]}
                     >
                       <Text
                         style={{
                           textAlign: 'center',
-                          padding: 5,
+
                           color: colors.text,
                         }}
                       >
@@ -524,14 +578,16 @@ const Leaderboard = () => {
                           width: '25%',
                           maxWidth: '50%',
                           alignItems: 'center',
-                          padding: 15,
+                          justifyContent: 'center',
+                          paddingTop: 15,
+                          paddingBottom: 15,
                         },
                       ]}
                     >
                       <Text
                         style={{
                           textAlign: 'center',
-                          padding: 5,
+
                           color: colors.text,
                         }}
                       >
@@ -548,14 +604,16 @@ const Leaderboard = () => {
                           width: '20%',
                           maxWidth: '20%',
                           alignItems: 'center',
-                          padding: 15,
+                          justifyContent: 'center',
+                          paddingTop: 15,
+                          paddingBottom: 15,
                         },
                       ]}
                     >
                       <Text
                         style={{
                           textAlign: 'center',
-                          padding: 5,
+
                           color:
                             gamemode == 'Progressive' && item.score < 0
                               ? 'green'
@@ -578,11 +636,16 @@ const Leaderboard = () => {
                     >
                       {/* <TouchableOpacity style={{padding: 5}} onPress={() => handleLink(item.id, item.data.size)}> */}
                       <TouchableOpacity
-                        style={{ padding: 5 }}
+                        style={styles.button}
                         onPress={() => handleLink(item.boardId)}
                       >
-                        <Text style={{ textAlign: 'center', color: colors.text }}>
-                          Board Info
+                        <Text
+                          style={[
+                            styles.buttonText,
+                            { textAlign: 'center', color: colors.text },
+                          ]}
+                        >
+                          Info
                         </Text>
                       </TouchableOpacity>
                     </View>
@@ -627,14 +690,16 @@ const Leaderboard = () => {
                           width: '15%',
                           maxWidth: '15%',
                           alignItems: 'center',
-                          padding: 15,
+                          justifyContent: 'center',
+                          paddingTop: 15,
+                          paddingBottom: 15,
                         },
                       ]}
                     >
                       <Text
                         style={{
                           textAlign: 'center',
-                          padding: 5,
+
                           color: colors.text,
                         }}
                       >
@@ -648,14 +713,16 @@ const Leaderboard = () => {
                           width: '42.5%',
                           maxWidth: '42.5%',
                           alignItems: 'center',
-                          padding: 15,
+                          justifyContent: 'center',
+                          paddingTop: 15,
+                          paddingBottom: 15,
                         },
                       ]}
                     >
                       <Text
                         style={{
                           textAlign: 'center',
-                          padding: 5,
+
                           color: colors.text,
                         }}
                       >
@@ -669,14 +736,16 @@ const Leaderboard = () => {
                           width: '42.5%',
                           maxWidth: '42.5%',
                           alignItems: 'center',
-                          padding: 15,
+                          justifyContent: 'center',
+                          paddingTop: 15,
+                          paddingBottom: 15,
                         },
                       ]}
                     >
                       <Text
                         style={{
                           textAlign: 'center',
-                          padding: 5,
+
                           color:
                             queryOptionState == 'Win Rate' &&
                             parseInt(item.queryData) > 50 &&
@@ -773,6 +842,36 @@ const styles = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: 16,
+  },
+  button: {
+    padding: 7.5,
+    fontSize: 5,
+    borderRadius: 50,
+    width: screenWidth > 350 ? 60 : '50%',
+    margin: 'auto',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 5,
+    marginBottom: 5,
+    backgroundColor: 'green',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  buttonText: {
+    textAlign: 'center',
+    color: 'white',
+    textShadowColor: 'black',
+    textShadowRadius: 1,
+    textShadowOffset: {
+      width: 1,
+      height: 1,
+    },
   },
 })
 
