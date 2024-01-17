@@ -1002,8 +1002,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   resetButton: {
-    width: screenWidth <= 320 ? screenWidth * 0.18 : 70,
-    height: screenWidth <= 320 ? screenWidth * 0.18 : 70,
+    width: screenWidth <= 320 ? screenWidth * 0.18 : 65,
+    height: screenWidth <= 320 ? screenWidth * 0.18 : 65,
     borderWidth: 1,
     borderRadius: 50,
     justifyContent: 'center',
@@ -1017,8 +1017,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   color: {
-    width: screenWidth <= 320 ? screenWidth * 0.18 : 70,
-    height: screenWidth <= 320 ? screenWidth * 0.18 : 70,
+    width: screenWidth <= 320 ? screenWidth * 0.18 : 65,
+    height: screenWidth <= 320 ? screenWidth * 0.18 : 65,
     borderWidth: 1,
     borderRadius: 50,
   },
