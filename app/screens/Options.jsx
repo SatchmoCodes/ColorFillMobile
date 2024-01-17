@@ -3,6 +3,7 @@ import React, { useMemo, useState, useEffect } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import RadioGroup from 'react-native-radio-buttons-group'
 import { useColorSchemeContext } from '../../App'
+import { squareColors } from './colors.js'
 
 const colorArr = [
   [
@@ -136,220 +137,34 @@ const Options = () => {
         Color Options
       </Text>
       <View style={styles.colorContainer}>
-        <Pressable
-          style={[
-            styles.colorOption,
-            { borderWidth: 1 },
-            selectedColor == '0'
-              ? { borderColor: colors.outline }
-              : {
-                  borderColor: colors.background,
-                },
-          ]}
-          onPress={() => setColor('0')}
-        >
-          <View style={styles.inner}>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(0, 100%, 40%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(22, 100%, 50%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(60, 100%, 50%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(130, 100%, 15%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(242, 69%, 49%)' }]}
-            ></View>
-            <View
-              style={[styles.hide, { backgroundColor: 'rgb(255,255,255)' }]}
-            ></View>
-            <View style={[styles.hide, { backgroundColor: 'rgb(30,30,30)' }]}></View>
-          </View>
-        </Pressable>
-        <Pressable
-          style={[
-            styles.colorOption,
-            { borderWidth: 1 },
-            selectedColor == '1'
-              ? { borderColor: colors.outline }
-              : {
-                  borderColor: colors.background,
-                },
-          ]}
-          onPress={() => setColor('1')}
-        >
-          <View style={styles.inner}>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(33, 90.8%, 12.7%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(33, 89.8%, 26.9%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(25, 95.4%, 42.7%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(221, 69.2%, 43.3%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(213, 68.6%, 90%)' }]}
-            ></View>
-            <View
-              style={[styles.hide, { backgroundColor: 'rgb(133, 7, 7)' }]}
-            ></View>
-            <View
-              style={[styles.hide, { backgroundColor: 'rgb(8, 68, 17)' }]}
-            ></View>
-          </View>
-        </Pressable>
-        <Pressable
-          style={[
-            styles.colorOption,
-            { borderWidth: 1 },
-            selectedColor == '2'
-              ? { borderColor: colors.outline }
-              : {
-                  borderColor: colors.background,
-                },
-          ]}
-          onPress={() => setColor('2')}
-        >
-          <View style={styles.inner}>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(358,83%,35%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(2,72%,51%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(211,88%,32%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(0,0%,39%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(0,0%,14%)' }]}
-            ></View>
-            <View
-              style={[styles.hide, { backgroundColor: 'rgb(143, 4, 156)' }]}
-            ></View>
-            <View
-              style={[styles.hide, { backgroundColor: 'rgb(255, 235, 15)' }]}
-            ></View>
-          </View>
-        </Pressable>
-        <Pressable
-          style={[
-            styles.colorOption,
-            { borderWidth: 1 },
-            selectedColor == '3'
-              ? { borderColor: colors.outline }
-              : {
-                  borderColor: colors.background,
-                },
-          ]}
-          onPress={() => setColor('3')}
-        >
-          <View style={styles.inner}>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(164,95%,43%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(240,100%,98%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(43,100%,70%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(197,19%,36%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(200,43%,7%)' }]}
-            ></View>
-            <View
-              style={[styles.hide, { backgroundColor: 'rgb(5, 73, 157)' }]}
-            ></View>
-            <View
-              style={[styles.hide, { backgroundColor: 'rgb(197, 42, 11)' }]}
-            ></View>
-          </View>
-        </Pressable>
-        <Pressable
-          style={[
-            styles.colorOption,
-            { borderWidth: 1 },
-            selectedColor == '4'
-              ? { borderColor: colors.outline }
-              : {
-                  borderColor: colors.background,
-                },
-          ]}
-          onPress={() => setColor('4')}
-        >
-          <View style={styles.inner}>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(7,55%,30%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(6,56%,49%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(24,38%,87%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(183,66%,28%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(180,20%,20%)' }]}
-            ></View>
-            <View
-              style={[styles.hide, { backgroundColor: 'rgb(228, 174, 13)' }]}
-            ></View>
-            <View
-              style={[styles.hide, { backgroundColor: 'rgb(110, 13, 228)' }]}
-            ></View>
-          </View>
-        </Pressable>
-        <Pressable
-          style={[
-            styles.colorOption,
-            { borderWidth: 1 },
-            selectedColor == '5'
-              ? { borderColor: colors.outline }
-              : {
-                  borderColor: colors.background,
-                },
-          ]}
-          onPress={() => setColor('5')}
-        >
-          <View style={styles.inner}>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(83, 45%, 18%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(59,70%,30%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(55, 47%, 78%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(48,99%,59%)' }]}
-            ></View>
-            <View
-              style={[styles.square, { backgroundColor: 'hsl(27, 55%, 33%)' }]}
-            ></View>
-            <View
-              style={[styles.hide, { backgroundColor: 'rgb(31, 194, 215)' }]}
-            ></View>
-            <View
-              style={[styles.hide, { backgroundColor: 'rgb(204, 72, 16)' }]}
-            ></View>
-          </View>
-        </Pressable>
+        {squareColors.map((row, rowIndex) => (
+          <Pressable
+            key={rowIndex}
+            style={[
+              styles.row,
+              styles.colorOption,
+              { borderWidth: 1 },
+              selectedColor === `${rowIndex}`
+                ? { borderColor: colors.outline }
+                : { borderColor: colors.background },
+            ]}
+            onPress={() => {
+              setColor(`${rowIndex}`)
+            }}
+          >
+            <View style={styles.inner}>
+              {row.map((color, colIndex) => (
+                <View
+                  key={colIndex}
+                  style={[
+                    colIndex > 4 ? styles.hide : styles.square,
+                    { backgroundColor: color },
+                  ]}
+                ></View>
+              ))}
+            </View>
+          </Pressable>
+        ))}
       </View>
       <View style={styles.colorMode}>
         <Text
