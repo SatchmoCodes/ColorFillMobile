@@ -353,7 +353,7 @@ const PVPCreate = ({ navigation }) => {
               containerStyle={{ justifyContent: 'center' }}
               radioButtons={sizeOptions.map((option) => ({
                 ...option,
-                labelStyle: { fontSize: 12, color: colors.text },
+                labelStyle: { fontSize: 15, color: colors.text },
                 borderColor: option.id === size && colors.radioSelected,
               }))}
               onPress={(e) => setSize(e)}
@@ -377,7 +377,7 @@ const PVPCreate = ({ navigation }) => {
               containerStyle={{ flexWrap: 'wrap', justifyContent: 'center' }}
               radioButtons={boardOptions.map((option) => ({
                 ...option,
-                labelStyle: { fontSize: 12, color: colors.text },
+                labelStyle: { fontSize: 15, color: colors.text },
                 borderColor: option.id === boardType && colors.radioSelected,
               }))}
               onPress={(e) => setBoardType(e)}
@@ -400,7 +400,7 @@ const PVPCreate = ({ navigation }) => {
               containerStyle={{ justifyContent: 'center' }}
               radioButtons={lobbyOptions.map((option) => ({
                 ...option,
-                labelStyle: { fontSize: 12, color: colors.text },
+                labelStyle: { fontSize: 15, color: colors.text },
                 borderColor: option.id === lobbyType && colors.radioSelected,
               }))}
               onPress={(e) => setLobbyType(e)}
