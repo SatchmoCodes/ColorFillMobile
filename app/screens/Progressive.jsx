@@ -461,7 +461,7 @@ const Progressive = () => {
     hole++
     roundScore = countNumber - parValue
     totalScoreValue += roundScore
-    parValue += 2
+    parValue++
     round < 10 && round++
     if (hole >= 10) {
       return
@@ -587,6 +587,7 @@ const Progressive = () => {
   // }
 
   function handleReset(showAd) {
+    console.log('hasdf')
     boardSize = 5
     gridItemSize = Math.floor(screenWidth / 5)
     setTotalScore(0)
@@ -609,6 +610,7 @@ const Progressive = () => {
     })
     totalCaptured = 1
     tempSquareArr = JSON.parse(JSON.stringify(squares[0]))
+    squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
     tempSquareArr.forEach((sq, index) => {
       if (sq.captured) {
         captureCheck(sq.color, index)
@@ -621,7 +623,6 @@ const Progressive = () => {
         }
       })
     })
-    squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
     const growAnimation = Animated.timing(squareAnimArr[0], {
       toValue: 1,
       duration: 250,
