@@ -10,6 +10,7 @@ import {
   Animated,
   Easing,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native'
 import { Dropdown } from 'react-native-element-dropdown'
 import {
@@ -22,7 +23,7 @@ import {
   onSnapshot,
   getDocs,
 } from 'firebase/firestore'
-import { FIRESTORE_DB } from '../../firebaseConfig'
+import { FIRESTORE_DB, FIREBASE_AUTH } from '../../firebaseConfig'
 import { useColorSchemeContext } from '../../App'
 
 const sizeOptions = [
@@ -53,6 +54,9 @@ let lowestScoresMap = new Map()
 let prevLowestScores = null
 let updatedIndexArr = []
 
+const db = FIRESTORE_DB
+const auth = FIREBASE_AUTH
+
 let screenWidth = Dimensions.get('window').width
 
 const Leaderboard = () => {
@@ -61,6 +65,9 @@ const Leaderboard = () => {
 
   const navigation = useNavigation()
   const route = useRoute()
+
+  const [uid, setUid] = useState(null)
+  const [userName, setUserName] = useState(null)
 
   const [size, setSize] = useState('Medium')
   const [gamemode, setGamemode] = useState('FreePlay')
@@ -72,14 +79,39 @@ const Leaderboard = () => {
   const [sizeFocus, setSizeFocus] = useState(false)
   const [gamemodeFocus, setGamemodeFocus] = useState(false)
   const [queryFocus, setQueryFocus] = useState(false)
-
-  // const [animatedValues, setAnimatedValues] = useState(null)
   const [update, setUpdate] = useState(false)
 
-  // const animatedValues = useRef(scores.map(() => new Animated.Value(0)))
+  const [dataChange, setDataChange] = useState(false)
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      // The user object will be null if not logged in or a user object if logged in
+      setUid(user.uid)
+      console.log('uid ', user.uid)
+    })
+
+    // Clean up the subscription when the component unmounts
+    return unsubscribe
+  }, [])
+
+  useEffect(() => {
+    const getUserData = async () => {
+      console.log('uid here', uid)
+      const q = query(collection(db, 'Users'), where('uid', '==', uid))
+      const querySnapshot = await getDocs(q)
+      if (querySnapshot.empty) {
+        console.log('tests')
+      }
+      querySnapshot.forEach((doc) => {
+        setUserName(doc.data().username)
+      })
+    }
+    getUserData()
+  }, [uid])
 
   useEffect(() => {
     if (scores) {
+      setDataChange(false)
       scores.forEach((_, index) => {
         // console.log(animatedValues[index]._value)
         Animated.timing(animatedValues[index], {
@@ -98,6 +130,7 @@ const Leaderboard = () => {
     prevLowestScores = null
     console.log('hi')
     setUpdate(true)
+    setDataChange(true)
   }, [size, gamemode, queryOptionState])
 
   // const sizeLabel = () => {
@@ -324,6 +357,7 @@ const Leaderboard = () => {
         }
         animatedValues = []
         animatedValues = [...newAnimatedValues]
+        console.log(scoreList)
         setScores(scoreList)
         // setAnimatedValues(newAnimatedValues)
         prevLowestScores = new Map([...lowestScoresMap])
@@ -336,6 +370,7 @@ const Leaderboard = () => {
       const q = query(collection(db, 'Users'))
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const queryArr = []
+        let userInfo = []
         querySnapshot.forEach((doc) => {
           if (queryOptionState == 'Win Rate') {
             queryArr.push({
@@ -348,37 +383,84 @@ const Leaderboard = () => {
                     100,
                 ) + '%',
             })
+            if (doc.data().username == userName) {
+              userInfo.push({
+                id: doc.id,
+                ...doc.data(),
+                queryData:
+                  Math.round(
+                    (doc.data().wins / (doc.data().wins + doc.data().losses) +
+                      Number.EPSILON) *
+                      100,
+                  ) + '%',
+              })
+            }
           } else if (queryOptionState == 'Wins-Losses') {
             queryArr.push({
               id: doc.id,
               ...doc.data(),
               queryData: doc.data().wins + ' - ' + doc.data().losses,
             })
+            if (doc.data().username == userName) {
+              userInfo.push({
+                id: doc.id,
+                ...doc.data(),
+                queryData: doc.data().wins + ' - ' + doc.data().losses,
+              })
+            }
           } else if (queryOptionState == 'Current Winstreak') {
             queryArr.push({
               id: doc.id,
               ...doc.data(),
               queryData: doc.data().currentWinStreak,
             })
+            if (doc.data().username == userName) {
+              userInfo.push({
+                id: doc.id,
+                ...doc.data(),
+                queryData: doc.data().currentWinStreak,
+              })
+            }
           } else if (queryOptionState == 'Best Winstreak') {
             queryArr.push({
               id: doc.id,
               ...doc.data(),
               queryData: doc.data().bestWinStreak,
             })
+            if (doc.data().username == userName) {
+              userInfo.push({
+                id: doc.id,
+                ...doc.data(),
+                queryData: doc.data().bestWinStreak,
+              })
+            }
           }
         })
-        // console.log(queryArr)
         let topScores = queryArr.filter((a) => a.wins + a.losses > 9)
         let bottomScores = queryArr.filter((a) => a.wins + a.losses <= 9)
         bottomScores.sort((a, b) => a.wins + a.losses > b.wins + b.losses)
         topScores.sort((a, b) => parseInt(a.queryData) - parseInt(b.queryData))
-        // if (queryOptionState == 'Win Rate') {
-        //   queryArr = queryArr.filter((a) => a.wins + a.losses > 9)
-        // }
         topScores.reverse()
         bottomScores.reverse()
         let fullArr = topScores.concat(bottomScores)
+        fullArr.forEach((val, index) => {
+          if (val.wins + val.losses > 9) {
+            val.rank = index + 1
+          } else {
+            val.rank = 'n/a'
+          }
+
+          if (val.username == userName) {
+            if (userInfo[0].wins + userInfo[0].losses > 9) {
+              userInfo[0].rank = index + 1
+            } else {
+              userInfo[0].rank = 'n/a'
+            }
+          }
+        })
+        console.log(userInfo)
+        fullArr.unshift(userInfo[0])
+        console.log(fullArr)
         newAnimatedValues = []
         if (prevLowestScores != null) {
           console.log('prevscores', prevLowestScores)
@@ -520,255 +602,276 @@ const Leaderboard = () => {
         <TextInput style={styles.userInput} onChangeText={(e) => setUserSearch(e)}></TextInput>
       </View> */}
       {gamemode != 'PVP' ? (
-        <View style={styles.table}>
-          {scores.length == 0 ? (
-            <EmptyRow />
+        <>
+          {dataChange ? (
+            <ActivityIndicator
+              style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+              color="darkgreen"
+              size="large"
+            />
           ) : (
-            <>
-              <TopRow />
-              <FlatList
-                data={scores}
-                keyExtractor={(item) => item.id}
-                showsVerticalScrollIndicator={false}
-                renderItem={({ item, index }) => (
-                  <Animated.View
-                    style={[
-                      styles.tableRow,
-                      {
-                        opacity: animatedValues[index],
-                        backgroundColor: colors.tableRow,
-                        transform: [
+            <View style={styles.table}>
+              {scores.length == 0 ? (
+                <EmptyRow />
+              ) : (
+                <>
+                  <TopRow />
+                  <FlatList
+                    data={scores}
+                    keyExtractor={(item, index) => index.toString()}
+                    showsVerticalScrollIndicator={false}
+                    renderItem={({ item, index }) => (
+                      <Animated.View
+                        style={[
+                          styles.tableRow,
                           {
-                            translateX: animatedValues[index].interpolate({
-                              inputRange: [0, 1],
-                              outputRange: [-50, 0],
-                            }),
+                            opacity: animatedValues[index],
+                            backgroundColor: colors.tableRow,
+                            transform: [
+                              {
+                                translateX: animatedValues[index].interpolate({
+                                  inputRange: [0, 1],
+                                  outputRange: [-50, 0],
+                                }),
+                              },
+                            ],
                           },
-                        ],
-                      },
-                    ]}
-                  >
-                    <View
-                      style={[
-                        styles.tableCol,
-                        {
-                          width: '15%',
-                          maxWidth: '15%',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          paddingTop: 15,
-                          paddingBottom: 15,
-                        },
-                      ]}
-                    >
-                      <Text
-                        style={{
-                          textAlign: 'center',
-
-                          color: colors.text,
-                        }}
+                        ]}
                       >
-                        {index + 1}
-                      </Text>
-                    </View>
-                    <View
-                      style={[
-                        styles.tableCol,
-                        {
-                          width: '25%',
-                          maxWidth: '50%',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          paddingTop: 15,
-                          paddingBottom: 15,
-                        },
-                      ]}
-                    >
-                      <Text
-                        style={{
-                          textAlign: 'center',
-
-                          color: colors.text,
-                        }}
-                      >
-                        {item.createdBy}
-                      </Text>
-                    </View>
-                    {/* <View style={[styles.tableCol, {width: '25%', maxWidth: '25%', alignItems: 'center', padding: 15}]}>
-                <Text style={{textAlign: 'center', padding: 5}}>{item.data.gamemode}</Text>
-              </View> */}
-                    <View
-                      style={[
-                        styles.tableCol,
-                        {
-                          width: '20%',
-                          maxWidth: '20%',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          paddingTop: 15,
-                          paddingBottom: 15,
-                        },
-                      ]}
-                    >
-                      <Text
-                        style={{
-                          textAlign: 'center',
-
-                          color:
-                            gamemode == 'Progressive' && item.score < 0
-                              ? 'green'
-                              : gamemode == 'Progressive' && item.score > 0
-                                ? 'red'
-                                : colors.text,
-                        }}
-                      >
-                        {item.score}
-                      </Text>
-                    </View>
-                    {/* <View style={[styles.tableCol]}>
-                <Text style={{textAlign: 'center', padding: 5}}>Medium</Text>
-              </View> */}
-                    <View
-                      style={[
-                        styles.tableCol,
-                        { width: '20%', maxWidth: '20%', justifyContent: 'center' },
-                      ]}
-                    >
-                      {/* <TouchableOpacity style={{padding: 5}} onPress={() => handleLink(item.id, item.data.size)}> */}
-                      <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => handleLink(item.boardId)}
-                      >
-                        <Text
+                        <View
                           style={[
-                            styles.buttonText,
-                            { textAlign: 'center', color: colors.text },
+                            styles.tableCol,
+                            {
+                              width: '15%',
+                              maxWidth: '15%',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              paddingTop: 15,
+                              paddingBottom: 15,
+                            },
                           ]}
                         >
-                          Info
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </Animated.View>
-                )}
-              />
-            </>
+                          <Text
+                            style={{
+                              textAlign: 'center',
+
+                              color: colors.text,
+                            }}
+                          >
+                            {index + 1}
+                          </Text>
+                        </View>
+                        <View
+                          style={[
+                            styles.tableCol,
+                            {
+                              width: '25%',
+                              maxWidth: '50%',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              paddingTop: 15,
+                              paddingBottom: 15,
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={{
+                              textAlign: 'center',
+
+                              color: colors.text,
+                            }}
+                          >
+                            {item.createdBy}
+                          </Text>
+                        </View>
+                        <View
+                          style={[
+                            styles.tableCol,
+                            {
+                              width: '20%',
+                              maxWidth: '20%',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              paddingTop: 15,
+                              paddingBottom: 15,
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={{
+                              textAlign: 'center',
+
+                              color:
+                                gamemode == 'Progressive' && item.score < 0
+                                  ? 'green'
+                                  : gamemode == 'Progressive' && item.score > 0
+                                    ? 'red'
+                                    : colors.text,
+                            }}
+                          >
+                            {item.score}
+                          </Text>
+                        </View>
+                        {/* <View style={[styles.tableCol]}>
+                <Text style={{textAlign: 'center', padding: 5}}>Medium</Text>
+              </View> */}
+                        <View
+                          style={[
+                            styles.tableCol,
+                            {
+                              width: '20%',
+                              maxWidth: '20%',
+                              justifyContent: 'center',
+                            },
+                          ]}
+                        >
+                          {/* <TouchableOpacity style={{padding: 5}} onPress={() => handleLink(item.id, item.data.size)}> */}
+                          <TouchableOpacity
+                            style={styles.button}
+                            onPress={() => handleLink(item.boardId)}
+                          >
+                            <Text
+                              style={[
+                                styles.buttonText,
+                                { textAlign: 'center', color: colors.text },
+                              ]}
+                            >
+                              Info
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      </Animated.View>
+                    )}
+                  />
+                </>
+              )}
+            </View>
           )}
-        </View>
+        </>
       ) : (
-        <View style={styles.table}>
-          {scores.length == 0 ? (
-            <EmptyRow />
+        <>
+          {dataChange ? (
+            <ActivityIndicator
+              style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+              color="darkgreen"
+              size="large"
+            />
           ) : (
-            <>
-              <TopRow />
-              <FlatList
-                data={scores}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item, index }) => (
-                  <Animated.View
-                    style={[
-                      styles.tableRow,
-                      {
-                        opacity: animatedValues[index],
-                        backgroundColor: colors.tableRow,
-                        transform: [
+            <View style={styles.table}>
+              {scores.length == 0 ? (
+                <EmptyRow />
+              ) : (
+                <>
+                  <TopRow />
+                  <FlatList
+                    data={scores}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item, index }) => (
+                      <Animated.View
+                        style={[
+                          styles.tableRow,
                           {
-                            translateX: animatedValues[index].interpolate({
-                              inputRange: [0, 1],
-                              outputRange: [-50, 0],
-                            }),
+                            opacity: animatedValues[index],
+                            backgroundColor: colors.tableRow,
+                            transform: [
+                              {
+                                translateX: animatedValues[index].interpolate({
+                                  inputRange: [0, 1],
+                                  outputRange: [-50, 0],
+                                }),
+                              },
+                            ],
                           },
-                        ],
-                      },
-                    ]}
-                  >
-                    <View
-                      style={[
-                        styles.tableCol,
-                        {
-                          width: '15%',
-                          maxWidth: '15%',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          paddingTop: 15,
-                          paddingBottom: 15,
-                        },
-                      ]}
-                    >
-                      <Text
-                        style={{
-                          textAlign: 'center',
-
-                          color: colors.text,
-                        }}
+                        ]}
                       >
-                        {index + 1}
-                      </Text>
-                    </View>
-                    <View
-                      style={[
-                        styles.tableCol,
-                        {
-                          width: '42.5%',
-                          maxWidth: '42.5%',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          paddingTop: 15,
-                          paddingBottom: 15,
-                        },
-                      ]}
-                    >
-                      <Text
-                        style={{
-                          textAlign: 'center',
+                        <View
+                          style={[
+                            styles.tableCol,
+                            {
+                              width: '15%',
+                              maxWidth: '15%',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              paddingTop: 15,
+                              paddingBottom: 15,
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={{
+                              textAlign: 'center',
 
-                          color: colors.text,
-                        }}
-                      >
-                        {item.username}
-                      </Text>
-                    </View>
-                    <View
-                      style={[
-                        styles.tableCol,
-                        {
-                          width: '42.5%',
-                          maxWidth: '42.5%',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          paddingTop: 15,
-                          paddingBottom: 15,
-                        },
-                      ]}
-                    >
-                      <Text
-                        style={{
-                          textAlign: 'center',
+                              color: index == 0 ? 'gold' : colors.text,
+                            }}
+                          >
+                            {item.rank}
+                          </Text>
+                        </View>
+                        <View
+                          style={[
+                            styles.tableCol,
+                            {
+                              width: '42.5%',
+                              maxWidth: '42.5%',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              paddingTop: 15,
+                              paddingBottom: 15,
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={{
+                              textAlign: 'center',
 
-                          color:
-                            queryOptionState == 'Win Rate' &&
-                            parseInt(item.queryData) > 50 &&
-                            item.wins + item.losses > 9
-                              ? 'green'
-                              : queryOptionState == 'Win Rate' &&
-                                  parseInt(item.queryData) < 50 &&
-                                  item.wins + item.losses > 9
-                                ? 'red'
-                                : colors.text,
-                        }}
-                      >
-                        {item.wins + item.losses < 10
-                          ? `${item.wins + item.losses}/10 Games Played`
-                          : item.queryData}
-                      </Text>
-                    </View>
-                  </Animated.View>
-                )}
-              />
-            </>
+                              color: index == 0 ? 'gold' : colors.text,
+                            }}
+                          >
+                            {item.username}
+                          </Text>
+                        </View>
+                        <View
+                          style={[
+                            styles.tableCol,
+                            {
+                              width: '42.5%',
+                              maxWidth: '42.5%',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              paddingTop: 15,
+                              paddingBottom: 15,
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={{
+                              textAlign: 'center',
+
+                              color:
+                                queryOptionState == 'Win Rate' &&
+                                parseInt(item.queryData) > 50 &&
+                                item.wins + item.losses > 9
+                                  ? 'green'
+                                  : queryOptionState == 'Win Rate' &&
+                                      parseInt(item.queryData) < 50 &&
+                                      item.wins + item.losses > 9
+                                    ? 'red'
+                                    : colors.text,
+                            }}
+                          >
+                            {item.wins + item.losses < 10
+                              ? `${item.wins + item.losses}/10 Games Played`
+                              : item.queryData}
+                          </Text>
+                        </View>
+                      </Animated.View>
+                    )}
+                  />
+                </>
+              )}
+            </View>
           )}
-        </View>
+        </>
       )}
     </View>
   )
