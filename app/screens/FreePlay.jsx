@@ -755,17 +755,41 @@ const FreePlay = () => {
         </View>
       </Modal>
       <View style={styles.top}>
-        <Text style={[styles.topText, styles.highScore, { color: colorTheme.text }]}>
-          {scoreToBeat == null
-            ? `High Score: ${highScore}`
-            : `Score to beat: ${scoreToBeat}`}
-        </Text>
+        {screenHeight > 740 ? (
+          <Text
+            style={[styles.topText, styles.highScore, { color: colorTheme.text }]}
+          >
+            {scoreToBeat == null
+              ? `High Score: ${highScore}`
+              : `Score to beat: ${scoreToBeat}`}
+          </Text>
+        ) : (
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              width: screenWidth * 0.95,
+            }}
+          >
+            <Text style={[styles.counter, { color: colorTheme.text }]}>
+              {scoreToBeat == null ? counter : `${counter} / ${scoreToBeat}`}
+            </Text>
+            <Text
+              style={[{ fontSize: 20, textAlign: 'center', color: colorTheme.text }]}
+            >
+              {scoreToBeat == null
+                ? `High Score: ${highScore}`
+                : `Score to beat: ${scoreToBeat}`}
+            </Text>
+          </View>
+        )}
         {/* <Text
           style={[styles.topText, styles.remainText, { color: colorTheme.text }]}
         >
           Squares Remaining
         </Text> */}
-        {screenHeight > 700 && (
+        {screenHeight > 790 && (
           <View style={styles.squareCounter}>
             <View style={[styles.fakeSquare, { backgroundColor: colorOption[0] }]}>
               <Text style={[styles.fakeText]}>{squareCounter[0].count}</Text>
@@ -785,9 +809,11 @@ const FreePlay = () => {
           </View>
         )}
       </View>
-      <Text style={[styles.counter, { color: colorTheme.text }]}>
-        {scoreToBeat == null ? counter : `${counter} / ${scoreToBeat}`}
-      </Text>
+      {screenHeight > 740 && (
+        <Text style={[styles.counter, { color: colorTheme.text }]}>
+          {scoreToBeat == null ? counter : `${counter} / ${scoreToBeat}`}
+        </Text>
+      )}
       <View style={[styles.board, screenWidth > 500 && { maxWidth: screenWidth }]}>
         {colorState.map((sq, index) => {
           return (

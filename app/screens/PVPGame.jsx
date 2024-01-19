@@ -52,6 +52,7 @@ const colorArr = squareColors
 let boardSize = 19
 let sizeName = 'Medium'
 let screenWidth = Dimensions.get('window').width * 0.98
+let screenHeight = Dimensions.get('window').height
 let gridItemSize = Math.floor(screenWidth / boardSize)
 // // console.log(gridItemSize)
 if (screenWidth >= 1000) {
@@ -1124,124 +1125,144 @@ const PVPGame = () => {
         <View style={[styles.playerNames, { width: gridItemSize * boardSize }]}>
           {userName != opponentName ? <OwnerView /> : <OpponentView />}
           <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ fontSize: 15, color: colorTheme.text }}>VS</Text>
+            {screenHeight > 700 ? (
+              <Text style={{ fontSize: 15, color: colorTheme.text }}>VS</Text>
+            ) : (
+              <Text
+                style={{
+                  fontSize: 25,
+                  width: 50,
+                  textAlign: 'center',
+                  color: colorTheme.text,
+                }}
+              >
+                {timer < 1 ? 0 : timer - 1}
+              </Text>
+            )}
           </View>
           {userName != opponentName ? <OpponentView /> : <OwnerView />}
         </View>
         <View>
-          <Text
-            style={{ fontSize: 25, textAlign: 'center', color: colorTheme.text }}
-          >
-            {timer < 1 ? 0 : timer - 1}
-          </Text>
+          {screenHeight > 700 && (
+            <Text
+              style={{ fontSize: 25, textAlign: 'center', color: colorTheme.text }}
+            >
+              {timer < 1 ? 0 : timer - 1}
+            </Text>
+          )}
         </View>
-
-        {userName != opponentName ? (
-          <View style={[styles.colorRow, turn == 'Owner' && { opacity: 0.1 }]}>
-            <TouchableOpacity
-              style={[
-                styles.color,
-                {
-                  backgroundColor:
-                    opponentSelectedColor == colors[0] ? 'gray' : colorOption[0],
-                },
-                { opacity: opponentSelectedColor == colors[0] ? 0.1 : 1 },
-              ]}
-            ></TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.color,
-                {
-                  backgroundColor:
-                    opponentSelectedColor == colors[1] ? 'gray' : colorOption[1],
-                },
-                { opacity: opponentSelectedColor == colors[1] ? 0.1 : 1 },
-              ]}
-            ></TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.color,
-                {
-                  backgroundColor:
-                    opponentSelectedColor == colors[2] ? 'gray' : colorOption[2],
-                },
-                { opacity: opponentSelectedColor == colors[2] ? 0.1 : 1 },
-              ]}
-            ></TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.color,
-                {
-                  backgroundColor:
-                    opponentSelectedColor == colors[3] ? 'gray' : colorOption[3],
-                },
-                { opacity: opponentSelectedColor == colors[3] ? 0.1 : 1 },
-              ]}
-            ></TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.color,
-                {
-                  backgroundColor:
-                    opponentSelectedColor == colors[4] ? 'gray' : colorOption[4],
-                },
-                { opacity: opponentSelectedColor == colors[4] ? 0.1 : 1 },
-              ]}
-            ></TouchableOpacity>
-          </View>
-        ) : (
-          <View style={[styles.colorRow, turn == 'Opponent' && { opacity: 0.1 }]}>
-            <TouchableOpacity
-              style={[
-                styles.color,
-                {
-                  backgroundColor:
-                    ownerSelectedColor == colors[0] ? 'gray' : colorOption[0],
-                },
-                { opacity: ownerSelectedColor == colors[0] ? 0.1 : 1 },
-              ]}
-            ></TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.color,
-                {
-                  backgroundColor:
-                    ownerSelectedColor == colors[1] ? 'gray' : colorOption[1],
-                },
-                { opacity: ownerSelectedColor == colors[1] ? 0.1 : 1 },
-              ]}
-            ></TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.color,
-                {
-                  backgroundColor:
-                    ownerSelectedColor == colors[2] ? 'gray' : colorOption[2],
-                },
-                { opacity: ownerSelectedColor == colors[2] ? 0.1 : 1 },
-              ]}
-            ></TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.color,
-                {
-                  backgroundColor:
-                    ownerSelectedColor == colors[3] ? 'gray' : colorOption[3],
-                },
-                { opacity: ownerSelectedColor == colors[3] ? 0.1 : 1 },
-              ]}
-            ></TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.color,
-                {
-                  backgroundColor:
-                    ownerSelectedColor == colors[4] ? 'gray' : colorOption[4],
-                },
-                { opacity: ownerSelectedColor == colors[4] ? 0.1 : 1 },
-              ]}
-            ></TouchableOpacity>
-          </View>
+        {screenHeight > 790 && (
+          <>
+            {userName != opponentName ? (
+              <View style={[styles.colorRow, turn == 'Owner' && { opacity: 0.1 }]}>
+                <TouchableOpacity
+                  style={[
+                    styles.color,
+                    {
+                      backgroundColor:
+                        opponentSelectedColor == colors[0] ? 'gray' : colorOption[0],
+                    },
+                    { opacity: opponentSelectedColor == colors[0] ? 0.1 : 1 },
+                  ]}
+                ></TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.color,
+                    {
+                      backgroundColor:
+                        opponentSelectedColor == colors[1] ? 'gray' : colorOption[1],
+                    },
+                    { opacity: opponentSelectedColor == colors[1] ? 0.1 : 1 },
+                  ]}
+                ></TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.color,
+                    {
+                      backgroundColor:
+                        opponentSelectedColor == colors[2] ? 'gray' : colorOption[2],
+                    },
+                    { opacity: opponentSelectedColor == colors[2] ? 0.1 : 1 },
+                  ]}
+                ></TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.color,
+                    {
+                      backgroundColor:
+                        opponentSelectedColor == colors[3] ? 'gray' : colorOption[3],
+                    },
+                    { opacity: opponentSelectedColor == colors[3] ? 0.1 : 1 },
+                  ]}
+                ></TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.color,
+                    {
+                      backgroundColor:
+                        opponentSelectedColor == colors[4] ? 'gray' : colorOption[4],
+                    },
+                    { opacity: opponentSelectedColor == colors[4] ? 0.1 : 1 },
+                  ]}
+                ></TouchableOpacity>
+              </View>
+            ) : (
+              <View
+                style={[styles.colorRow, turn == 'Opponent' && { opacity: 0.1 }]}
+              >
+                <TouchableOpacity
+                  style={[
+                    styles.color,
+                    {
+                      backgroundColor:
+                        ownerSelectedColor == colors[0] ? 'gray' : colorOption[0],
+                    },
+                    { opacity: ownerSelectedColor == colors[0] ? 0.1 : 1 },
+                  ]}
+                ></TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.color,
+                    {
+                      backgroundColor:
+                        ownerSelectedColor == colors[1] ? 'gray' : colorOption[1],
+                    },
+                    { opacity: ownerSelectedColor == colors[1] ? 0.1 : 1 },
+                  ]}
+                ></TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.color,
+                    {
+                      backgroundColor:
+                        ownerSelectedColor == colors[2] ? 'gray' : colorOption[2],
+                    },
+                    { opacity: ownerSelectedColor == colors[2] ? 0.1 : 1 },
+                  ]}
+                ></TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.color,
+                    {
+                      backgroundColor:
+                        ownerSelectedColor == colors[3] ? 'gray' : colorOption[3],
+                    },
+                    { opacity: ownerSelectedColor == colors[3] ? 0.1 : 1 },
+                  ]}
+                ></TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.color,
+                    {
+                      backgroundColor:
+                        ownerSelectedColor == colors[4] ? 'gray' : colorOption[4],
+                    },
+                    { opacity: ownerSelectedColor == colors[4] ? 0.1 : 1 },
+                  ]}
+                ></TouchableOpacity>
+              </View>
+            )}
+          </>
         )}
       </View>
       {userName != opponentName ? (
@@ -1529,6 +1550,9 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 5,
     fontSize: 20,
+  },
+  playerView: {
+    marginBottom: 10,
   },
   fakeSquare: {
     alignItems: 'center',

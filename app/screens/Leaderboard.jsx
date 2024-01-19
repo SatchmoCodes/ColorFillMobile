@@ -60,7 +60,7 @@ const auth = FIREBASE_AUTH
 let screenWidth = Dimensions.get('window').width
 
 const Leaderboard = () => {
-  const { useColors } = useColorSchemeContext()
+  const { useColors, userColorScheme } = useColorSchemeContext()
   const colors = useColors()
 
   const navigation = useNavigation()
@@ -731,10 +731,7 @@ const Leaderboard = () => {
                             onPress={() => handleLink(item.boardId)}
                           >
                             <Text
-                              style={[
-                                styles.buttonText,
-                                { textAlign: 'center', color: colors.text },
-                              ]}
+                              style={[styles.buttonText, { textAlign: 'center' }]}
                             >
                               Info
                             </Text>
@@ -798,11 +795,18 @@ const Leaderboard = () => {
                           ]}
                         >
                           <Text
-                            style={{
-                              textAlign: 'center',
+                            style={[
+                              userColorScheme == 'light' &&
+                                index == 0 && {
+                                  textShadowColor: 'black',
+                                  textShadowRadius: 1,
+                                },
+                              {
+                                textAlign: 'center',
 
-                              color: index == 0 ? 'gold' : colors.text,
-                            }}
+                                color: index == 0 ? colors.username : colors.text,
+                              },
+                            ]}
                           >
                             {item.rank}
                           </Text>
@@ -821,11 +825,18 @@ const Leaderboard = () => {
                           ]}
                         >
                           <Text
-                            style={{
-                              textAlign: 'center',
+                            style={[
+                              userColorScheme == 'light' &&
+                                index == 0 && {
+                                  textShadowColor: 'black',
+                                  textShadowRadius: 1,
+                                },
+                              {
+                                textAlign: 'center',
 
-                              color: index == 0 ? 'gold' : colors.text,
-                            }}
+                                color: index == 0 ? colors.username : colors.text,
+                              },
+                            ]}
                           >
                             {item.username}
                           </Text>

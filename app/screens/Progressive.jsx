@@ -721,17 +721,23 @@ const Progressive = () => {
         </View>
       </Modal>
       <View style={styles.top}>
-        <Text style={[styles.topText, styles.highScore, { color: colorTheme.text }]}>
-          {scoreToBeat == null
-            ? `High Score: ${highScore > 0 ? `+${highScore}` : highScore}`
-            : `Score to beat: ${scoreToBeat > 0 ? `+${scoreToBeat}` : scoreToBeat}`}
-        </Text>
+        {screenHeight > 715 && (
+          <Text
+            style={[styles.topText, styles.highScore, { color: colorTheme.text }]}
+          >
+            {scoreToBeat == null
+              ? `High Score: ${highScore > 0 ? `+${highScore}` : highScore}`
+              : `Score to beat: ${
+                  scoreToBeat > 0 ? `+${scoreToBeat}` : scoreToBeat
+                }`}
+          </Text>
+        )}
         {/* <Text
           style={[styles.topText, styles.remainText, { color: colorTheme.text }]}
         >
           Squares Remaining
         </Text> */}
-        {screenHeight > 700 && (
+        {screenHeight > 790 && (
           <View style={styles.squareCounter}>
             <View style={[styles.fakeSquare, { backgroundColor: colorOption[0] }]}>
               <Text style={styles.fakeText}>{squareCounter[0].count}</Text>
