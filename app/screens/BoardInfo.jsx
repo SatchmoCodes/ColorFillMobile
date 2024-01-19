@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   Platform,
+  Dimensions,
 } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { useNavigation, useRoute } from '@react-navigation/native'
@@ -24,6 +25,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useColorSchemeContext } from '../../App'
 
 let docId
+let screenHeight = Dimensions.get('window').height
 
 const BoardInfo = ({ navigation }) => {
   const { useColors } = useColorSchemeContext()
@@ -128,7 +130,7 @@ const BoardInfo = ({ navigation }) => {
             textAlign: 'center',
             fontSize: 30,
             marginBottom: 30,
-            marginTop: 30,
+            marginTop: screenHeight > 700 && 30,
             color: colors.text,
           }}
         >
