@@ -926,12 +926,13 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
   },
   dropdown: {
-    height: 50,
+    height: 55,
     borderColor: 'gray',
     borderWidth: 0.5,
     borderRadius: 8,
     paddingHorizontal: 10,
     minWidth: 150,
+    // height: '100%',
   },
   //dropdown styles
   label: {
