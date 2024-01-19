@@ -78,6 +78,7 @@ export const lightModeColors = {
   button: 'rgb(255,255,255)',
   radioSelected: 'black',
   outline: 'black',
+  username: 'BLACK',
 }
 
 export const darkModeColors = {
@@ -89,6 +90,7 @@ export const darkModeColors = {
   tableTop: 'rgb(20,20,20)',
   game: 'rgb(6,37,105)',
   radioSelected: 'white',
+  username: 'gold',
 }
 
 // const isDark = Appearance.getColorScheme() == 'dark'
