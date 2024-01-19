@@ -461,7 +461,7 @@ const Progressive = () => {
     hole++
     roundScore = countNumber - parValue
     totalScoreValue += roundScore
-    parValue++
+    parValue += 2
     round < 10 && round++
     if (hole >= 10) {
       return
