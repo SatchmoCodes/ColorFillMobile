@@ -557,12 +557,12 @@ const FreePlay = () => {
     resetColors()
     // handleReset()
     handleReset()
-    if (showAd) {
-      let rand = Math.floor(Math.random() * 4)
-      if (rand === 0) {
-        interstitial.show()
-      }
-    }
+    // if (showAd) {
+    //   let rand = Math.floor(Math.random() * 4)
+    //   if (rand === 0) {
+    //     interstitial.show()
+    //   }
+    // }
   }
 
   function resetColors() {
