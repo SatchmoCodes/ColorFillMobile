@@ -38,11 +38,16 @@ const Register = () => {
   }, [])
 
   const handleSignUp = async () => {
+    let cancel = false
+    if (displayName.includes(' ')) {
+      cancel = true
+      alert('username must not include spaces')
+    }
     try {
       // const q = query(collection(db, 'Users'), where("username", "==", displayName))
       const q = query(collection(db, 'Users'))
       const querySnapshot = await getDocs(q)
-      let cancel = false
+
       querySnapshot.forEach((doc) => {
         console.log(doc.data().username)
         if (doc.data().username.toLowerCase() == displayName.toLowerCase()) {
@@ -89,6 +94,7 @@ const Register = () => {
           value={displayName}
           onChangeText={(text) => setDisplayName(text)}
           style={styles.input}
+          maxLength={15}
         />
         <TextInput
           placeholder="Password"
