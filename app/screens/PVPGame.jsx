@@ -614,6 +614,8 @@ const PVPGame = () => {
   // }, [])
 
   const getColor = async () => {
+    let ownerSelectedIndex = colors.indexOf(ownerSelectedColor)
+    let opponentSelectedIndex = colors.indexOf(opponentSelectedColor)
     try {
       const value = await AsyncStorage.getItem('color')
       if (value !== null) {
@@ -622,16 +624,15 @@ const PVPGame = () => {
         for (let y = 0; y < 7; y++) {
           colors.push(colorArr[x][y])
         }
+        console.log('ownerselectedindex', ownerSelectedIndex)
+        console.log('opponentselectedindex', opponentSelectedIndex)
         setSelectedColorOption(colors)
         // // console.log('colros',colors)
         if (ownerColorIndex != null) {
-          // // console.log('ownerindex',ownerColorIndex)
           setOwnerColor(colors[ownerColorIndex])
           setOpponentColor(colors[opponentColorIndex])
-          setOwnerSelectedColor(colors[tempSquareArr[0].colorIndex])
-          setOpponentSelectedColor(
-            colors[tempSquareArr[tempSquareArr.length - 1].colorIndex],
-          )
+          setOwnerSelectedColor(colors[ownerSelectedIndex])
+          setOpponentSelectedColor(colors[opponentSelectedIndex])
         }
       }
     } catch (e) {
