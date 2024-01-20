@@ -35,7 +35,7 @@ const sizeOptions = [
 const gamemodeOptions = [
   { label: 'Free Play', value: 'FreePlay' },
   { label: 'Progressive', value: 'Progressive' },
-  { label: 'Player vs Player', value: 'PVP' },
+  { label: 'PVP', value: 'PVP' },
 ]
 
 const queryOptions = [
@@ -505,13 +505,17 @@ const Leaderboard = () => {
       <Text style={{ marginTop: 50, fontSize: 30, color: colors.text }}>
         Leaderboard
       </Text>
-      <Text style={{ marginTop: 25, fontSize: 15, color: colors.text }}>
+      <Text
+        style={{ marginTop: 25, marginBottom: 10, fontSize: 20, color: colors.text }}
+      >
         Search Options
       </Text>
       <View style={styles.searchOptions}>
         {/* { sizeLabel() } */}
         <View style={styles.optionCol}>
-          <Text style={{ textAlign: 'center', color: colors.text }}>Gamemode</Text>
+          <Text style={{ fontSize: 15, textAlign: 'center', color: colors.text }}>
+            Gamemode
+          </Text>
           <Dropdown
             style={[
               styles.dropdown,
@@ -538,7 +542,7 @@ const Leaderboard = () => {
         </View>
         {gamemode == 'FreePlay' && (
           <View style={styles.optionCol}>
-            <Text style={{ textAlign: 'center', color: colors.text }}>
+            <Text style={{ fontSize: 15, textAlign: 'center', color: colors.text }}>
               Board Size
             </Text>
             <Dropdown
@@ -568,7 +572,7 @@ const Leaderboard = () => {
         )}
         {gamemode == 'PVP' && (
           <View style={styles.optionCol}>
-            <Text style={{ textAlign: 'center', color: colors.text }}>
+            <Text style={{ fontSize: 15, textAlign: 'center', color: colors.text }}>
               Query Options
             </Text>
             <Dropdown
@@ -948,7 +952,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   selectedTextStyle: {
+    display: 'flex',
     fontSize: 16,
+    height: '100%',
+    justifyContent: 'left',
+    alignItems: 'center',
   },
   iconStyle: {
     width: 20,
