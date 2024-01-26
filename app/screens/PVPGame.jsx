@@ -191,6 +191,7 @@ const PVPGame = () => {
   const [turn, setTurn] = useState(null)
 
   const [radar, setRadar] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   const [uid, setUid] = useState(null)
   const [userName, setUserName] = useState(null)
@@ -954,6 +955,7 @@ const PVPGame = () => {
     })
     gridItemSize = Math.floor(screenWidth / boardSize)
     setChange(true)
+    setLoading(false)
   }
 
   function handleReset() {
@@ -1266,85 +1268,106 @@ const PVPGame = () => {
           </>
         )}
       </View>
-      {userName != opponentName ? (
-        <View style={[styles.board, screenWidth > 500 && { maxWidth: screenWidth }]}>
-          {colorState.map((sq, index) => {
-            return (
-              // <View key={index} style={[styles.square, {backgroundColor: sq.color}]}></View>
-              //
-              <Animated.View
-                key={index}
-                style={[
-                  styles.square,
-                  sq.captured && { zIndex: 2 },
-                  {
-                    backgroundColor:
-                      sq.captured && sq.owner == 'Owner'
-                        ? ownerColor
-                        : sq.captured && sq.owner == 'Opponent'
-                          ? opponentColor
-                          : colorState[index].color,
-                    width: gridItemSize,
-                    height: gridItemSize,
-                    transform: [
-                      {
-                        scale:
-                          squareAnim[index] == undefined
-                            ? 1
-                            : squareAnim[index].interpolate({
-                                inputRange: [0, 1],
-                                outputRange: [1, 1.2], // grow by 20%
-                              }),
-                      },
-                    ],
-                  },
-                ]}
-              ></Animated.View>
-            )
-          })}
+      {loading ? (
+        <View
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: screenWidth,
+            height: screenWidth,
+          }}
+        >
+          <ActivityIndicator style={{}} size="large" color="darkgreen" />
         </View>
       ) : (
-        <View style={[styles.board, screenWidth > 500 && { maxWidth: screenWidth }]}>
-          {colorState
-            .slice()
-            .reverse()
-            .map((sq, index) => {
-              return (
-                // <View key={index} style={[styles.square, {backgroundColor: sq.color}]}></View>
-                //
-                <Animated.View
-                  key={index}
-                  style={[
-                    styles.square,
-                    sq.captured && { zIndex: 2 },
-                    {
-                      backgroundColor:
-                        sq.captured && sq.owner == 'Owner'
-                          ? ownerColor
-                          : sq.captured && sq.owner == 'Opponent'
-                            ? opponentColor
-                            : colorState[colorState.length - 1 - index].color,
-                      width: gridItemSize,
-                      height: gridItemSize,
-                      transform: [
+        <>
+          {userName != opponentName ? (
+            <View
+              style={[styles.board, screenWidth > 500 && { maxWidth: screenWidth }]}
+            >
+              {colorState.map((sq, index) => {
+                return (
+                  // <View key={index} style={[styles.square, {backgroundColor: sq.color}]}></View>
+                  //
+                  <Animated.View
+                    key={index}
+                    style={[
+                      styles.square,
+                      sq.captured && { zIndex: 2 },
+                      {
+                        backgroundColor:
+                          sq.captured && sq.owner == 'Owner'
+                            ? ownerColor
+                            : sq.captured && sq.owner == 'Opponent'
+                              ? opponentColor
+                              : colorState[index].color,
+                        width: gridItemSize,
+                        height: gridItemSize,
+                        transform: [
+                          {
+                            scale:
+                              squareAnim[index] == undefined
+                                ? 1
+                                : squareAnim[index].interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: [1, 1.2], // grow by 20%
+                                  }),
+                          },
+                        ],
+                      },
+                    ]}
+                  ></Animated.View>
+                )
+              })}
+            </View>
+          ) : (
+            <View
+              style={[styles.board, screenWidth > 500 && { maxWidth: screenWidth }]}
+            >
+              {colorState
+                .slice()
+                .reverse()
+                .map((sq, index) => {
+                  return (
+                    // <View key={index} style={[styles.square, {backgroundColor: sq.color}]}></View>
+                    //
+                    <Animated.View
+                      key={index}
+                      style={[
+                        styles.square,
+                        sq.captured && { zIndex: 2 },
                         {
-                          scale:
-                            squareAnim[squareAnim.length - 1 - index] == undefined
-                              ? 1
-                              : squareAnim[
-                                  squareAnim.length - 1 - index
-                                ].interpolate({
-                                  inputRange: [0, 1],
-                                  outputRange: [1, 1.2], // grow by 20%
-                                }),
+                          backgroundColor:
+                            sq.captured && sq.owner == 'Owner'
+                              ? ownerColor
+                              : sq.captured && sq.owner == 'Opponent'
+                                ? opponentColor
+                                : colorState[colorState.length - 1 - index].color,
+                          width: gridItemSize,
+                          height: gridItemSize,
+                          transform: [
+                            {
+                              scale:
+                                squareAnim[squareAnim.length - 1 - index] ==
+                                undefined
+                                  ? 1
+                                  : squareAnim[
+                                      squareAnim.length - 1 - index
+                                    ].interpolate({
+                                      inputRange: [0, 1],
+                                      outputRange: [1, 1.2], // grow by 20%
+                                    }),
+                            },
+                          ],
                         },
-                      ],
-                    },
-                  ]}
-                ></Animated.View>
-              )
-            })}
-        </View>
+                      ]}
+                    ></Animated.View>
+                  )
+                })}
+            </View>
+          )}
+        </>
       )}
       {userName != opponentName ? (
         <View style={[styles.colorRow, turn == 'Opponent' && { opacity: 0.1 }]}>
