@@ -930,13 +930,12 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
   },
   dropdown: {
-    height: 55,
+    height: 60,
     borderColor: 'gray',
     borderWidth: 0.5,
     borderRadius: 8,
     paddingHorizontal: 10,
     minWidth: 150,
-    // height: '100%',
   },
   //dropdown styles
   label: {
@@ -952,11 +951,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   selectedTextStyle: {
-    display: 'flex',
-    fontSize: 16,
-    height: '100%',
-    justifyContent: 'left',
-    alignItems: 'center',
+    fontSize: 15,
   },
   iconStyle: {
     width: 20,
