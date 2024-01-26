@@ -121,6 +121,26 @@ const PVPCreate = ({ navigation }) => {
   }
 
   async function createBoard() {
+    const q = query(
+      collection(db, 'Games'),
+      where('gameState', '==', 'Waiting'),
+      where('ownerName', '==', userName),
+    )
+    const querySnapshot = await getDocs(q)
+    if (!querySnapshot.empty) {
+      let dateObj = querySnapshot.docs[0].data().createdAt.toDate()
+      let timeCreated = dateObj.getTime() / 1000
+      let currentTime = Math.floor(new Date().getTime() / 1000)
+      console.log(currentTime - timeCreated)
+      if (currentTime - timeCreated <= 300) {
+        alert(
+          `You already created a game! Rejoin your lobby or wait ${Math.round(
+            300 - (currentTime - timeCreated),
+          )} seconds to create another game.`,
+        )
+        return
+      }
+    }
     setBlock(true)
     let dimensions
     let boardData = []
