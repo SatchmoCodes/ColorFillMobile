@@ -55,7 +55,7 @@ let screenWidth = Dimensions.get('window').width * 0.98
 let screenHeight = Dimensions.get('window').height
 let gridItemSize = Math.floor(screenWidth / boardSize)
 // // console.log(gridItemSize)
-if (screenWidth >= 1000) {
+if (screenWidth >= 750) {
   screenWidth = Dimensions.get('window').height * 0.55
   // // console.log(screenWidth)
   gridItemSize = Math.floor(screenWidth / boardSize)
@@ -1620,7 +1620,6 @@ const styles = StyleSheet.create({
   extraRow: {
     display: 'flex',
     flexDirection: 'row',
-    width: '90%',
     gap: 5,
     marginBottom: 5,
     justifyContent: 'center',
