@@ -129,12 +129,17 @@ const PVPMenu = ({ navigation }) => {
 
   async function handleJoin(id) {
     const docRef = doc(db, 'Games', id)
+    const docSnap = await getDoc(docRef)
     const newData = {
       opponentName: userName,
       opponentUid: uid,
     }
     try {
-      const update = await updateDoc(docRef, newData)
+      if (docSnap.exists()) {
+        if (docSnap.data().ownerName != userName) {
+          const update = await updateDoc(docRef, newData)
+        }
+      }
       navigation.navigate('PVPLobby', { id })
     } catch (error) {
       console.log(error)
