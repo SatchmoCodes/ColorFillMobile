@@ -431,8 +431,8 @@ const PVPCreate = ({ navigation }) => {
         </View>
         <View>
           <TouchableOpacity
-            style={styles.button}
-            onPress={() => !block && createBoard()}
+            style={[styles.button, { opacity: userName == null && 0.5 }]}
+            onPress={() => !block && userName && createBoard()}
           >
             <Text style={[styles.buttonText]}>Create Game</Text>
           </TouchableOpacity>
