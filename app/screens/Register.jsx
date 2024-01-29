@@ -7,6 +7,7 @@ import {
   View,
   Image,
   ImageBackground,
+  Platform,
 } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { useNavigation, CommonActions } from '@react-navigation/native'
@@ -51,7 +52,6 @@ const Register = () => {
       const querySnapshot = await getDocs(q)
 
       querySnapshot.forEach((doc) => {
-        console.log(doc.data().username)
         if (doc.data().username.toLowerCase() == displayName.toLowerCase()) {
           alert('username is taken')
           cancel = true
@@ -86,6 +86,7 @@ const Register = () => {
     >
       <KeyboardAvoidingView
         style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         contentContainerStyle={{ alignItems: 'center' }}
       >
         <View style={styles.top}>

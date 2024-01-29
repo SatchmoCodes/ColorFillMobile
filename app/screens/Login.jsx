@@ -9,6 +9,7 @@ import {
   View,
   Image,
   ImageBackground,
+  Platform,
 } from 'react-native'
 // import firebase from '@react-native-firebase/app'
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig'
@@ -81,6 +82,7 @@ const LoginScreen = ({}) => {
     >
       <KeyboardAvoidingView
         style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         contentContainerStyle={{ alignItems: 'center' }}
       >
         <View style={styles.top}>
