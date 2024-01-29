@@ -48,7 +48,7 @@ let boardSize = 5
 let screenWidth = Dimensions.get('window').width * 0.98
 let screenHeight = Dimensions.get('window').height
 let gridItemSize = Math.floor(screenWidth / boardSize)
-if (screenWidth >= 750) {
+if (screenWidth >= 500) {
   screenWidth = Dimensions.get('window').height * 0.55
   // console.log(screenWidth)
   gridItemSize = Math.floor(screenWidth / boardSize)
@@ -147,6 +147,35 @@ const Progressive = () => {
   //   const unsubscribe = loadInterstitial()
   //   return unsubscribe
   // }, [])
+
+  const [viewportWidth, setViewportWidth] = useState(Dimensions.get('window').width)
+  const [viewportHeight, setViewportHeight] = useState(
+    Dimensions.get('window').height,
+  )
+
+  useEffect(() => {
+    const handleDimensionsChange = ({ window }) => {
+      screenWidth = Dimensions.get('window').width * 0.98
+      screenHeight = Dimensions.get('window').height
+      gridItemSize = Math.floor(screenWidth / boardSize)
+      if (screenWidth >= 500) {
+        screenWidth = Dimensions.get('window').height * 0.55
+        console.log(screenWidth)
+        gridItemSize = Math.floor(screenWidth / boardSize)
+      }
+      setViewportWidth(screenWidth)
+      setViewportHeight(screenHeight)
+      // Handle viewport size changes here
+    }
+
+    // Subscribe to the event when the component mounts
+    Dimensions.addEventListener('change', handleDimensionsChange)
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      Dimensions.removeEventListener('change', handleDimensionsChange)
+    }
+  }, [])
 
   const [colorState, setColorState] = useState(tempSquareArr)
   const [selectedColor, setSelectedColor] = useState(tempSquareArr[0].color)
@@ -502,6 +531,7 @@ const Progressive = () => {
         size: 'Default',
         boardData: randomArr.toString(),
         createdBy: userName,
+        uid: uid,
         gamemode: 'Progressive',
         createdAt: serverTimestamp(),
       })
