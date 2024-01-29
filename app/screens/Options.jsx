@@ -1,9 +1,23 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View, Modal } from 'react-native'
 import React, { useMemo, useState, useEffect } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import RadioGroup from 'react-native-radio-buttons-group'
 import { useColorSchemeContext } from '../../App'
 import { squareColors } from './colors.js'
+import { FIRESTORE_DB, FIREBASE_AUTH } from '../../firebaseConfig.js'
+import {
+  query,
+  collection,
+  doc,
+  addDoc,
+  where,
+  getDocs,
+  getDoc,
+  orderBy,
+  serverTimestamp,
+  deleteDoc,
+} from 'firebase/firestore'
+import { useNavigation, CommonActions } from '@react-navigation/core'
 
 const colorArr = [
   [
@@ -22,8 +36,50 @@ const colorArr = [
   ],
 ]
 
+const db = FIRESTORE_DB
+const auth = FIREBASE_AUTH
+
 const Options = () => {
+  const navigation = useNavigation()
   const { userColorScheme, useColors, toggleColorScheme } = useColorSchemeContext()
+
+  const [uid, setUid] = useState(null)
+  const [userName, setUserName] = useState(null)
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      // The user object will be null if not logged in or a user object if logged in
+      if (user) {
+        setUid(user.uid)
+        console.log('uid ', user.uid)
+      } else {
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: 'Login' }], // replace 'HomePage' with the actual route name
+          }),
+        )
+      }
+    })
+
+    // Clean up the subscription when the component unmounts
+    return unsubscribe
+  }, [])
+
+  useEffect(() => {
+    const getUserData = async () => {
+      console.log('uid here', uid)
+      const q = query(collection(db, 'Users'), where('uid', '==', uid))
+      const querySnapshot = await getDocs(q)
+      if (querySnapshot.empty) {
+        console.log('tests')
+      }
+      querySnapshot.forEach((doc) => {
+        setUserName(doc.data().username)
+      })
+    }
+    getUserData()
+  }, [uid])
 
   const colors = useColors()
   console.log(colors)
@@ -87,6 +143,8 @@ const Options = () => {
 
   const [selectedId, setSelectedId] = useState('2')
   const [selectedColor, setSelectedColor] = useState('0')
+  const [modalVisible, setModalVisible] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   function setSize(e) {
     setSelectedId(e)
@@ -114,8 +172,75 @@ const Options = () => {
     }
   }
 
+  function showDelete() {
+    setModalVisible(true)
+  }
+
+  async function handleDelete() {
+    setDeleting(true)
+    const q = query(collection(db, 'Users'), where('uid', '==', uid))
+    const querySnapshot = await getDocs(q)
+    const user = auth.currentUser
+    console.log('user', user)
+    if (!querySnapshot.empty) {
+      const userDocRef = querySnapshot.docs[0].ref
+      const scoreQuery = query(
+        collection(db, 'Scores'),
+        where('createdBy', '==', userName),
+      )
+      const scoreSnapshot = await getDocs(scoreQuery)
+
+      try {
+        scoreSnapshot.forEach((doc) => {
+          deleteDoc(doc.ref)
+          console.log('Score document deleted successfully')
+        })
+      } catch (error) {
+        console.log(error)
+      }
+
+      try {
+        await deleteDoc(userDocRef)
+        console.log('User document deleted successfully')
+      } catch (error) {
+        console.error('Error deleting user document:', error)
+      }
+
+      try {
+        user.delete()
+      } catch (error) {
+        console.log(error)
+      }
+    } else {
+      console.log('User not found')
+    }
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Modal animationType="fade" transparent={true} visible={modalVisible}>
+        <View style={styles.centeredView}>
+          <View style={[styles.modalView, { backgroundColor: colors.button }]}>
+            <Text style={[styles.modalText, { color: colors.text }]}>
+              Are you sure you want to delete your account?
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <Pressable
+                style={[styles.button, { backgroundColor: 'green' }]}
+                onPress={() => handleDelete()}
+              >
+                <Text style={[styles.buttonText, { color: 'white' }]}>CONFIRM</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.button, { backgroundColor: 'red' }]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={[styles.buttonText, { color: 'white' }]}>CANCEL</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
       <Text
         style={{ fontSize: 30, marginBottom: 20, marginTop: 20, color: colors.text }}
       >
@@ -197,6 +322,12 @@ const Options = () => {
             {userColorScheme == 'light' ? 'Dark' : 'Light'} Mode
           </Text>
         </Pressable>
+        <Pressable
+          style={[styles.button, { marginTop: 20, backgroundColor: 'red' }]}
+          onPress={() => showDelete()}
+        >
+          <Text style={[styles.buttonText, { color: 'white' }]}>Delete Account</Text>
+        </Pressable>
       </View>
     </View>
   )
@@ -251,6 +382,37 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 50,
     padding: 10,
+    maxWidth: 120,
+  },
+  buttonText: {
+    textAlign: 'center',
+  },
+  //modal stuff
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+    fontSize: 20,
   },
   hide: {
     display: 'none',
