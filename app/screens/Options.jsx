@@ -191,25 +191,27 @@ const Options = () => {
       const scoreSnapshot = await getDocs(scoreQuery)
 
       try {
-        scoreSnapshot.forEach((doc) => {
-          deleteDoc(doc.ref)
-          console.log('Score document deleted successfully')
-        })
-      } catch (error) {
-        console.log(error)
-      }
+        // Delete all score documents
+        await Promise.all(scoreSnapshot.docs.map((doc) => deleteDoc(doc.ref)))
+        console.log('Score documents deleted successfully')
 
-      try {
+        // Delete user document
         await deleteDoc(userDocRef)
         console.log('User document deleted successfully')
-      } catch (error) {
-        console.error('Error deleting user document:', error)
-      }
 
-      try {
-        user.delete()
+        // Delete user account
+        await user.delete()
+        console.log('User account deleted successfully')
       } catch (error) {
-        console.log(error)
+        console.error('Error deleting documents:', error)
+      } finally {
+        // Redirect after deletion is complete
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+          }),
+        )
       }
     } else {
       console.log('User not found')
