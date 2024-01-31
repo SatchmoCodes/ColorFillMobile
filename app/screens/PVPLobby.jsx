@@ -179,9 +179,7 @@ const PVPLobby = () => {
         <Text style={{ fontSize: 20, marginBottom: 10, color: colors.text }}>
           Players
         </Text>
-        <View
-          style={[styles.players, { width: 300, backgroundColor: colors.tableRow }]}
-        >
+        <View style={[styles.players, { backgroundColor: colors.tableRow }]}>
           <View
             style={{ justifyContent: 'center', alignItems: 'center', width: '45%' }}
           >
@@ -259,9 +257,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     marginBottom: 20,
     borderWidth: 1,
-    padding: 10,
+    paddingTop: 10,
+    paddingBottom: 10,
     minWidth: 300,
-    width: '90%',
+    width: '95%',
     maxWidth: 400,
   },
   button: {
