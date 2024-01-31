@@ -54,6 +54,8 @@ let lowestScoresMap = new Map()
 let prevLowestScores = null
 let updatedIndexArr = []
 
+let newValue = false
+
 const db = FIRESTORE_DB
 const auth = FIREBASE_AUTH
 
@@ -117,7 +119,7 @@ const Leaderboard = () => {
         Animated.timing(animatedValues[index], {
           toValue: 1,
           duration: animationDuration,
-          delay: index * animationDelay,
+          delay: !newValue ? index * animationDelay : 200,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }).start()
@@ -128,32 +130,11 @@ const Leaderboard = () => {
   useEffect(() => {
     // lowestScoresMap = new Map()
     prevLowestScores = null
+    newValue = false
     console.log('hi')
     setUpdate(true)
     setDataChange(true)
   }, [size, gamemode, queryOptionState])
-
-  // const sizeLabel = () => {
-  //   if (size || sizeFocus) {
-  //     return (
-  //       <Text style={[styles.label, sizeFocus && { color: 'blue' }]}>
-  //         Dropdown label
-  //       </Text>
-  //     );
-  //   }
-  //   return null;
-  // };
-
-  // const gamemodeLabel = () => {
-  //   if (gamemode || gamemodeFocus) {
-  //     return (
-  //       <Text style={[styles.label, gamemodeFocus && { color: 'blue' }]}>
-  //         Dropdown label
-  //       </Text>
-  //     );
-  //   }
-  //   return null;
-  // };
 
   const EmptyRow = () => {
     return (
@@ -329,11 +310,12 @@ const Leaderboard = () => {
             // console.log(`scorelist[${x}]`,scoreList[x])
             // console.log(`prevscoreList${x}`,prevScoreList[x])
             if (
-              prevScoreList[x + y] &&
+              prevScoreList[x - y] &&
               scoreList[x].boardId != prevScoreList[x - y].boardId
             ) {
               // console.log('boardId not equal here',x)
               updatedIndexArr.push(0)
+              newValue = true
               y++
 
               // } else if (
