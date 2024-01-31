@@ -71,6 +71,8 @@ const LoginScreen = ({}) => {
         } catch (error) {
           alert(error)
         }
+      } else {
+        alert('no account registered with that username')
       }
     }
   }
