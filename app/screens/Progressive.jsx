@@ -179,7 +179,9 @@ const Progressive = () => {
   }, [])
 
   const [colorState, setColorState] = useState(tempSquareArr)
-  const [selectedColor, setSelectedColor] = useState(tempSquareArr[0].color)
+  const [selectedColor, setSelectedColor] = useState(
+    colors.indexOf(tempSquareArr[0].color),
+  )
   const [colorOption, setSelectedColorOption] = useState(colors)
   const [counter, setCounter] = useState(0)
   const [highScore, setHighScore] = useState('')
@@ -330,6 +332,7 @@ const Progressive = () => {
   }
 
   function colorChange(color) {
+    setSelectedColor(colors.indexOf(color))
     countNumber++
     gameStarted = true
     tempSquareArr.forEach((sq, index) => {
@@ -345,7 +348,6 @@ const Progressive = () => {
       setColorState(tempSquareArr)
       setSquareCounter(squareCounterArr)
       setCounter(countNumber)
-      setSelectedColor(tempSquareArr[0].color)
       setSquareAnim(squareAnimArr)
       setSelectedColorOption(colors)
       setTotalScore(totalScoreValue)
@@ -586,7 +588,7 @@ const Progressive = () => {
     tempSquareArr.forEach((sq) => {
       sq.color = colors[sq.colorIndex]
       if (sq.captured) {
-        sq.color = tempSquareArr[0].color
+        sq.color = colors[selectedColor]
       }
     })
     squareCounterArr.forEach((counter, index) => {
@@ -1010,61 +1012,51 @@ const Progressive = () => {
           style={[
             styles.color,
             {
-              backgroundColor: selectedColor == colors[0] ? 'gray' : colorOption[0],
+              backgroundColor: selectedColor == 0 ? 'gray' : colorOption[0],
             },
-            { opacity: selectedColor == colors[0] ? 0.1 : 1 },
+            { opacity: selectedColor == 0 ? 0.1 : 1 },
           ]}
-          onPress={() =>
-            selectedColor != colors[0] && !block && colorChange(colorOption[0])
-          }
+          onPress={() => selectedColor != 0 && !block && colorChange(colorOption[0])}
         ></TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.color,
             {
-              backgroundColor: selectedColor == colors[1] ? 'gray' : colorOption[1],
+              backgroundColor: selectedColor == 1 ? 'gray' : colorOption[1],
             },
-            { opacity: selectedColor == colors[1] ? 0.1 : 1 },
+            { opacity: selectedColor == 1 ? 0.1 : 1 },
           ]}
-          onPress={() =>
-            selectedColor != colors[1] && !block && colorChange(colorOption[1])
-          }
+          onPress={() => selectedColor != 1 && !block && colorChange(colorOption[1])}
         ></TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.color,
             {
-              backgroundColor: selectedColor == colors[2] ? 'gray' : colorOption[2],
+              backgroundColor: selectedColor == 2 ? 'gray' : colorOption[2],
             },
-            { opacity: selectedColor == colors[2] ? 0.1 : 1 },
+            { opacity: selectedColor == 2 ? 0.1 : 1 },
           ]}
-          onPress={() =>
-            selectedColor != colors[2] && !block && colorChange(colorOption[2])
-          }
+          onPress={() => selectedColor != 2 && !block && colorChange(colorOption[2])}
         ></TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.color,
             {
-              backgroundColor: selectedColor == colors[3] ? 'gray' : colorOption[3],
+              backgroundColor: selectedColor == 3 ? 'gray' : colorOption[3],
             },
-            { opacity: selectedColor == colors[3] ? 0.1 : 1 },
+            { opacity: selectedColor == 3 ? 0.1 : 1 },
           ]}
-          onPress={() =>
-            selectedColor != colors[3] && !block && colorChange(colorOption[3])
-          }
+          onPress={() => selectedColor != 3 && !block && colorChange(colorOption[3])}
         ></TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.color,
             {
-              backgroundColor: selectedColor == colors[4] ? 'gray' : colorOption[4],
+              backgroundColor: selectedColor == 4 ? 'gray' : colorOption[4],
             },
-            { opacity: selectedColor == colors[4] ? 0.1 : 1 },
+            { opacity: selectedColor == 4 ? 0.1 : 1 },
           ]}
-          onPress={() =>
-            selectedColor != colors[4] && !block && colorChange(colorOption[4])
-          }
+          onPress={() => selectedColor != 4 && !block && colorChange(colorOption[4])}
         ></TouchableOpacity>
       </View>
     </View>
