@@ -348,6 +348,7 @@ const Progressive = () => {
       setColorState(tempSquareArr)
       setSquareCounter(squareCounterArr)
       setCounter(countNumber)
+      setSelectedColor(colors.indexOf(tempSquareArr[0].color))
       setSquareAnim(squareAnimArr)
       setSelectedColorOption(colors)
       setTotalScore(totalScoreValue)
