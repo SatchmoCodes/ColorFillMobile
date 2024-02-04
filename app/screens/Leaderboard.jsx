@@ -60,6 +60,7 @@ const db = FIRESTORE_DB
 const auth = FIREBASE_AUTH
 
 let screenWidth = Dimensions.get('window').width
+let unknownUser = '???'
 
 const Leaderboard = () => {
   const { useColors, userColorScheme } = useColorSchemeContext()
@@ -667,7 +668,7 @@ const Leaderboard = () => {
                               color: colors.text,
                             }}
                           >
-                            {item.createdBy}
+                            {item.createdBy == null ? unknownUser : item.createdBy}
                           </Text>
                         </View>
                         <View

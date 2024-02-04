@@ -26,6 +26,7 @@ import { useColorSchemeContext } from '../../App'
 
 let docId
 let screenHeight = Dimensions.get('window').height
+let unknownUser = '???'
 
 const BoardInfo = ({ navigation }) => {
   const { useColors } = useColorSchemeContext()
@@ -145,7 +146,7 @@ const BoardInfo = ({ navigation }) => {
             color: colors.text,
           }}
         >
-          Created By: {createdBy.createdBy}
+          Created By: {createdBy.createdBy == null ? '???' : createdBy.createdBy}
         </Text>
         <Text
           style={{
@@ -235,7 +236,9 @@ const BoardInfo = ({ navigation }) => {
                     },
                   ]}
                 >
-                  <Text style={[{ color: colors.text }]}>{item.createdBy}</Text>
+                  <Text style={[{ color: colors.text }]}>
+                    {item.createdBy == null ? unknownUser : item.createdBy}
+                  </Text>
                 </View>
                 <View
                   style={[
