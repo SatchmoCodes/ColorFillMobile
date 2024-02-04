@@ -98,6 +98,7 @@ let squareCounterArr = [
 ]
 
 let hasRun = false
+let gameStarted = false
 let countNumber = 0
 let totalCaptured = 1
 
@@ -198,6 +199,8 @@ const Progressive = () => {
 
   const [boardLoaded, setBoardLoaded] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [prompt, setPrompt] = useState(false)
+  const [resetPrompt, setResetPrompt] = useState(false)
 
   const [block, setBlock] = useState(false)
 
@@ -328,6 +331,7 @@ const Progressive = () => {
 
   function colorChange(color) {
     countNumber++
+    gameStarted = true
     tempSquareArr.forEach((sq, index) => {
       if (sq.captured) {
         captureCheck(color, index)
@@ -551,6 +555,8 @@ const Progressive = () => {
   }
 
   function generateNewBoard(showAd) {
+    gameStarted = false
+    setPrompt(false)
     randomArr = []
     for (let i = 0; i < 1210; i++) {
       randomArr.push(Math.floor(Math.random() * 5))
@@ -590,34 +596,8 @@ const Progressive = () => {
     setChange(true)
   }
 
-  // function handleReset() {
-  //     squareCounterArr.forEach(counter => {
-  //         counter.count = 0
-  //     })
-  //     totalCaptured = 1
-  //     tempSquareArr.forEach((sq, index) => {
-  //         if (sq.captured) {
-  //           captureCheck(sq.color, index);
-  //         }
-  //       });
-  //     tempSquareArr.forEach(sq => {
-  //         squareCounterArr.forEach(counter => {
-  //             if (sq.color == counter.color && !sq.index == 0) {
-  //                 counter.count++
-  //             }
-  //         })
-  //     })
-  //     countNumber = 0
-  //     modalVisible && setModalVisible(!modalVisible)
-  //     gridItemSize = Math.floor(screenWidth / 5)
-  //     setTotalScore(0)
-  //     parValue = 10
-  //     roundScore = 0
-  //     setChange(true)
-  // }
-
   function handleReset(showAd) {
-    console.log('hasdf')
+    setResetPrompt(false)
     boardSize = 5
     gridItemSize = Math.floor(screenWidth / 5)
     setTotalScore(0)
@@ -680,6 +660,55 @@ const Progressive = () => {
     setChange(true)
   }
 
+  function handleResetRound() {
+    setResetPrompt(false)
+    countNumber = 0
+    tempSquareArr.forEach((sq) => {
+      sq.color = colors[sq.colorIndex]
+      if (sq.index != 0) {
+        sq.captured = false
+      }
+    })
+    squareCounterArr.forEach((counter) => {
+      counter.count = 0
+    })
+    totalCaptured = 1
+    squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
+    tempSquareArr.forEach((sq, index) => {
+      if (sq.captured) {
+        captureCheck(sq.color, index)
+      }
+    })
+    tempSquareArr.forEach((sq) => {
+      squareCounterArr.forEach((counter) => {
+        if (sq.color == counter.color && !sq.index == 0) {
+          counter.count++
+        }
+      })
+    })
+    const growAnimation = Animated.timing(squareAnimArr[0], {
+      toValue: 1,
+      duration: 250,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    })
+    const reverseAnimation = Animated.timing(squareAnimArr[0], {
+      toValue: 0,
+      duration: 250,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    })
+    Animated.sequence([growAnimation, reverseAnimation]).start()
+    if (totalScoreValue < scoreToBeat || scoreToBeat == null) {
+      originalScore = scoreToBeat
+      complete && setScoreToBeat(totalScoreValue)
+    }
+    modalVisible && setModalVisible(!modalVisible)
+    setComplete(false)
+    setBlock(false)
+    setChange(true)
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: colorTheme.background }]}>
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
@@ -698,6 +727,14 @@ const Progressive = () => {
             >
               <Text style={[styles.textStyle, { color: colorTheme.text }]}>
                 Next Round
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, styles.buttonClose, { marginBottom: 10 }]}
+              onPress={() => handleResetRound()}
+            >
+              <Text style={[styles.textStyle, { color: colorTheme.text }]}>
+                Retry Round
               </Text>
             </TouchableOpacity>
             {/* <TouchableOpacity
@@ -750,6 +787,70 @@ const Progressive = () => {
           </View>
         </View>
       </Modal>
+      <Modal animationType="fade" transparent={true} visible={prompt}>
+        <View style={styles.centeredView}>
+          <View style={[styles.modalView, { backgroundColor: colorTheme.button }]}>
+            <Text style={[styles.modalText, { color: colorTheme.text }]}>
+              Are you sure you want a new board?
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 5 }}>
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  styles.buttonClose,
+                  { backgroundColor: 'green', minWidth: 75 },
+                ]}
+                onPress={() => generateNewBoard()}
+              >
+                <Text style={[styles.textStyle]}>Yes</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  styles.buttonClose,
+                  { backgroundColor: 'red', minWidth: 75 },
+                ]}
+                onPress={() => setPrompt(false)}
+              >
+                <Text style={[styles.textStyle]}>No</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      <Modal animationType="fade" transparent={true} visible={resetPrompt}>
+        <View style={styles.centeredView}>
+          <View style={[styles.modalView, { backgroundColor: colorTheme.button }]}>
+            <Text style={[styles.modalText, { color: colorTheme.text }]}>
+              Retry round or game?
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonClose, { minWidth: 75 }]}
+                onPress={() => handleResetRound()}
+              >
+                <Text style={[styles.textStyle]}>Round</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonClose, { minWidth: 75 }]}
+                onPress={() => handleReset()}
+              >
+                <Text style={[styles.textStyle]}>Game</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                styles.buttonClose,
+                { minWidth: 75, marginTop: 5, backgroundColor: 'red' },
+              ]}
+              onPress={() => setResetPrompt(false)}
+            >
+              <Text style={[styles.textStyle]}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       <View style={styles.top}>
         {screenHeight > 715 && (
           <Text
@@ -787,7 +888,17 @@ const Progressive = () => {
           </View>
         )}
       </View>
-      <View style={styles.scoreInfo}>
+      <View
+        style={[
+          styles.scoreInfo,
+          {
+            width:
+              viewportWidth > 500
+                ? Dimensions.get('window').height * 0.55
+                : viewportWidth * 0.98,
+          },
+        ]}
+      >
         <Text
           style={[
             {
@@ -871,7 +982,7 @@ const Progressive = () => {
       <View style={styles.extraRow}>
         <TouchableOpacity
           style={[styles.resetButton, { backgroundColor: colorTheme.button }]}
-          onPress={() => generateNewBoard()}
+          onPress={() => (gameStarted ? setPrompt(true) : generateNewBoard())}
         >
           <Text
             style={[
@@ -883,7 +994,7 @@ const Progressive = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.resetButton, { backgroundColor: colorTheme.button }]}
-          onPress={() => handleReset()}
+          onPress={() => setResetPrompt(true)}
         >
           <Text
             style={[
@@ -973,7 +1084,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   scoreInfo: {
-    width: screenWidth,
     flexDirection: 'row',
     marginTop: 3,
     marginBottom: 3,
