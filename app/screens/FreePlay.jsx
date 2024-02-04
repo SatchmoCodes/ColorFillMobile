@@ -407,11 +407,12 @@ const FreePlay = () => {
     if (change) {
       setColorState(tempSquareArr)
       setSquareCounter(squareCounterArr)
+      setSelectedColor(colors.indexOf(tempSquareArr[0].color))
       setCounter(countNumber)
       setSquareAnim(squareAnimArr)
       // setSelectedColor(tempSquareArr[0].color)
       setSelectedColorOption(colors)
-      console.log(tempSquareArr)
+      gridItemSize = Math.floor(screenWidth / boardSize)
       if (totalCaptured == boardSize * boardSize) {
         setLoading(true)
         handleComplete()
@@ -586,30 +587,32 @@ const FreePlay = () => {
     boardId = uuid.v4()
     docId = null
     setScoreToBeat(null)
-    // setPreviousScore(null)
     originalScore = null
-    resetColors()
-    // handleReset()
+    resetColors(true)
     handleReset()
     // if (showAd) {
     //   let rand = Math.floor(Math.random() * 4)
     //   if (rand === 0) {
-    //     interstitial.show()
+    //     interstitial.show()0
     //   }
     // }
   }
 
-  function resetColors() {
+  function resetColors(boardReset) {
     tempSquareArr.forEach((sq) => {
       sq.color = colors[sq.colorIndex]
       if (sq.captured) {
-        sq.color = colors[selectedColor]
+        if (boardReset) {
+          sq.color = tempSquareArr[0].color
+        } else {
+          sq.color = colors[selectedColor]
+        }
       }
     })
     squareCounterArr.forEach((counter, index) => {
       counter.color = colors[index]
     })
-    gridItemSize = Math.floor(screenWidth / boardSize)
+
     setChange(true)
   }
 
