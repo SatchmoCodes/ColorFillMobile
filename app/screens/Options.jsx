@@ -52,13 +52,6 @@ const Options = () => {
       if (user) {
         setUid(user.uid)
         console.log('uid ', user.uid)
-      } else {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: 'Login' }], // replace 'HomePage' with the actual route name
-          }),
-        )
       }
     })
 
