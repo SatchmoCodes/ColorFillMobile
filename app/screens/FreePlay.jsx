@@ -294,7 +294,8 @@ const FreePlay = () => {
         squares = generateBoard(randomArr).flat()
         tempSquareArr = JSON.parse(JSON.stringify(squares))
         squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
-        resetColors()
+        console.log('running here')
+        resetColors(true)
         handleReset()
         return
       }
@@ -605,6 +606,7 @@ const FreePlay = () => {
         if (boardReset) {
           sq.color = tempSquareArr[0].color
         } else {
+          console.log('selectedColor', selectedColor)
           sq.color = colors[selectedColor]
         }
       }
