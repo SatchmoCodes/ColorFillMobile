@@ -25,6 +25,7 @@ import { useNavigation, useIsFocused, StackActions } from '@react-navigation/nat
 import { useColorSchemeContext } from '../../App'
 
 let docId
+let gameLoaded = false
 
 const PVPLobby = () => {
   const { useColors } = useColorSchemeContext()
@@ -43,8 +44,14 @@ const PVPLobby = () => {
   const userNameRef = useRef(null)
 
   useEffect(() => {
+    if (isFocused) {
+      gameLoaded = false
+    }
+  }, [isFocused])
+
+  useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', () => {
-      handleLeave()
+      !gameLoaded && handleLeave()
     })
     return unsubscribe
   }, [navigation])
@@ -133,6 +140,7 @@ const PVPLobby = () => {
         }
         setGameInfo(doc.data())
         if (doc.data().gameState == 'Playing') {
+          gameLoaded = true
           navigation.navigate('PVPGame', { id, boardSize })
         }
         if (
@@ -175,6 +183,9 @@ const PVPLobby = () => {
         </Text>
         <Text style={{ fontSize: 20, marginBottom: 10, color: colors.text }}>
           Board Type: {gameInfo != null && gameInfo.boardType}
+        </Text>
+        <Text style={{ fontSize: 20, marginBottom: 10, color: colors.text }}>
+          Fog of War: {gameInfo != null && gameInfo.fog === true ? 'On' : 'Off'}
         </Text>
         <Text style={{ fontSize: 20, marginBottom: 10, color: colors.text }}>
           Players

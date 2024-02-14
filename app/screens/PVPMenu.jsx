@@ -24,6 +24,7 @@ import {
   updateDoc,
 } from 'firebase/firestore'
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig.js'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useIsFocused } from '@react-navigation/native'
 import uuid from 'react-native-uuid'
 import { useColorSchemeContext } from '../../App'
@@ -38,9 +39,43 @@ const PVPMenu = ({ navigation }) => {
 
   const [games, setGames] = useState([])
   const [code, setCode] = useState('')
+  const [showSettings, setShowSettings] = useState()
 
   const [uid, setUid] = useState(null)
   const [userName, setUserName] = useState(null)
+
+  async function initialLoad() {
+    let gamesShown = await getGamesShown()
+    console.log('gamesShown', gamesShown)
+    if (gamesShown != null) {
+      switch (gamesShown) {
+        case 'openGames':
+          gamesShown = 'Waiting'
+          break
+        case 'allGames':
+          gamesShown = 'Playing'
+          break
+      }
+      setShowSettings(gamesShown)
+    } else {
+      setShowSettings('Waiting')
+    }
+  }
+
+  useEffect(() => {
+    initialLoad()
+  }, [])
+
+  const getGamesShown = async () => {
+    try {
+      const value = await AsyncStorage.getItem('gamesShown')
+      if (value !== null) {
+        return value.toString()
+      }
+    } catch (e) {
+      console.log(e)
+    }
+  }
 
   const reloadData = async () => {
     const docRef = collection(db, 'Games')
@@ -74,7 +109,8 @@ const PVPMenu = ({ navigation }) => {
 
   useEffect(() => {
     if (isFocused) {
-      reloadData()
+      // reloadData()
+      initialLoad()
     }
   }, [isFocused])
 
@@ -98,16 +134,32 @@ const PVPMenu = ({ navigation }) => {
   }, [uid])
 
   useEffect(() => {
-    const q = query(
-      collection(db, 'Games'),
-      where('lobbyType', '==', 'Public'),
-      orderBy('createdAt', 'asc'),
-    )
+    let q
+    const fiveMinutesAgo = new Date()
+    fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5)
+    if (showSettings === 'Playing') {
+      q = query(
+        collection(db, 'Games'),
+        where('lobbyType', '==', 'Public'),
+        where('gameState', 'in', ['Waiting', 'Playing', 'Finished']),
+        where('createdAt', '>=', fiveMinutesAgo),
+        orderBy('createdAt', 'asc'),
+      )
+    } else {
+      q = query(
+        collection(db, 'Games'),
+        where('lobbyType', '==', 'Public'),
+        where('gameState', '==', 'Waiting'),
+        where('createdAt', '>=', fiveMinutesAgo),
+        orderBy('createdAt', 'asc'),
+      )
+    }
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const gameList = []
       querySnapshot.forEach((doc, index) => {
+        console.log(doc)
         const gameData = doc.data()
-        if (gameData.gameState !== 'Playing' && gameData.gameState !== 'Deleting') {
+        if (gameData.gameState !== 'Deleting') {
           if (gameData.createdAt) {
             let dateObj = gameData.createdAt.toDate()
             let timeCreated = dateObj.getTime() / 1000
@@ -121,11 +173,12 @@ const PVPMenu = ({ navigation }) => {
           }
         }
       })
+      console.log(gameList)
       setGames(gameList)
       // console.log(gameList)
     })
     return unsubscribe
-  }, [])
+  }, [showSettings])
 
   async function handleJoin(id) {
     const docRef = doc(db, 'Games', id)
@@ -177,6 +230,21 @@ const PVPMenu = ({ navigation }) => {
     }
   }
 
+  function handleSpectate(id, boardSize) {
+    switch (boardSize) {
+      case 'Small':
+        boardSize = 11
+        break
+      case 'Medium':
+        boardSize = 15
+        break
+      case 'Large':
+        boardSize = 19
+        break
+    }
+    navigation.navigate('PVPGame', { id, boardSize })
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.top}>
@@ -190,6 +258,12 @@ const PVPMenu = ({ navigation }) => {
         <Text style={[{ fontSize: 25, marginBottom: 10, color: colors.text }]}>
           Game List ({games.length} {games.length == 1 ? 'Game' : 'Games'})
         </Text>
+        <TouchableOpacity
+          style={styles.buttonSmall}
+          onPress={() => navigation.navigate('Filters')}
+        >
+          <Text style={styles.buttonText}>Filters</Text>
+        </TouchableOpacity>
         <FlatList
           style={[styles.gameList, { backgroundColor: colors.tableRow }]}
           data={games}
@@ -206,11 +280,22 @@ const PVPMenu = ({ navigation }) => {
                 Board Type: {item.data.boardType}
               </Text>
               <Text style={[{ fontSize: 15, color: colors.text }]}>
-                Players: {item.data.opponentName == '' ? '(1/2)' : '(2/2)'}
+                Fog of War: {item.data.fog === true ? 'On' : 'Off'}
               </Text>
               <Text style={[{ fontSize: 15, color: colors.text }]}>
-                {item.data.ownerName}
+                Players: {item.data.opponentName == '' ? '(1/2)' : '(2/2)'}
               </Text>
+              <View style={{ flexDirection: 'row' }}>
+                <Text style={[{ fontSize: 15, color: colors.text }]}>
+                  {item.data.ownerName}
+                </Text>
+                <Text style={{ color: colors.text }}>
+                  {(item.data.gameState === 'Playing' ||
+                    item.data.gameState === 'Finished') &&
+                    ` - ${item.data.ownerScore}`}
+                </Text>
+              </View>
+
               <View
                 style={{
                   display: 'flex',
@@ -223,16 +308,32 @@ const PVPMenu = ({ navigation }) => {
                     ? 'Waiting on Player...'
                     : item.data.opponentName}
                 </Text>
+                <Text style={{ color: colors.text }}>
+                  {(item.data.gameState === 'Playing' ||
+                    item.data.gameState === 'Finished') &&
+                    ` - ${item.data.opponentScore}`}
+                </Text>
                 {item.data.opponentName === '' && (
                   <ActivityIndicator color="darkgreen"></ActivityIndicator>
                 )}
               </View>
-              {item.data.opponentName == '' && (
+              {item.data.gameState !== 'Finished' && (
                 <TouchableOpacity
                   style={styles.buttonSmall}
-                  onPress={() => handleJoin(item.id)}
+                  onPress={() =>
+                    item.data.gameState === 'Waiting'
+                      ? item.data.opponentName == '' && handleJoin(item.id)
+                      : handleSpectate(item.id, item.data.size)
+                  }
                 >
-                  <Text style={styles.buttonText}>Join Game</Text>
+                  <Text style={styles.buttonText}>
+                    {userName === item.data.ownerName ||
+                    userName === item.data.opponentName
+                      ? 'Rejoin'
+                      : item.data.gameState === 'Waiting'
+                        ? 'Join Game'
+                        : 'Spectate'}
+                  </Text>
                 </TouchableOpacity>
               )}
               {/* <TouchableOpacity style={styles.buttonSmall} onPress={() => handleJoin(item.id)}>
