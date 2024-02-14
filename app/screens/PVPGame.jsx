@@ -51,12 +51,12 @@ const colorArr = squareColors
 
 let boardSize = 19
 let sizeName = 'Medium'
-let screenWidth = Dimensions.get('window').width * 0.98
-let screenHeight = Dimensions.get('window').height
+let screenWidth = Math.floor(Dimensions.get('window').width * 0.98)
+let screenHeight = Math.floor(Dimensions.get('window').height)
 let gridItemSize = Math.floor(screenWidth / boardSize)
 // // console.log(gridItemSize)
 if (screenWidth >= 500) {
-  screenWidth = Dimensions.get('window').height * 0.55
+  screenWidth = Math.floor(Dimensions.get('window').height * 0.55)
   // // console.log(screenWidth)
   gridItemSize = Math.floor(screenWidth / boardSize)
 }
@@ -118,6 +118,9 @@ let ownerNameVar
 let opponentNameVar
 let winner
 let animationIndex = []
+let visibleArr = []
+let fakeSquareArr = []
+let fogGame = false
 let randomColor
 
 const totalTime = 10
@@ -173,11 +176,11 @@ const PVPGame = () => {
 
   useEffect(() => {
     const handleDimensionsChange = ({ window }) => {
-      screenWidth = Dimensions.get('window').width * 0.98
-      screenHeight = Dimensions.get('window').height
+      screenWidth = Math.floor(Dimensions.get('window').width * 0.98)
+      screenHeight = Math.floor(Dimensions.get('window').height)
       gridItemSize = Math.floor(screenWidth / boardSize)
       if (screenWidth >= 500) {
-        screenWidth = Dimensions.get('window').height * 0.55
+        screenWidth = Math.floor(Dimensions.get('window').height * 0.55)
         console.log(screenWidth)
         gridItemSize = Math.floor(screenWidth / boardSize)
       }
@@ -205,6 +208,7 @@ const PVPGame = () => {
   const [change, setChange] = useState(false)
   const [complete, setComplete] = useState(false)
   const [hasRun, setHasRun] = useState(false)
+  const [gameStarted, setGameStarted] = useState(false)
 
   const [modalVisible, setModalVisible] = useState(false)
 
@@ -217,6 +221,10 @@ const PVPGame = () => {
   const [opponentColor, setOpponentColor] = useState('black')
   const [ownerSelectedColor, setOwnerSelectedColor] = useState(null)
   const [opponentSelectedColor, setOpponentSelectedColor] = useState(null)
+  const [ownerWins, setOwnerWins] = useState('')
+  const [ownerLosses, setOwnerLosses] = useState('')
+  const [opponentWins, setOpponentWins] = useState('')
+  const [opponentLosses, setOpponentLosses] = useState('')
   const [turn, setTurn] = useState(null)
 
   const [radar, setRadar] = useState(false)
@@ -352,10 +360,6 @@ const PVPGame = () => {
       const docSnap = await getDoc(docRef)
       if (docSnap.exists()) {
         setBoardLoaded(true)
-        console.log(
-          'initial board state: ',
-          JSON.parse(docSnap.data().boardState).flat(),
-        )
         let boardState = JSON.parse(docSnap.data().boardState).flat()
         tempSquareArr = JSON.parse(JSON.stringify(boardState))
         squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
@@ -365,6 +369,14 @@ const PVPGame = () => {
         setSquareAnim(squareAnimArr)
         setOwnerColor(colors[docSnap.data().ownerColor])
         setOpponentColor(colors[docSnap.data().opponentColor])
+        if (docSnap.data().fog === true) {
+          fogGame = true
+          visibleArr = new Array(tempSquareArr.length).fill(false)
+          visibleArr[0] = true
+          visibleArr[visibleArr.length - 1] = true
+        } else {
+          visibleArr = new Array(tempSquareArr.length).fill(true)
+        }
         ownerColorIndex = docSnap.data().ownerColor
         opponentColorIndex = docSnap.data().opponentColor
         setOwnerSelectedColor(colors[tempSquareArr[0].colorIndex])
@@ -377,6 +389,48 @@ const PVPGame = () => {
         opponentNameVar = docSnap.data().opponentName
         setTurn(docSnap.data().turn)
         resetColors()
+        const ownerQuery = query(
+          collection(db, 'Users'),
+          where('username', '==', ownerNameVar),
+        )
+        const opponentQuery = query(
+          collection(db, 'Users'),
+          where('username', '==', opponentNameVar),
+        )
+        const ownerSnapshot = await getDocs(ownerQuery)
+        const opponentSnapshot = await getDocs(opponentQuery)
+        if (!ownerSnapshot.empty) {
+          setOwnerWins(ownerSnapshot.docs[0].data().wins)
+          setOwnerLosses(ownerSnapshot.docs[0].data().losses)
+        }
+        if (!opponentSnapshot.empty) {
+          setOpponentWins(opponentSnapshot.docs[0].data().wins)
+          setOpponentLosses(opponentSnapshot.docs[0].data().losses)
+        }
+        if (fogGame === true) {
+          fakeSquareArr = [...tempSquareArr]
+          let startArr = [...fakeSquareArr]
+          for (let i = 0; i < 5; i++) {
+            fakeSquareArr = JSON.parse(JSON.stringify(startArr))
+            fakeSquareArr.forEach((sq, index) => {
+              if (userName == docSnap.data().ownerName) {
+                if (sq.captured && sq.owner == 'Owner') {
+                  fogCheck(colors[i], index, 'Owner')
+                }
+              } else if (userName == docSnap.data().opponentName) {
+                if (sq.captured && sq.owner == 'Opponent') {
+                  fogCheck(colors[i], index, 'Opponent')
+                }
+              }
+            })
+          }
+        }
+        if (
+          userName != docSnap.data().ownerName &&
+          userName != docSnap.data().opponentName
+        ) {
+          visibleArr = new Array(tempSquareArr.length).fill(true)
+        }
         return
       }
     }
@@ -450,7 +504,7 @@ const PVPGame = () => {
           //animate squares for opposite player
           if (
             doc.data().turn == 'Owner' &&
-            userNameRef.current == doc.data().ownerName
+            userNameRef.current != doc.data().opponentName
           ) {
             let animatedValues = JSON.parse(doc.data().animationIndex)
             animatedValues.forEach((val) => {
@@ -471,7 +525,7 @@ const PVPGame = () => {
             setSquareAnim(squareAnimArr)
           } else if (
             doc.data().turn == 'Opponent' &&
-            userNameRef.current == doc.data().opponentName
+            userNameRef.current != doc.data().ownerName
           ) {
             let animatedValues = JSON.parse(doc.data().animationIndex)
             animatedValues.forEach((val) => {
@@ -613,13 +667,11 @@ const PVPGame = () => {
 
   //check to see if user returned from options page
   useEffect(() => {
-    const coolFunction = async () => {
-      await initialLoad()
+    if (isFocused && userName != null) {
+      console.log('isFocused username hsere', userName)
+      initialLoad()
     }
-    if (isFocused) {
-      coolFunction()
-    }
-  }, [isFocused])
+  }, [isFocused, userName])
 
   // useEffect(() => {
   //     if (!hasRun) {
@@ -701,6 +753,18 @@ const PVPGame = () => {
         console.log('local color set for opp', colors.indexOf(color))
         setOpponentSelectedColor(colors.indexOf(color))
       }
+      if (fogGame === true) {
+        fakeSquareArr = JSON.parse(JSON.stringify(tempSquareArr))
+        let startArr = [...fakeSquareArr]
+        for (let i = 0; i < 5; i++) {
+          fakeSquareArr = JSON.parse(JSON.stringify(startArr))
+          fakeSquareArr.forEach((sq, index) => {
+            if (sq.captured && sq.owner == turn) {
+              fogCheck(colors[i], index)
+            }
+          })
+        }
+      }
       updateBoard(color)
     } else {
       // // console.log('fake turn at initial:',fakeTurn)
@@ -776,6 +840,7 @@ const PVPGame = () => {
   }
 
   async function handleComplete() {
+    visibleArr = new Array(tempSquareArr.length).fill(true)
     const docRef = doc(db, 'Games', docId)
     // console.log(ownerName)
     const ownerQuery = query(
@@ -857,6 +922,13 @@ const PVPGame = () => {
           // console.log(error)
         }
       }
+    }
+    try {
+      await updateDoc(docRef, {
+        gameState: 'Finished',
+      })
+    } catch (e) {
+      console.log(e)
     }
   }
 
@@ -964,6 +1036,55 @@ const PVPGame = () => {
     }
   }
 
+  function fogCheck(color, index, player) {
+    console.log('color', color)
+    console.log('index', index)
+    if (fakeSquareArr[index + 1] && fakeSquareArr[index + 1].captured == false) {
+      if (
+        color == fakeSquareArr[index + 1].color &&
+        fakeSquareArr[index].rowIndex == fakeSquareArr[index + 1].rowIndex
+      ) {
+        fakeSquareArr[index + 1].captured = true
+        fakeSquareArr[index + 1].owner = player
+        visibleArr[index + 1] = true
+        fogCheck(color, index + 1)
+      }
+    }
+    if (fakeSquareArr[index - 1] && fakeSquareArr[index - 1].captured == false) {
+      if (
+        color == fakeSquareArr[index - 1].color &&
+        fakeSquareArr[index].rowIndex == fakeSquareArr[index - 1].rowIndex
+      ) {
+        fakeSquareArr[index - 1].captured = true
+        fakeSquareArr[index - 1].owner = player
+        visibleArr[index - 1] = true
+        fogCheck(color, index - 1)
+      }
+    }
+    if (
+      fakeSquareArr[index + boardSize] &&
+      fakeSquareArr[index + boardSize].captured == false
+    ) {
+      if (color == fakeSquareArr[index + boardSize].color) {
+        fakeSquareArr[index + boardSize].captured = true
+        fakeSquareArr[index + boardSize].owner = player
+        visibleArr[index + boardSize] = true
+        fogCheck(color, index + boardSize)
+      }
+    }
+    if (
+      fakeSquareArr[index - boardSize] &&
+      fakeSquareArr[index - boardSize].captured == false
+    ) {
+      if (color == fakeSquareArr[index - boardSize].color) {
+        fakeSquareArr[index - boardSize].captured = true
+        fakeSquareArr[index - boardSize].owner = player
+        visibleArr[index - boardSize] = true
+        fogCheck(color, index - boardSize)
+      }
+    }
+  }
+
   function updateSquareCounter(color) {
     squareCounterArr.forEach((sq) => {
       if (sq.color == color) {
@@ -1028,11 +1149,18 @@ const PVPGame = () => {
         style={[
           styles.playerView,
           {
-            opacity: turn == 'Owner' ? 1 : 0.5,
+            opacity: !gameStarted ? 1 : turn == 'Owner' ? 1 : 0.5,
           },
         ]}
       >
-        <Text style={{ fontSize: 20, textAlign: 'center', color: colorTheme.text }}>
+        <Text
+          style={{
+            fontSize: 20,
+            marginBottom: 5,
+            textAlign: 'center',
+            color: colorTheme.text,
+          }}
+        >
           {ownerName}
         </Text>
         <View
@@ -1055,11 +1183,18 @@ const PVPGame = () => {
         style={[
           styles.playerView,
           {
-            opacity: turn == 'Owner' ? 0.5 : 1,
+            opacity: !gameStarted ? 1 : turn == 'Owner' ? 0.5 : 1,
           },
         ]}
       >
-        <Text style={{ fontSize: 20, textAlign: 'center', color: colorTheme.text }}>
+        <Text
+          style={{
+            fontSize: 20,
+            marginBottom: 5,
+            textAlign: 'center',
+            color: colorTheme.text,
+          }}
+        >
           {opponentName}
         </Text>
         <View
@@ -1081,8 +1216,75 @@ const PVPGame = () => {
     navigation.navigate('PVPMenu')
   }
 
+  useEffect(() => {
+    if (timer && !gameStarted) {
+      if (ownerScore > 1 || opponentScore > 1) {
+        setGameStarted(true)
+        setTimer(11)
+      } else if (timer < 8 && !gameStarted) {
+        setGameStarted(true)
+        setTimer(11)
+      }
+    }
+  }, [timer])
+
   return (
     <View style={[styles.container, { backgroundColor: colorTheme.background }]}>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={timer > 7 && !gameStarted}
+      >
+        <View style={styles.centeredView}>
+          <View style={[styles.modalView, { backgroundColor: colorTheme.button }]}>
+            <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+              <Text style={{ color: colorTheme.text, fontSize: 20 }}>
+                First to {Math.floor(tempSquareArr.length / 2) + 1} wins!
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: 20,
+              }}
+            >
+              {userName != opponentName ? <OwnerView /> : <OpponentView />}
+              <Text style={{ color: colorTheme.text }}>VS</Text>
+              {userName != opponentName ? <OpponentView /> : <OwnerView />}
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                width: 175,
+                gap: 20,
+              }}
+            >
+              <Text style={{ textAlign: 'center', color: colorTheme.text }}>
+                {userName != opponentName
+                  ? `${ownerWins} - ${ownerLosses}`
+                  : `${opponentWins} - ${opponentLosses}`}
+              </Text>
+              <Text style={{}}></Text>
+              <Text style={{ textAlign: 'center', color: colorTheme.text }}>
+                {userName != opponentName
+                  ? `${opponentWins} - ${opponentLosses}`
+                  : `${ownerWins} - ${ownerLosses}`}
+              </Text>
+            </View>
+            <View style={{ flexDirection: 'row' }}>
+              {timer > 7 && !gameStarted && (
+                <Text style={{ marginTop: 5, color: colorTheme.text }}>
+                  Game begins in {timer - 8} seconds!
+                </Text>
+              )}
+            </View>
+          </View>
+        </View>
+      </Modal>
       <Modal animationType="fade" transparent={true} visible={complete}>
         <View style={styles.centeredView}>
           <View
@@ -1168,7 +1370,7 @@ const PVPGame = () => {
                   color: colorTheme.text,
                 }}
               >
-                {timer < 1 ? 0 : timer - 1}
+                {timer < 1 ? 0 : gameStarted ? timer - 1 : 10}
               </Text>
             )}
           </View>
@@ -1179,7 +1381,7 @@ const PVPGame = () => {
             <Text
               style={{ fontSize: 25, textAlign: 'center', color: colorTheme.text }}
             >
-              {timer < 1 ? 0 : timer - 1}
+              {timer < 1 ? 0 : !gameStarted ? 10 : timer - 1}
             </Text>
           )}
         </View>
@@ -1330,9 +1532,17 @@ const PVPGame = () => {
                             ? ownerColor
                             : sq.captured && sq.owner == 'Opponent'
                               ? opponentColor
-                              : colorState[index].color,
+                              : visibleArr[index] === true
+                                ? colorState[index].color
+                                : 'gray',
                         width: gridItemSize,
                         height: gridItemSize,
+                        borderColor: sq.captured
+                          ? 'black'
+                          : visibleArr[index] === true
+                            ? 'black'
+                            : 'gray',
+
                         transform: [
                           {
                             scale:
@@ -1372,9 +1582,16 @@ const PVPGame = () => {
                               ? ownerColor
                               : sq.captured && sq.owner == 'Opponent'
                                 ? opponentColor
-                                : colorState[colorState.length - 1 - index].color,
+                                : visibleArr[visibleArr.length - 1 - index] === true
+                                  ? colorState[colorState.length - 1 - index].color
+                                  : 'gray',
                           width: gridItemSize,
                           height: gridItemSize,
+                          borderColor: sq.captured
+                            ? 'black'
+                            : visibleArr[visibleArr.length - 1 - index] === true
+                              ? 'black'
+                              : 'gray',
                           transform: [
                             {
                               scale:
