@@ -45,11 +45,11 @@ let colors = [red, orange, yellow, green, blue]
 const colorArr = squareColors
 
 let boardSize = 5
-let screenWidth = Dimensions.get('window').width * 0.98
-let screenHeight = Dimensions.get('window').height
+let screenWidth = Math.floor(Dimensions.get('window').width * 0.98)
+let screenHeight = Math.floor(Dimensions.get('window').height)
 let gridItemSize = Math.floor(screenWidth / boardSize)
 if (screenWidth >= 500) {
-  screenWidth = Dimensions.get('window').height * 0.55
+  screenWidth = Math.floor(Dimensions.get('window').height * 0.55)
   // console.log(screenWidth)
   gridItemSize = Math.floor(screenWidth / boardSize)
 }
@@ -156,11 +156,11 @@ const Progressive = () => {
 
   useEffect(() => {
     const handleDimensionsChange = ({ window }) => {
-      screenWidth = Dimensions.get('window').width * 0.98
-      screenHeight = Dimensions.get('window').height
+      screenWidth = Math.floor(Dimensions.get('window').width * 0.98)
+      screenHeight = Math.floor(Dimensions.get('window').height)
       gridItemSize = Math.floor(screenWidth / boardSize)
       if (screenWidth >= 500) {
-        screenWidth = Dimensions.get('window').height * 0.55
+        screenWidth = Math.floor(Dimensions.get('window').height * 0.55)
         console.log(screenWidth)
         gridItemSize = Math.floor(screenWidth / boardSize)
       }
