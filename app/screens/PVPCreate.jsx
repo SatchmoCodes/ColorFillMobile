@@ -28,6 +28,7 @@ const PVPCreate = ({ navigation }) => {
   const [size, setSize] = useState('Medium')
   const [boardType, setBoardType] = useState('Random')
   const [lobbyType, setLobbyType] = useState('Public')
+  const [fog, setFog] = useState('Off')
 
   const [uid, setUid] = useState(null)
   const [userName, setUserName] = useState(null)
@@ -110,6 +111,19 @@ const PVPCreate = ({ navigation }) => {
     ],
     [],
   )
+
+  const fogOptions = useMemo(() => [
+    {
+      id: 'On',
+      label: 'On',
+      value: 'On',
+    },
+    {
+      id: 'Off',
+      label: 'Off',
+      value: 'Off',
+    },
+  ])
 
   const MyRadioButton = (props) => {
     return (
@@ -300,7 +314,6 @@ const PVPCreate = ({ navigation }) => {
     }
     const boardState = JSON.stringify(generateBoard(boardData))
     let parsedBoardState = JSON.parse(boardState).flat()
-    console.log(boardState)
     const squareGrowthArr = new Array(dimensions * dimensions).fill(0)
     squareGrowthArr[0] = 1
     squareGrowthArr[squareGrowthArr.length - 1] = 1
@@ -329,6 +342,7 @@ const PVPCreate = ({ navigation }) => {
       turn: turn,
       ownerColor: ownerColor,
       opponentColor: opponentColor,
+      fog: fog === 'On' ? true : false,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     })
@@ -425,6 +439,29 @@ const PVPCreate = ({ navigation }) => {
               }))}
               onPress={(e) => setLobbyType(e)}
               selectedId={lobbyType}
+              layout="row"
+            />
+          </View>
+          <View style={[styles.lobbyOptions, styles.optionBlock]}>
+            <Text
+              style={{
+                textAlign: 'center',
+                fontSize: 20,
+                marginBottom: 10,
+                color: colors.text,
+              }}
+            >
+              Fog of War
+            </Text>
+            <RadioGroup
+              containerStyle={{ justifyContent: 'center' }}
+              radioButtons={fogOptions.map((option) => ({
+                ...option,
+                labelStyle: { fontSize: 15, color: colors.text },
+                borderColor: option.id === fog && colors.radioSelected,
+              }))}
+              onPress={(e) => setFog(e)}
+              selectedId={fog}
               layout="row"
             />
           </View>
