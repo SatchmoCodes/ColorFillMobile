@@ -38,6 +38,8 @@ import BoardInfo from './app/screens/BoardInfo.jsx'
 
 import { FIREBASE_API_KEY } from '@env'
 import Register from './app/screens/Register.jsx'
+import Filters from './app/screens/Filters.jsx'
+import PasswordReset from './app/screens/PasswordReset.jsx'
 console.log(FIREBASE_API_KEY)
 
 const Stack = createNativeStackNavigator()
@@ -265,6 +267,7 @@ function AuthView() {
           ),
         })}
       />
+      <Stack.Screen name="Filters" component={Filters} />
       <Stack.Screen
         name="PVPCreate"
         component={PVPCreate}
@@ -338,6 +341,7 @@ function NonAuthView() {
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Register" component={Register} />
       <Stack.Screen name="HomePage" component={Home} />
+      <Stack.Screen name="PasswordReset" component={PasswordReset} />
     </Stack.Navigator>
   )
 }
