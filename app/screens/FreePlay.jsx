@@ -27,6 +27,7 @@ import {
   getDoc,
   orderBy,
   serverTimestamp,
+  limit,
 } from 'firebase/firestore'
 import { FIRESTORE_DB, FIREBASE_AUTH } from '../../firebaseConfig.js'
 import uuid from 'react-native-uuid'
