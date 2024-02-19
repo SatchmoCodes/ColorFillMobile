@@ -256,6 +256,7 @@ const FreePlay = () => {
         where('createdBy', '==', userName),
         orderBy('score', 'asc'),
         orderBy('createdAt', 'asc'),
+        limit(1),
       )
       const querySnapshot = await getDocs(q)
       !querySnapshot.empty
