@@ -109,6 +109,14 @@ const LoginScreen = ({}) => {
               style={styles.input}
               secureTextEntry
             />
+            <TouchableOpacity
+              style={{ marginTop: 10 }}
+              onPress={() => navigation.navigate('PasswordReset')}
+            >
+              <Text style={{ textAlign: 'center', color: 'blue', fontSize: 15 }}>
+                Forgot Password?
+              </Text>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.buttonContainer}>
