@@ -13,7 +13,15 @@ import React, { useState, useEffect } from 'react'
 import { useNavigation, CommonActions } from '@react-navigation/native'
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
-import { query, collection, doc, addDoc, where, getDocs } from 'firebase/firestore'
+import {
+  query,
+  collection,
+  doc,
+  addDoc,
+  where,
+  getDocs,
+  serverTimestamp,
+} from 'firebase/firestore'
 
 const auth = FIREBASE_AUTH
 const db = FIRESTORE_DB
@@ -70,8 +78,10 @@ const Register = () => {
         username: displayName,
         wins: 0,
         losses: 0,
+        totalGames: 0,
         currentWinStreak: 0,
         bestWinStreak: 0,
+        createdAt: serverTimestamp(),
       })
       console.log('new user created with name ' + newUser.username)
     } catch (error) {
