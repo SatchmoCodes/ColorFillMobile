@@ -22,6 +22,7 @@ import {
   orderBy,
   onSnapshot,
   getDocs,
+  limit,
 } from 'firebase/firestore'
 import { FIRESTORE_DB, FIREBASE_AUTH } from '../../firebaseConfig'
 import { useColorSchemeContext } from '../../App'
@@ -272,6 +273,7 @@ const Leaderboard = () => {
         where('size', '==', size),
         orderBy('score', 'asc'),
         orderBy('createdAt', 'asc'),
+        limit(150),
       )
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         lowestScoresMap = new Map()
@@ -300,7 +302,7 @@ const Leaderboard = () => {
             }
           }
         })
-        const scoreList = Array.from(lowestScoresMap.values())
+        const scoreList = Array.from(lowestScoresMap.values()).slice(0, 100)
         newAnimatedValues = []
         if (prevLowestScores != null) {
           const prevScoreList = Array.from(prevLowestScores.values())
@@ -350,7 +352,7 @@ const Leaderboard = () => {
       setUpdate(false)
       return unsubscribe
     } else {
-      const q = query(collection(db, 'Users'))
+      const q = query(collection(db, 'Users'), orderBy('totalGames', 'desc'))
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const queryArr = []
         let userInfo = []
@@ -424,7 +426,7 @@ const Leaderboard = () => {
         bottomScores.sort((a, b) => a.wins + a.losses > b.wins + b.losses)
         topScores.sort((a, b) => parseInt(a.queryData) - parseInt(b.queryData))
         topScores.reverse()
-        bottomScores.reverse()
+        // bottomScores.reverse()
         let fullArr = topScores.concat(bottomScores)
         fullArr.forEach((val, index) => {
           if (val.wins + val.losses > 9) {
