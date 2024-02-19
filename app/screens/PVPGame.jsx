@@ -880,6 +880,7 @@ const PVPGame = () => {
             wins: increment(1),
             currentWinStreak: increment(1),
             bestWinStreak: newWinStreak,
+            totalGames: increment(1),
           })
         } catch (error) {
           // console.log(error)
@@ -888,6 +889,7 @@ const PVPGame = () => {
           await updateDoc(opponentRef, {
             losses: increment(1),
             currentWinStreak: 0,
+            totalGames: increment(1),
           })
         } catch (error) {
           // console.log(error)
@@ -909,6 +911,7 @@ const PVPGame = () => {
             wins: increment(1),
             currentWinStreak: increment(1),
             bestWinStreak: newWinStreak,
+            totalGames: increment(1),
           })
         } catch (error) {
           // console.log(error)
@@ -917,6 +920,7 @@ const PVPGame = () => {
           await updateDoc(ownerRef, {
             losses: increment(1),
             currentWinStreak: 0,
+            totalGames: increment(1),
           })
         } catch (error) {
           // console.log(error)
@@ -1150,12 +1154,13 @@ const PVPGame = () => {
           styles.playerView,
           {
             opacity: !gameStarted ? 1 : turn == 'Owner' ? 1 : 0.5,
+            width: '45%',
           },
         ]}
       >
         <Text
           style={{
-            fontSize: 20,
+            fontSize: 16,
             marginBottom: 5,
             textAlign: 'center',
             color: colorTheme.text,
@@ -1184,12 +1189,13 @@ const PVPGame = () => {
           styles.playerView,
           {
             opacity: !gameStarted ? 1 : turn == 'Owner' ? 0.5 : 1,
+            width: '45%',
           },
         ]}
       >
         <Text
           style={{
-            fontSize: 20,
+            fontSize: 16,
             marginBottom: 5,
             textAlign: 'center',
             color: colorTheme.text,
@@ -1247,7 +1253,7 @@ const PVPGame = () => {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                gap: 20,
+                width: '100%',
               }}
             >
               {userName != opponentName ? <OwnerView /> : <OpponentView />}
@@ -1259,17 +1265,21 @@ const PVPGame = () => {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                width: 175,
+                width: '100%',
                 gap: 20,
               }}
             >
-              <Text style={{ textAlign: 'center', color: colorTheme.text }}>
+              <Text
+                style={{ textAlign: 'center', width: '49%', color: colorTheme.text }}
+              >
                 {userName != opponentName
                   ? `${ownerWins} - ${ownerLosses}`
                   : `${opponentWins} - ${opponentLosses}`}
               </Text>
               <Text style={{}}></Text>
-              <Text style={{ textAlign: 'center', color: colorTheme.text }}>
+              <Text
+                style={{ textAlign: 'center', width: '49%', color: colorTheme.text }}
+              >
                 {userName != opponentName
                   ? `${opponentWins} - ${opponentLosses}`
                   : `${ownerWins} - ${ownerLosses}`}
@@ -1534,14 +1544,14 @@ const PVPGame = () => {
                               ? opponentColor
                               : visibleArr[index] === true
                                 ? colorState[index].color
-                                : 'gray',
+                                : 'lightgray',
                         width: gridItemSize,
                         height: gridItemSize,
                         borderColor: sq.captured
                           ? 'black'
                           : visibleArr[index] === true
                             ? 'black'
-                            : 'gray',
+                            : 'lightgray',
 
                         transform: [
                           {
@@ -1584,14 +1594,14 @@ const PVPGame = () => {
                                 ? opponentColor
                                 : visibleArr[visibleArr.length - 1 - index] === true
                                   ? colorState[colorState.length - 1 - index].color
-                                  : 'gray',
+                                  : 'lightgray',
                           width: gridItemSize,
                           height: gridItemSize,
                           borderColor: sq.captured
                             ? 'black'
                             : visibleArr[visibleArr.length - 1 - index] === true
                               ? 'black'
-                              : 'gray',
+                              : 'lightgray',
                           transform: [
                             {
                               scale:
@@ -1902,10 +1912,12 @@ const styles = StyleSheet.create({
     marginTop: 22,
   },
   modalView: {
+    width: '90%',
+    maxWidth: 350,
     margin: 20,
+    padding: 20,
     backgroundColor: 'white',
     borderRadius: 20,
-    padding: 35,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
