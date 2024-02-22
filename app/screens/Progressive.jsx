@@ -534,6 +534,30 @@ const Progressive = () => {
   async function handleComplete() {
     if (!complete) {
       setComplete(true)
+      const boardScores = query(
+        collection(db, 'Scores'),
+        where('boardId', '==', boardId),
+        orderBy('score', 'asc'),
+        orderBy('createdAt', 'asc'),
+      )
+      const querySnapshot = await getDocs(boardScores)
+      const updates = []
+      let currentHighScore = null
+      if (!querySnapshot.empty) {
+        currentHighScore = querySnapshot.docs[0].data().score
+        console.log('currentHighScore', currentHighScore)
+        querySnapshot.forEach((doc) => {
+          if (countNumber < doc.data().score) {
+            let docRef = doc.ref
+            updates.push(
+              updateDoc(docRef, {
+                highScore: false,
+              }),
+            )
+          }
+        })
+      }
+      await Promise.all(updates)
       const newScore = await addDoc(collection(db, 'Scores'), {
         boardId: boardId,
         score: totalScoreValue,
@@ -542,6 +566,8 @@ const Progressive = () => {
         createdBy: userName,
         uid: uid,
         gamemode: 'Progressive',
+        highScore:
+          countNumber < currentHighScore || currentHighScore === null ? true : false,
         createdAt: serverTimestamp(),
       })
       console.log(totalScoreValue)
@@ -1070,8 +1096,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
+    height: '100%',
+    justifyContent: 'center',
   },
   top: {
+    position: 'absolute',
+    top: 0,
     justifyContent: 'center',
   },
   topText: {
@@ -1151,7 +1181,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   colorRow: {
-    flex: 1,
+    // flex: 1,
     flexDirection: 'row',
     gap: 5,
     justifyContent: 'center',

@@ -28,6 +28,7 @@ import {
   orderBy,
   serverTimestamp,
   limit,
+  updateDoc,
 } from 'firebase/firestore'
 import { FIRESTORE_DB, FIREBASE_AUTH } from '../../firebaseConfig.js'
 import uuid from 'react-native-uuid'
@@ -429,6 +430,30 @@ const FreePlay = () => {
     if (!complete) {
       setComplete(true)
       setModalVisible(true)
+      const boardScores = query(
+        collection(db, 'Scores'),
+        where('boardId', '==', boardId),
+        orderBy('score', 'asc'),
+        orderBy('createdAt', 'asc'),
+      )
+      const querySnapshot = await getDocs(boardScores)
+      const updates = []
+      let currentHighScore = null
+      if (!querySnapshot.empty) {
+        currentHighScore = querySnapshot.docs[0].data().score
+        console.log('currentHighScore', currentHighScore)
+        querySnapshot.forEach((doc) => {
+          if (countNumber < doc.data().score) {
+            let docRef = doc.ref
+            updates.push(
+              updateDoc(docRef, {
+                highScore: false,
+              }),
+            )
+          }
+        })
+      }
+      await Promise.all(updates)
       const newScore = await addDoc(collection(db, 'Scores'), {
         boardId: boardId,
         score: countNumber,
@@ -437,6 +462,8 @@ const FreePlay = () => {
         createdBy: userName,
         uid: uid,
         gamemode: 'FreePlay',
+        highScore:
+          countNumber < currentHighScore || currentHighScore === null ? true : false,
         createdAt: serverTimestamp(),
       })
       originalScore = scoreToBeat
@@ -998,9 +1025,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     height: '100%',
-    // justifyContent: 'center',
+    justifyContent: 'center',
   },
   top: {
+    position: 'absolute',
+    top: 0,
     justifyContent: 'center',
     // maxHeight: '20%',
   },
