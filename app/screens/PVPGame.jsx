@@ -1147,7 +1147,7 @@ const PVPGame = () => {
     setChange(true)
   }
 
-  const OwnerView = () => {
+  const OwnerView = ({ showStats = true }) => {
     return (
       <View
         style={[
@@ -1178,11 +1178,23 @@ const PVPGame = () => {
         >
           <Text style={styles.fakeText}>{ownerScore}</Text>
         </View>
+        {showStats && (
+          <Text
+            style={{
+              fontSize: 16,
+              marginTop: 10,
+              textAlign: 'center',
+              color: colorTheme.text,
+            }}
+          >
+            {ownerWins} - {ownerLosses}
+          </Text>
+        )}
       </View>
     )
   }
 
-  const OpponentView = () => {
+  const OpponentView = ({ showStats = true }) => {
     return (
       <View
         style={[
@@ -1213,6 +1225,18 @@ const PVPGame = () => {
         >
           <Text style={styles.fakeText}>{opponentScore}</Text>
         </View>
+        {showStats && (
+          <Text
+            style={{
+              fontSize: 16,
+              marginTop: 10,
+              textAlign: 'center',
+              color: colorTheme.text,
+            }}
+          >
+            {opponentWins} - {opponentLosses}
+          </Text>
+        )}
       </View>
     )
   }
@@ -1260,17 +1284,17 @@ const PVPGame = () => {
               <Text style={{ color: colorTheme.text }}>VS</Text>
               {userName != opponentName ? <OpponentView /> : <OwnerView />}
             </View>
-            <View
+            {/* <View
               style={{
                 flexDirection: 'row',
-                justifyContent: 'space-between',
+                justifyContent: 'center',
                 alignItems: 'center',
-                width: '100%',
+                width: '60%',
                 gap: 20,
               }}
             >
               <Text
-                style={{ textAlign: 'center', width: '49%', color: colorTheme.text }}
+                style={{ textAlign: 'left', width: '50%', color: colorTheme.text }}
               >
                 {userName != opponentName
                   ? `${ownerWins} - ${ownerLosses}`
@@ -1278,13 +1302,13 @@ const PVPGame = () => {
               </Text>
               <Text style={{}}></Text>
               <Text
-                style={{ textAlign: 'center', width: '49%', color: colorTheme.text }}
+                style={{ textAlign: 'right', width: '50%', color: colorTheme.text }}
               >
                 {userName != opponentName
                   ? `${opponentWins} - ${opponentLosses}`
                   : `${ownerWins} - ${ownerLosses}`}
               </Text>
-            </View>
+            </View> */}
             <View style={{ flexDirection: 'row' }}>
               {timer > 7 && !gameStarted && (
                 <Text style={{ marginTop: 5, color: colorTheme.text }}>
@@ -1301,7 +1325,7 @@ const PVPGame = () => {
             style={[
               styles.modalView,
               {
-                borderWidth: 1,
+                borderWidth: 2,
                 borderColor:
                   winner === 'Owner' && userName == ownerName
                     ? 'green'
@@ -1319,6 +1343,7 @@ const PVPGame = () => {
             <Text
               style={{
                 fontSize: 30,
+                marginBottom: 10,
                 color:
                   winner === 'Owner' && userName == ownerName
                     ? 'green'
@@ -1365,27 +1390,35 @@ const PVPGame = () => {
           </View>
         </View>
       </Modal>
-      <View style={styles.top}>
-        <View style={[styles.playerNames, { width: gridItemSize * boardSize }]}>
-          {userName != opponentName ? <OwnerView /> : <OpponentView />}
-          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            {screenHeight > 700 ? (
-              <Text style={{ fontSize: 15, color: colorTheme.text }}>VS</Text>
-            ) : (
-              <Text
-                style={{
-                  fontSize: 25,
-                  width: 50,
-                  textAlign: 'center',
-                  color: colorTheme.text,
-                }}
-              >
-                {timer < 1 ? 0 : gameStarted ? timer - 1 : 10}
-              </Text>
-            )}
-          </View>
-          {userName != opponentName ? <OpponentView /> : <OwnerView />}
+      <View style={[styles.playerNames, { width: gridItemSize * boardSize }]}>
+        {userName != opponentName ? (
+          <OwnerView showStats={false} />
+        ) : (
+          <OpponentView showStats={false} />
+        )}
+        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+          {screenHeight > 700 ? (
+            <Text style={{ fontSize: 15, color: colorTheme.text }}>VS</Text>
+          ) : (
+            <Text
+              style={{
+                fontSize: 25,
+                width: 50,
+                textAlign: 'center',
+                color: colorTheme.text,
+              }}
+            >
+              {timer < 1 ? 0 : gameStarted ? timer - 1 : 10}
+            </Text>
+          )}
         </View>
+        {userName != opponentName ? (
+          <OpponentView showStats={false} />
+        ) : (
+          <OwnerView showStats={false} />
+        )}
+      </View>
+      <View style={styles.top}>
         <View>
           {screenHeight > 700 && (
             <Text
@@ -1802,6 +1835,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
   },
   top: {
     justifyContent: 'center',
@@ -1828,8 +1863,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     marginTop: 5,
-    marginBottom: 5,
+    marginBottom: 10,
     fontSize: 20,
+    position: 'absolute',
+    top: 0,
   },
   playerView: {
     marginBottom: 10,
@@ -1865,6 +1902,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     maxWidth: screenWidth,
+    marginTop: 20,
   },
   square: {
     borderWidth: 1,
