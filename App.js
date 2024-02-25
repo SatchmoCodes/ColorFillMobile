@@ -127,7 +127,7 @@ function AuthView() {
               style={[
                 {
                   marginRight: Platform.OS === 'web' && 20,
-                  backgroundColor: 'blue',
+                  backgroundColor: '#2196F3',
                   padding: 8,
                 },
               ]}
@@ -149,7 +149,7 @@ function AuthView() {
               style={[
                 {
                   marginRight: Platform.OS === 'web' && 20,
-                  backgroundColor: 'blue',
+                  backgroundColor: '#2196F3',
                   padding: 8,
                 },
               ]}
@@ -170,7 +170,7 @@ function AuthView() {
               style={[
                 {
                   marginRight: Platform.OS === 'web' && 20,
-                  backgroundColor: 'blue',
+                  backgroundColor: '#2196F3',
                   padding: 8,
                 },
               ]}
@@ -191,7 +191,7 @@ function AuthView() {
               style={[
                 {
                   marginRight: Platform.OS === 'web' && 20,
-                  backgroundColor: 'blue',
+                  backgroundColor: '#2196F3',
                   padding: 8,
                 },
               ]}
@@ -214,7 +214,7 @@ function AuthView() {
               style={[
                 {
                   marginRight: Platform.OS === 'web' && 20,
-                  backgroundColor: 'blue',
+                  backgroundColor: '#2196F3',
                   padding: 8,
                 },
               ]}
@@ -235,7 +235,7 @@ function AuthView() {
               style={[
                 {
                   marginRight: Platform.OS === 'web' && 20,
-                  backgroundColor: 'blue',
+                  backgroundColor: '#2196F3',
                   padding: 8,
                 },
               ]}
@@ -256,7 +256,7 @@ function AuthView() {
               style={[
                 {
                   marginRight: Platform.OS === 'web' && 20,
-                  backgroundColor: 'blue',
+                  backgroundColor: '#2196F3',
                   padding: 8,
                 },
               ]}
@@ -278,7 +278,7 @@ function AuthView() {
               style={[
                 {
                   marginRight: Platform.OS === 'web' && 20,
-                  backgroundColor: 'blue',
+                  backgroundColor: '#2196F3',
                   padding: 8,
                 },
               ]}
@@ -299,7 +299,7 @@ function AuthView() {
               style={[
                 {
                   marginRight: Platform.OS === 'web' && 20,
-                  backgroundColor: 'blue',
+                  backgroundColor: '#2196F3',
                   padding: 8,
                 },
               ]}
@@ -319,7 +319,7 @@ function AuthView() {
               style={[
                 {
                   marginRight: Platform.OS === 'web' && 20,
-                  backgroundColor: 'blue',
+                  backgroundColor: '#2196F3',
                   padding: 8,
                 },
               ]}
