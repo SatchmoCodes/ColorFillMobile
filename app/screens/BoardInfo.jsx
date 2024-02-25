@@ -93,11 +93,8 @@ const BoardInfo = ({ navigation }) => {
       where('boardId', '==', docId),
       orderBy('createdAt', 'asc'),
     )
-    console.log(docId)
     const querySnapshot = await getDocs(creatorQuery)
-    console.log(querySnapshot)
     if (!querySnapshot.empty) {
-      console.log(querySnapshot.docs[0].data())
       setCreatedBy(querySnapshot.docs[0].data())
     }
     setLoading(false)
@@ -269,14 +266,16 @@ const BoardInfo = ({ navigation }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {!loading ? (
+      {!loading && highScore && scoreList ? (
         <LoadedView
           createdBy={createdBy}
           highScore={highScore}
           scoreList={scoreList}
         ></LoadedView>
       ) : (
-        <ActivityIndicator size="large"></ActivityIndicator>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="green"></ActivityIndicator>
+        </View>
       )}
     </View>
   )
@@ -314,7 +313,7 @@ const styles = StyleSheet.create({
     padding: 20,
     fontSize: 5,
     borderRadius: 50,
-    width: 150,
+    width: 200,
     margin: 'auto',
     marginLeft: 'auto',
     marginRight: 'auto',
@@ -333,6 +332,8 @@ const styles = StyleSheet.create({
   buttonText: {
     textAlign: 'center',
     color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
     textShadowColor: 'black',
     textShadowRadius: 1,
     textShadowOffset: {
