@@ -88,14 +88,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   top: {
-    height: '50%',
+    height: '40%',
   },
   colorImage: {
     maxWidth: '100%',
     height: '100%',
   },
   bottom: {
-    height: '50%',
+    height: '60%',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     padding: 20,
     fontSize: 5,
     borderRadius: 50,
-    width: 150,
+    width: 200,
     margin: 'auto',
     marginLeft: 'auto',
     marginRight: 'auto',
@@ -122,8 +122,10 @@ const styles = StyleSheet.create({
   buttonText: {
     textAlign: 'center',
     color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
     textShadowColor: 'black',
-    textShadowRadius: 1,
+    textShadowRadius: 3,
     textShadowOffset: {
       width: 1,
       height: 1,
