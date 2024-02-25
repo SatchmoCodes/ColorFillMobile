@@ -1385,7 +1385,7 @@ const PVPGame = () => {
               style={[styles.button, styles.buttonClose]}
               onPress={() => handleEnd()}
             >
-              <Text>Return to Menu</Text>
+              <Text style={styles.textStyle}>Return to Menu</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -1577,14 +1577,14 @@ const PVPGame = () => {
                               ? opponentColor
                               : visibleArr[index] === true
                                 ? colorState[index].color
-                                : 'lightgray',
+                                : 'rgb(180,180,180)',
                         width: gridItemSize,
                         height: gridItemSize,
                         borderColor: sq.captured
                           ? 'black'
                           : visibleArr[index] === true
                             ? 'black'
-                            : 'lightgray',
+                            : 'rgb(180,180,180)',
 
                         transform: [
                           {
@@ -1627,14 +1627,14 @@ const PVPGame = () => {
                                 ? opponentColor
                                 : visibleArr[visibleArr.length - 1 - index] === true
                                   ? colorState[colorState.length - 1 - index].color
-                                  : 'lightgray',
+                                  : 'rgb(180,180,180)',
                           width: gridItemSize,
                           height: gridItemSize,
                           borderColor: sq.captured
                             ? 'black'
                             : visibleArr[visibleArr.length - 1 - index] === true
                               ? 'black'
-                              : 'lightgray',
+                              : 'rgb(180,180,180)',
                           transform: [
                             {
                               scale:
@@ -1863,10 +1863,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     marginTop: 5,
-    marginBottom: 10,
+    marginBottom: 5,
     fontSize: 20,
-    position: 'absolute',
-    top: 0,
+    // position: 'absolute',
+    // top: 0,
   },
   playerView: {
     marginBottom: 10,
@@ -1902,7 +1902,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     maxWidth: screenWidth,
-    marginTop: 20,
+    // marginTop: 20,
   },
   square: {
     borderWidth: 1,
@@ -1971,6 +1971,13 @@ const styles = StyleSheet.create({
     padding: 10,
     elevation: 2,
     marginBottom: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
   buttonOpen: {
     backgroundColor: '#F194FF',
@@ -1982,6 +1989,14 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
+    fontSize: 15,
+    fontWeight: 'bold',
+    textShadowColor: 'black',
+    textShadowRadius: 1,
+    textShadowOffset: {
+      width: 1,
+      height: 1,
+    },
   },
   modalText: {
     marginBottom: 15,
