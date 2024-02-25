@@ -71,14 +71,14 @@ export const squareColors = [
 
 export const lightModeColors = {
   text: 'black',
-  background: 'rgb(220,220,220)',
+  background: 'white',
   game: 'lightblue',
-  tableRow: 'rgb(255,255,255)',
+  tableRow: 'rgb(240,240,240)',
   tableTop: 'rgb(200,200,200)',
-  button: 'rgb(255,255,255)',
+  button: 'rgb(240,240,240)',
   radioSelected: 'black',
   outline: 'black',
-  username: 'BLACK',
+  username: 'gold',
 }
 
 export const darkModeColors = {
