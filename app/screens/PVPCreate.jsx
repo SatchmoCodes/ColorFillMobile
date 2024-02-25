@@ -505,7 +505,7 @@ const styles = StyleSheet.create({
     padding: 20,
     fontSize: 5,
     borderRadius: 50,
-    width: 150,
+    width: 200,
     margin: 'auto',
     marginLeft: 'auto',
     marginRight: 'auto',
@@ -524,6 +524,8 @@ const styles = StyleSheet.create({
   buttonText: {
     textAlign: 'center',
     color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
     textShadowColor: 'black',
     textShadowRadius: 1,
     textShadowOffset: {

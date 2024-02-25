@@ -147,7 +147,7 @@ const PVPLobby = () => {
           doc.data().gameState == 'Deleting' &&
           userNameRef.current != doc.data().ownerName
         ) {
-          alert('host left the lobby')
+          // alert('host left the lobby')
           navigation.navigate('PVPMenu')
         }
       }
@@ -187,7 +187,14 @@ const PVPLobby = () => {
         <Text style={{ fontSize: 20, marginBottom: 10, color: colors.text }}>
           Fog of War: {gameInfo != null && gameInfo.fog === true ? 'On' : 'Off'}
         </Text>
-        <Text style={{ fontSize: 20, marginBottom: 10, color: colors.text }}>
+        <Text
+          style={{
+            fontSize: 20,
+            marginBottom: 10,
+            marginTop: 10,
+            color: colors.text,
+          }}
+        >
           Players
         </Text>
         <View style={[styles.players, { backgroundColor: colors.tableRow }]}>
@@ -297,6 +304,8 @@ const styles = StyleSheet.create({
   buttonText: {
     textAlign: 'center',
     color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
     textShadowColor: 'black',
     textShadowRadius: 1,
     textShadowOffset: {
