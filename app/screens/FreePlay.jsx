@@ -10,6 +10,7 @@ import {
   Easing,
   Alert,
   ActivityIndicator,
+  Platform,
 } from 'react-native'
 import React from 'react'
 import { useState, useEffect, useRef } from 'react'
@@ -64,7 +65,7 @@ let screenHeight = Math.floor(Dimensions.get('window').height)
 let gridItemSize = Math.floor(screenWidth / boardSize)
 console.log(gridItemSize)
 if (screenWidth >= 500) {
-  screenWidth = Math.floor(Dimensions.get('window').height * 0.55)
+  screenWidth = Math.floor(Dimensions.get('window').height * 0.6)
   console.log(screenWidth)
   gridItemSize = Math.floor(screenWidth / boardSize)
 }
@@ -913,7 +914,9 @@ const FreePlay = () => {
           {scoreToBeat == null ? counter : `${counter} / ${scoreToBeat}`}
         </Text>
       )}
-      <View style={[styles.board, screenWidth > 500 && { maxWidth: screenWidth }]}>
+      <View
+        style={[styles.board, Platform.OS == 'web' && { maxWidth: screenWidth }]}
+      >
         {colorState.map((sq, index) => {
           return (
             // <View key={index} style={[styles.square, {backgroundColor: sq.color}]}></View>
@@ -1025,11 +1028,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     height: '100%',
-    justifyContent: 'center',
+    // justifyContent: 'center',
   },
   top: {
-    position: 'absolute',
-    top: 0,
+    // position: 'absolute',
+    // top: 0,
     justifyContent: 'center',
     // maxHeight: '20%',
   },
@@ -1148,6 +1151,13 @@ const styles = StyleSheet.create({
     padding: 15,
     elevation: 2,
     marginBottom: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
   buttonOpen: {
     backgroundColor: '#F194FF',
@@ -1160,6 +1170,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     fontSize: 15,
+    fontWeight: 'bold',
+    textShadowColor: 'black',
+    textShadowRadius: 1,
+    textShadowOffset: {
+      width: 1,
+      height: 1,
+    },
   },
   modalText: {
     marginBottom: 15,
