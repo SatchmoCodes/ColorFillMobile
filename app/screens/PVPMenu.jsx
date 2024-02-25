@@ -135,14 +135,14 @@ const PVPMenu = ({ navigation }) => {
 
   useEffect(() => {
     let q
-    const fiveMinutesAgo = new Date()
-    fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5)
+    const cutOffTime = new Date()
+    cutOffTime.setMinutes(cutOffTime.getMinutes() - 3)
     if (showSettings === 'Playing') {
       q = query(
         collection(db, 'Games'),
         where('lobbyType', '==', 'Public'),
         where('gameState', 'in', ['Waiting', 'Playing', 'Finished']),
-        where('createdAt', '>=', fiveMinutesAgo),
+        where('createdAt', '>=', cutOffTime),
         orderBy('createdAt', 'asc'),
       )
     } else {
@@ -150,7 +150,7 @@ const PVPMenu = ({ navigation }) => {
         collection(db, 'Games'),
         where('lobbyType', '==', 'Public'),
         where('gameState', '==', 'Waiting'),
-        where('createdAt', '>=', fiveMinutesAgo),
+        where('createdAt', '>=', cutOffTime),
         orderBy('createdAt', 'asc'),
       )
     }
@@ -322,7 +322,10 @@ const PVPMenu = ({ navigation }) => {
                   style={styles.buttonSmall}
                   onPress={() =>
                     item.data.gameState === 'Waiting'
-                      ? item.data.opponentName == '' && handleJoin(item.id)
+                      ? (item.data.opponentName == '' ||
+                          item.data.ownerName == userName ||
+                          item.data.opponentName == userName) &&
+                        handleJoin(item.id)
                       : handleSpectate(item.id, item.data.size)
                   }
                 >
@@ -465,6 +468,8 @@ const styles = StyleSheet.create({
   buttonText: {
     textAlign: 'center',
     color: 'white',
+    fontSize: 15,
+    fontWeight: 'bold',
     textShadowColor: 'black',
     textShadowRadius: 1,
     textShadowOffset: {
