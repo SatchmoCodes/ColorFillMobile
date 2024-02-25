@@ -1276,7 +1276,7 @@ const Leaderboard = () => {
                             <Text
                               style={[styles.buttonText, { textAlign: 'center' }]}
                             >
-                              Info
+                              View
                             </Text>
                           </TouchableOpacity>
                         </View>
@@ -1358,6 +1358,10 @@ const Leaderboard = () => {
                                 index == 0 && {
                                   textShadowColor: 'black',
                                   textShadowRadius: 1,
+                                  textShadowOffset: {
+                                    width: 1,
+                                    height: 1,
+                                  },
                                 },
                               {
                                 textAlign: 'center',
@@ -1388,6 +1392,10 @@ const Leaderboard = () => {
                                 index == 0 && {
                                   textShadowColor: 'black',
                                   textShadowRadius: 1,
+                                  textShadowOffset: {
+                                    width: 1,
+                                    height: 1,
+                                  },
                                 },
                               {
                                 textAlign: 'center',
