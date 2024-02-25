@@ -10,6 +10,7 @@ import {
   Easing,
   Alert,
   ActivityIndicator,
+  Platform,
 } from 'react-native'
 import React from 'react'
 import { useState, useEffect, useRef } from 'react'
@@ -50,8 +51,8 @@ let screenWidth = Math.floor(Dimensions.get('window').width * 0.98)
 let screenHeight = Math.floor(Dimensions.get('window').height)
 let gridItemSize = Math.floor(screenWidth / boardSize)
 if (screenWidth >= 500) {
-  screenWidth = Math.floor(Dimensions.get('window').height * 0.55)
-  // console.log(screenWidth)
+  screenWidth = Math.floor(Dimensions.get('window').height * 0.6)
+  console.log(screenWidth)
   gridItemSize = Math.floor(screenWidth / boardSize)
 }
 
@@ -161,7 +162,7 @@ const Progressive = () => {
       screenHeight = Math.floor(Dimensions.get('window').height)
       gridItemSize = Math.floor(screenWidth / boardSize)
       if (screenWidth >= 500) {
-        screenWidth = Math.floor(Dimensions.get('window').height * 0.55)
+        screenWidth = Math.floor(Dimensions.get('window').height * 0.6)
         console.log(screenWidth)
         gridItemSize = Math.floor(screenWidth / boardSize)
       }
@@ -925,7 +926,7 @@ const Progressive = () => {
           {
             width:
               viewportWidth > 500
-                ? Dimensions.get('window').height * 0.55
+                ? Dimensions.get('window').height * 0.6
                 : viewportWidth * 0.98,
           },
         ]}
@@ -982,7 +983,9 @@ const Progressive = () => {
           </Text>
         </Text>
       </View>
-      <View style={[styles.board, screenWidth > 500 && { maxWidth: screenWidth }]}>
+      <View
+        style={[styles.board, Platform.OS == 'web' && { maxWidth: screenWidth }]}
+      >
         {colorState.map((sq, index) => {
           return (
             // <View key={index} style={[styles.square, {backgroundColor: sq.color}]}></View>
@@ -1097,11 +1100,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     height: '100%',
-    justifyContent: 'center',
+    // justifyContent: 'center',
   },
   top: {
-    position: 'absolute',
-    top: 0,
+    // position: 'absolute',
+    // top: 0,
     justifyContent: 'center',
   },
   topText: {
@@ -1220,6 +1223,13 @@ const styles = StyleSheet.create({
     padding: 15,
     elevation: 2,
     marginBottom: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
   buttonOpen: {
     backgroundColor: '#F194FF',
@@ -1232,6 +1242,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     fontSize: 15,
+    fontWeight: 'bold',
+    textShadowColor: 'black',
+    textShadowRadius: 1,
+    textShadowOffset: {
+      width: 1,
+      height: 1,
+    },
   },
   modalText: {
     marginBottom: 15,
