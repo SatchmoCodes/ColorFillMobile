@@ -673,7 +673,7 @@ const Leaderboard = () => {
         bottomScores.sort((a, b) => a.wins + a.losses > b.wins + b.losses)
         topScores.sort((a, b) => parseInt(a.queryData) - parseInt(b.queryData))
         topScores.reverse()
-        bottomScores.reverse()
+        // bottomScores.reverse()
         let fullArr = topScores.concat(bottomScores)
         fullArr.forEach((val, index) => {
           if (val.wins + val.losses > 9) {
