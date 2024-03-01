@@ -51,7 +51,6 @@ const Options = () => {
       // The user object will be null if not logged in or a user object if logged in
       if (user) {
         setUid(user.uid)
-        console.log('uid ', user.uid)
       }
     })
 
@@ -61,11 +60,9 @@ const Options = () => {
 
   useEffect(() => {
     const getUserData = async () => {
-      console.log('uid here', uid)
       const q = query(collection(db, 'Users'), where('uid', '==', uid))
       const querySnapshot = await getDocs(q)
       if (querySnapshot.empty) {
-        console.log('tests')
       }
       querySnapshot.forEach((doc) => {
         setUserName(doc.data().username)
@@ -81,12 +78,11 @@ const Options = () => {
     try {
       const value = await AsyncStorage.getItem('size')
       if (value !== null) {
-        console.log(value)
         return value.toString()
       }
     } catch (e) {
       // error reading value
-      console.log('nasdf')
+      console.log(e)
     }
   }
 
@@ -98,7 +94,7 @@ const Options = () => {
       }
     } catch (e) {
       // error reading value
-      console.log('nasdf')
+      console.log(e)
     }
   }
 
@@ -174,7 +170,6 @@ const Options = () => {
     const q = query(collection(db, 'Users'), where('uid', '==', uid))
     const querySnapshot = await getDocs(q)
     const user = auth.currentUser
-    console.log('user', user)
     if (!querySnapshot.empty) {
       const userDocRef = querySnapshot.docs[0].ref
       const scoreQuery = query(
