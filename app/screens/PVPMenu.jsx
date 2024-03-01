@@ -9,7 +9,7 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   query,
   collection,
@@ -25,13 +25,18 @@ import {
 } from 'firebase/firestore'
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig.js'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { useIsFocused } from '@react-navigation/native'
+import { useIsFocused, useNavigation } from '@react-navigation/native'
 import uuid from 'react-native-uuid'
 import { useColorSchemeContext } from '../../App'
 
-const PVPMenu = ({ navigation }) => {
+let joining = false
+let newQuery = null
+let unsubscribe
+
+const PVPMenu = () => {
   const { useColors } = useColorSchemeContext()
   const colors = useColors()
+  const navigation = useNavigation()
 
   const isFocused = useIsFocused()
   const auth = FIREBASE_AUTH
@@ -39,14 +44,14 @@ const PVPMenu = ({ navigation }) => {
 
   const [games, setGames] = useState([])
   const [code, setCode] = useState('')
-  const [showSettings, setShowSettings] = useState()
 
   const [uid, setUid] = useState(null)
   const [userName, setUserName] = useState(null)
 
   async function initialLoad() {
+    const cutOffTime = new Date()
+    cutOffTime.setMinutes(cutOffTime.getMinutes() - 3)
     let gamesShown = await getGamesShown()
-    console.log('gamesShown', gamesShown)
     if (gamesShown != null) {
       switch (gamesShown) {
         case 'openGames':
@@ -56,15 +61,34 @@ const PVPMenu = ({ navigation }) => {
           gamesShown = 'Playing'
           break
       }
-      setShowSettings(gamesShown)
+      if (gamesShown === 'Playing') {
+        newQuery = query(
+          collection(db, 'Games'),
+          where('lobbyType', '==', 'Public'),
+          where('gameState', 'in', ['Waiting', 'Playing', 'Finished']),
+          where('createdAt', '>=', cutOffTime),
+          orderBy('createdAt', 'asc'),
+        )
+      } else {
+        newQuery = query(
+          collection(db, 'Games'),
+          where('lobbyType', '==', 'Public'),
+          where('gameState', '==', 'Waiting'),
+          where('createdAt', '>=', cutOffTime),
+          orderBy('createdAt', 'asc'),
+        )
+      }
     } else {
-      setShowSettings('Waiting')
+      newQuery = query(
+        collection(db, 'Games'),
+        where('lobbyType', '==', 'Public'),
+        where('gameState', '==', 'Waiting'),
+        where('createdAt', '>=', cutOffTime),
+        orderBy('createdAt', 'asc'),
+      )
     }
+    setupSnapshot()
   }
-
-  useEffect(() => {
-    initialLoad()
-  }, [])
 
   const getGamesShown = async () => {
     try {
@@ -77,42 +101,22 @@ const PVPMenu = ({ navigation }) => {
     }
   }
 
-  const reloadData = async () => {
-    const docRef = collection(db, 'Games')
-    const querySnapshot = await getDocs(docRef)
-    const gameList = []
-    if (!querySnapshot.empty) {
-      querySnapshot.forEach((doc, index) => {
-        const gameData = doc.data()
-        if (
-          gameData.gameState !== 'Playing' &&
-          gameData.gameState !== 'Deleting' &&
-          gameData.lobbyType !== 'Private'
-        ) {
-          let dateObj = gameData.createdAt.toDate()
-          let timeCreated = dateObj.getTime() / 1000
-          let currentTime = Math.floor(new Date().getTime() / 1000)
-          console.log('timeCreated', timeCreated)
-          console.log('currentTime', currentTime)
-          console.log('currenttime - timecreatd', currentTime - timeCreated)
-          if (currentTime - timeCreated <= 300) {
-            gameList.push({
-              id: doc.id,
-              data: doc.data(),
-            })
-          }
-        }
-      })
-      setGames(gameList)
-    }
-  }
-
   useEffect(() => {
     if (isFocused) {
       // reloadData()
+      console.log('resubbing')
+      joining = false
       initialLoad()
     }
   }, [isFocused])
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', () => {
+      joining = true
+      setupSnapshot()
+    })
+    return unsubscribe
+  })
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -121,6 +125,52 @@ const PVPMenu = ({ navigation }) => {
 
     return unsubscribe
   }, [])
+
+  async function setupSnapshot() {
+    let q
+    const cutOffTime = new Date()
+    cutOffTime.setMinutes(cutOffTime.getMinutes() - 3)
+    if (newQuery === null) {
+      q = query(
+        collection(db, 'Games'),
+        where('lobbyType', '==', 'Public'),
+        where('gameState', '==', 'Waiting'),
+        where('createdAt', '>=', cutOffTime),
+        orderBy('createdAt', 'asc'),
+      )
+    } else {
+      console.log(newQuery)
+      q = newQuery
+    }
+    if (!joining) {
+      unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const gameList = []
+        console.log('reading')
+        querySnapshot.forEach((doc, index) => {
+          const gameData = doc.data()
+          if (gameData.gameState !== 'Deleting') {
+            if (gameData.createdAt) {
+              let dateObj = gameData.createdAt.toDate()
+              let timeCreated = dateObj.getTime() / 1000
+              let currentTime = Math.floor(new Date().getTime() / 1000)
+              if (currentTime - timeCreated <= 300) {
+                gameList.push({
+                  id: doc.id,
+                  data: doc.data(),
+                })
+              }
+            }
+          }
+        })
+        setGames(gameList)
+      })
+    }
+
+    if (joining) {
+      console.log('unsubbing')
+      unsubscribe()
+    }
+  }
 
   useEffect(() => {
     const getUserData = async () => {
@@ -132,53 +182,6 @@ const PVPMenu = ({ navigation }) => {
     }
     getUserData()
   }, [uid])
-
-  useEffect(() => {
-    let q
-    const cutOffTime = new Date()
-    cutOffTime.setMinutes(cutOffTime.getMinutes() - 3)
-    if (showSettings === 'Playing') {
-      q = query(
-        collection(db, 'Games'),
-        where('lobbyType', '==', 'Public'),
-        where('gameState', 'in', ['Waiting', 'Playing', 'Finished']),
-        where('createdAt', '>=', cutOffTime),
-        orderBy('createdAt', 'asc'),
-      )
-    } else {
-      q = query(
-        collection(db, 'Games'),
-        where('lobbyType', '==', 'Public'),
-        where('gameState', '==', 'Waiting'),
-        where('createdAt', '>=', cutOffTime),
-        orderBy('createdAt', 'asc'),
-      )
-    }
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const gameList = []
-      querySnapshot.forEach((doc, index) => {
-        console.log(doc)
-        const gameData = doc.data()
-        if (gameData.gameState !== 'Deleting') {
-          if (gameData.createdAt) {
-            let dateObj = gameData.createdAt.toDate()
-            let timeCreated = dateObj.getTime() / 1000
-            let currentTime = Math.floor(new Date().getTime() / 1000)
-            if (currentTime - timeCreated <= 300) {
-              gameList.push({
-                id: doc.id,
-                data: doc.data(),
-              })
-            }
-          }
-        }
-      })
-      console.log(gameList)
-      setGames(gameList)
-      // console.log(gameList)
-    })
-    return unsubscribe
-  }, [showSettings])
 
   async function handleJoin(id) {
     const docRef = doc(db, 'Games', id)
@@ -193,6 +196,8 @@ const PVPMenu = ({ navigation }) => {
           const update = await updateDoc(docRef, newData)
         }
       }
+      joining = true
+      const unsubscribe = await setupSnapshot()
       navigation.navigate('PVPLobby', { id })
     } catch (error) {
       console.log(error)
@@ -204,9 +209,6 @@ const PVPMenu = ({ navigation }) => {
     const gamesRef = collection(db, 'Games')
     const q = query(gamesRef, where('code', '==', upperCaseCode))
     const querySnapshot = await getDocs(q)
-    querySnapshot.forEach((doc) => {
-      console.log(doc.data())
-    })
     if (!querySnapshot.empty) {
       if (querySnapshot.docs[0].data().opponentName != '') {
         alert('Game already full!')
@@ -220,6 +222,7 @@ const PVPMenu = ({ navigation }) => {
       }
       try {
         const update = await updateDoc(docRef, newData)
+
         navigation.navigate('PVPLobby', { id })
       } catch (error) {
         console.log(error)
@@ -230,7 +233,19 @@ const PVPMenu = ({ navigation }) => {
     }
   }
 
-  function handleSpectate(id, boardSize) {
+  async function handleCreate() {
+    joining = true
+    await setupSnapshot()
+    navigation.navigate('PVPCreate')
+  }
+
+  async function handleFilters() {
+    joining = true
+    await setupSnapshot()
+    navigation.navigate('Filters')
+  }
+
+  async function handleSpectate(id, boardSize) {
     switch (boardSize) {
       case 'Small':
         boardSize = 11
@@ -242,6 +257,8 @@ const PVPMenu = ({ navigation }) => {
         boardSize = 19
         break
     }
+    joining = true
+    await setupSnapshot()
     navigation.navigate('PVPGame', { id, boardSize })
   }
 
@@ -258,10 +275,7 @@ const PVPMenu = ({ navigation }) => {
         <Text style={[{ fontSize: 25, marginBottom: 10, color: colors.text }]}>
           Game List ({games.length} {games.length == 1 ? 'Game' : 'Games'})
         </Text>
-        <TouchableOpacity
-          style={styles.buttonSmall}
-          onPress={() => navigation.navigate('Filters')}
-        >
+        <TouchableOpacity style={styles.buttonSmall} onPress={() => handleFilters()}>
           <Text style={styles.buttonText}>Filters</Text>
         </TouchableOpacity>
         <FlatList
@@ -366,10 +380,7 @@ const PVPMenu = ({ navigation }) => {
           >
             <Text style={[styles.buttonText]}>Join</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.navigate('PVPCreate')}
-          >
+          <TouchableOpacity style={styles.button} onPress={() => handleCreate()}>
             <Text style={styles.buttonText}>Create</Text>
           </TouchableOpacity>
         </View>
