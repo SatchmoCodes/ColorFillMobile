@@ -82,7 +82,6 @@ const PVPLobby = () => {
         }
       }
       userNameRef.current = null
-      console.log(userNameRef)
     }
   }
 
@@ -90,7 +89,6 @@ const PVPLobby = () => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       // The user object will be null if not logged in or a user object if logged in
       setUid(user.uid)
-      console.log('uid ', user.uid)
     })
 
     // Clean up the subscription when the component unmounts
@@ -99,11 +97,9 @@ const PVPLobby = () => {
 
   useEffect(() => {
     const getUserData = async () => {
-      console.log('uid here', uid)
       const q = query(collection(db, 'Users'), where('uid', '==', uid))
       const querySnapshot = await getDocs(q)
       if (querySnapshot.empty) {
-        console.log('tests')
       }
       querySnapshot.forEach((doc) => {
         userNameRef.current = doc.data().username
@@ -120,7 +116,6 @@ const PVPLobby = () => {
   }, [route])
 
   useEffect(() => {
-    console.log(docId)
     const docRef = doc(db, 'Games', docId)
 
     const unsubscribe = onSnapshot(docRef, (doc) => {
