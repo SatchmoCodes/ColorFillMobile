@@ -11,6 +11,7 @@ import {
   getDoc,
   orderBy,
   serverTimestamp,
+  limit,
 } from 'firebase/firestore'
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig.js'
 import uuid from 'react-native-uuid'
@@ -140,6 +141,7 @@ const PVPCreate = ({ navigation }) => {
       where('gameState', '==', 'Waiting'),
       where('ownerName', '==', userName),
       orderBy('createdAt', 'desc'),
+      limit(1),
     )
     const querySnapshot = await getDocs(q)
     if (!querySnapshot.empty) {
