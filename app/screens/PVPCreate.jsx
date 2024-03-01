@@ -139,6 +139,7 @@ const PVPCreate = ({ navigation }) => {
       collection(db, 'Games'),
       where('gameState', '==', 'Waiting'),
       where('ownerName', '==', userName),
+      orderBy('createdAt', 'desc'),
     )
     const querySnapshot = await getDocs(q)
     if (!querySnapshot.empty) {
@@ -175,8 +176,6 @@ const PVPCreate = ({ navigation }) => {
       let halfDim
       let boardHalf = []
       halfDim = Math.ceil((dimensions * dimensions) / 2 - 1)
-      console.log(halfDim)
-
       for (let i = 0; i < halfDim; i++) {
         boardHalf.push(Math.floor(Math.random() * 5))
       }
