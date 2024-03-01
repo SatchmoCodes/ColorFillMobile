@@ -160,7 +160,7 @@ const Leaderboard = () => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       // The user object will be null if not logged in or a user object if logged in
       setUid(user.uid)
-      console.log('uid ', user.uid)
+      // console.log('uid ', user.uid)
     })
 
     // Clean up the subscription when the component unmounts
@@ -169,11 +169,11 @@ const Leaderboard = () => {
 
   useEffect(() => {
     const getUserData = async () => {
-      console.log('uid here', uid)
+      // console.log('uid here', uid)
       const q = query(collection(db, 'Users'), where('uid', '==', uid))
       const querySnapshot = await getDocs(q)
       if (querySnapshot.empty) {
-        console.log('tests')
+        // console.log('tests')
       }
       querySnapshot.forEach((doc) => {
         setUserName(doc.data().username)
@@ -186,7 +186,7 @@ const Leaderboard = () => {
     if (scores) {
       setDataChange(false)
       scores.forEach((_, index) => {
-        // console.log(animatedValues[index]._value)
+        // // console.log(animatedValues[index]._value)
         Animated.timing(animatedValues[index], {
           toValue: 1,
           duration: animationDuration,
@@ -340,8 +340,8 @@ const Leaderboard = () => {
   useEffect(() => {
     if (gamemode != 'PVP') {
       // let q
-      // console.log('lastscore?', lastScore)
-      // console.log('i am running')
+      // // console.log('lastscore?', lastScore)
+      // // console.log('i am running')
       // if (lastScore === null) {
       //   q = query(
       //     collection(db, 'Scores'),
@@ -376,28 +376,29 @@ const Leaderboard = () => {
       }
       let localQuery = snapshotQuery
       if (queryUpdate) {
-        console.log('haha balls')
+        // console.log('haha balls')
         setQueryUpdate(false)
         return
       }
 
       const unsubscribe = onSnapshot(localQuery, (querySnapshot) => {
+        // console.log('leaderboard running')
         lowestScoresMap = new Map()
-        // console.log('scorelist?', scores)
+        // // console.log('scorelist?', scores)
         // if (scores.length > 0) {
         //   let mapArrCopy = Array.from(lowestScoresMap.values())
-        //   console.log('maparrCopy', mapArrCopy)
+        //   // console.log('maparrCopy', mapArrCopy)
         //   let slicedMapCopy = mapArrCopy.slice(scores.length)
-        //   console.log('slicedMapCopy', slicedMapCopy)
+        //   // console.log('slicedMapCopy', slicedMapCopy)
         //   lowestScoresMap = new Map(slicedMapCopy.map((obj) => [obj.id, obj]))
-        //   console.log('lowestMap', lowestScoresMap)
+        //   // console.log('lowestMap', lowestScoresMap)
         // } else {
         //   lowestScoresMap = new Map()
         // }
 
         updatedIndexArr = []
         querySnapshot.forEach((doc) => {
-          console.log(doc.data())
+          // console.log(doc.data())
           const boardId = doc.data().boardId
           const score = doc.data().score
 
@@ -430,25 +431,25 @@ const Leaderboard = () => {
         newAnimatedValues = []
         let prevScoreList
 
-        console.log('is prevscore true', prevLowestScores)
+        // console.log('is prevscore true', prevLowestScores)
         if (prevLowestScores != null) {
-          console.log('prevLowest Scores (map) before check', prevLowestScores)
+          // console.log('prevLowest Scores (map) before check', prevLowestScores)
           prevScoreList = Array.from(prevLowestScores.values())
-          console.log('prevScoreList after creating array', prevScoreList)
+          // console.log('prevScoreList after creating array', prevScoreList)
           // lastStartIndex = Math.max(prevScoreList.length - limitValue, 0)
           // lastStartIndex = prevScoreList.length - limitValue
           if (prevScoreList.length < limitValue) {
             lastStartIndex = 0
           }
           // else {
-          //   console.log(
+          //   // console.log(
           //     'ballsvalue',
           //     Math.floor(prevScoreList.length / limitValue) - 1,
           //   )
           //   lastStartIndex =
           //     Math.floor(prevScoreList.length / limitValue) * limitValue
           // }
-          console.log('last25start', lastStartIndex)
+          // console.log('last25start', lastStartIndex)
           // const slicedPrevList = prevScoreList.slice(
           //   //if you scroll to the end, its consistently off by 1 so this accounts for that
           //   scoreList.length < limitValue
@@ -456,20 +457,20 @@ const Leaderboard = () => {
           //     : -scoreList.length,
           // )
           const slicedPrevList = prevScoreList.slice(lastStartIndex)
-          console.log('scoreList', scoreList)
-          console.log('slicedPrevList', slicedPrevList)
+          // console.log('scoreList', scoreList)
+          // console.log('slicedPrevList', slicedPrevList)
           y = 0 //number to add to previous scores to offset index in case new score came in
           for (let x = 0; x < scoreList.length; x++) {
-            // console.log(`scorelist[${x}]`,scoreList[x])
-            // console.log(`prevscoreList${x}`,prevScoreList[x])
+            // // console.log(`scorelist[${x}]`,scoreList[x])
+            // // console.log(`prevscoreList${x}`,prevScoreList[x])
             if (
               slicedPrevList[x - y] &&
               scoreList[x].boardId != slicedPrevList[x - y].boardId
             ) {
-              // console.log('boardId not equal here',x)
+              // // console.log('boardId not equal here',x)
               updatedIndexArr.push(0)
               if (!queryUpdate) {
-                console.log('query update false')
+                // console.log('query update false')
                 newValue = true
               }
               if (y > 1) {
@@ -481,7 +482,7 @@ const Leaderboard = () => {
               //   prevScoreList[x + y] &&
               //   scoreList[x].score != prevScoreList[x - y].score
               // ) {
-              //   // console.log('score not equal here',x)
+              //   // // console.log('score not equal here',x)
               //   updatedIndexArr.push(0)
               //   y++
             } else if (slicedPrevList[x - y] === undefined && y == 0) {
@@ -497,65 +498,65 @@ const Leaderboard = () => {
           let prevAnimatedValues = new Array(prevScoreList.length).fill(
             new Animated.Value(1),
           )
-          console.log('y', y)
-          console.log('is paging load true?', pagingLoad)
-          console.log('is queryUpdate true?', queryUpdate)
-          console.log('pageloadvar', pageLoadVar)
+          // console.log('y', y)
+          // console.log('is paging load true?', pagingLoad)
+          // console.log('is queryUpdate true?', queryUpdate)
+          // console.log('pageloadvar', pageLoadVar)
           if (pageLoadVar) {
-            console.log('new load section')
+            // console.log('new load section')
             prevLoadLength = prevScoreList.length //value for animation timing offset
             // let joinedArr = [...prevScoreList, ...scoreList]
             // joinedArr = joinedArr.sort((a, b) => a.score < b.score)
             // setScores([...prevScoreList, ...scoreList])
-            // console.log('joinedArr', joinedArr)
+            // // console.log('joinedArr', joinedArr)
 
             animatedValues = [...prevAnimatedValues, ...newAnimatedValues]
             setScores([...prevScoreList, ...scoreList])
             prevLowestScores = new Map([...prevLowestScores, ...lowestScoresMap])
             lastStartIndex =
               Math.floor(prevScoreList.length / limitValue) * limitValue
-            console.log('last25 after new load: ', lastStartIndex)
-            console.log('prevLowestScores after new load', prevLowestScores)
+            // console.log('last25 after new load: ', lastStartIndex)
+            // console.log('prevLowestScores after new load', prevLowestScores)
             setPagingLoad(false)
             pageLoadVar = false
           } else {
-            console.log('block section')
+            // console.log('block section')
             setBlock(true)
 
             //if theres more than 25 scores, set previous values
             if (prevScoreList.length >= limitValue) {
-              console.log('idk how this section is running but it is')
+              // console.log('idk how this section is running but it is')
               let prevAnimatedValues = new Array(lastStartIndex).fill(
                 new Animated.Value(1),
               )
-              console.log('prevanimatedlength', prevAnimatedValues.length)
-              console.log('newanimatedlength', newAnimatedValues.length)
+              // console.log('prevanimatedlength', prevAnimatedValues.length)
+              // console.log('newanimatedlength', newAnimatedValues.length)
               animatedValues = [...prevAnimatedValues, ...newAnimatedValues]
               let allPreviousValues = prevScoreList.slice(0, lastStartIndex)
-              console.log('lastStartIndex', lastStartIndex)
-              console.log('allprevvalues', allPreviousValues)
+              // console.log('lastStartIndex', lastStartIndex)
+              // console.log('allprevvalues', allPreviousValues)
               let allPreviousMap = new Map(
                 allPreviousValues.map((obj) => [obj.id, obj]),
               )
               setScores([...allPreviousValues, ...scoreList])
               prevLowestScores = new Map([...allPreviousMap, ...lowestScoresMap])
-              console.log('prevlowestscores', prevLowestScores)
+              // console.log('prevlowestscores', prevLowestScores)
             }
             // if theres less than 25 scores, no previous values exist
             else {
-              console.log('this section running')
+              // console.log('this section running')
               animatedValues = [...newAnimatedValues]
               prevLowestScores = new Map([...lowestScoresMap])
               setScores([...scoreList])
             }
           }
         } else {
-          console.log('else block running')
+          // console.log('else block running')
           scoreList.forEach((val) => {
             newAnimatedValues.push(new Animated.Value(0))
           })
           animatedValues = [...newAnimatedValues]
-          console.log(scoreList)
+          // console.log(scoreList)
           setScores(scoreList)
           prevLowestScores = new Map([...lowestScoresMap])
         }
@@ -567,11 +568,22 @@ const Leaderboard = () => {
       setQueryUpdate(false)
       return unsubscribe
     } else {
-      let q = query(
-        collection(db, 'Users'),
-        orderBy('totalGames', 'desc'),
-        limit(50),
-      )
+      let queryOption
+      switch (queryOptionState) {
+        case 'Win Rate':
+          queryOption = 'winRate'
+          break
+        case 'Wins-Losses':
+          queryOption = 'totalGames'
+          break
+        case 'Current Winstreak':
+          queryOption = 'currentWinStreak'
+          break
+        case 'Best Winstreak':
+          queryOption = 'bestWinStreak'
+          break
+      }
+      let q = query(collection(db, 'Users'), orderBy(queryOption, 'desc'), limit(50))
 
       // if (lastScore === null) {
       //   q = query(collection(db, 'Users'))
@@ -594,12 +606,12 @@ const Leaderboard = () => {
             where('username', '==', userName),
           )
           let docSnap = await getDocs(userQuery)
-          console.log(docSnap.docs[0].data())
+          // console.log(docSnap.docs[0].data())
           userStats = docSnap.docs[0]
         } catch (error) {
           return error
         }
-        console.log('userstats', userStats)
+        // console.log('userstats', userStats)
         const queryArr = []
         let userInfo = []
         querySnapshot.forEach((doc) => {
@@ -697,13 +709,13 @@ const Leaderboard = () => {
             userInfo[0].rank = 'n/a'
           }
         }
-        console.log(userInfo)
+        // console.log(userInfo)
         fullArr.unshift(userInfo[0])
-        console.log('fullArr', fullArr)
+        // console.log('fullArr', fullArr)
         newAnimatedValues = []
         let comparisonId = null
         if (prevLowestScores != null) {
-          console.log('prevscores', prevLowestScores)
+          // console.log('prevscores', prevLowestScores)
           y = 0
           for (let i = 0; i < fullArr.length; i++) {
             if (comparisonId == prevLowestScores[i - y].id) {
@@ -724,7 +736,7 @@ const Leaderboard = () => {
               updatedIndexArr.push(1)
             }
           }
-          console.log('y', y)
+          // console.log('y', y)
           updatedIndexArr.forEach((val) => {
             newAnimatedValues.push(new Animated.Value(val))
           })
@@ -745,278 +757,16 @@ const Leaderboard = () => {
     }
   }, [update, queryUpdate])
 
-  // const loadMore = async () => {
-  //   console.log('loading more')
-  //   newValue = false
-  //   if (scores.length === 0) {
-  //     return
-  //   }
-  //   setPagingLoad(true)
-  //   console.log(scores)
-  //   lastScore = scores[scores.length - 1]
-  //   if (gamemode != 'PVP') {
-  //     let q = query(
-  //       collection(db, 'Scores'),
-  //       where('gamemode', '==', gamemode),
-  //       where('size', '==', size),
-  //       orderBy('score', 'asc'),
-  //       orderBy('createdAt', 'asc'),
-  //       startAfter(lastScore.score, lastScore.createdAt),
-  //       limit(limitValue),
-  //     )
-  //     const querySnapshot = await getDocs(q)
-  //     console.log('snap', querySnapshot)
-
-  //     if (!querySnapshot.empty) {
-  //       console.log('not empty')
-  //       lowestScoresMap = new Map()
-  //       updatedIndexArr = []
-  //       querySnapshot.forEach((doc) => {
-  //         console.log('doc', doc)
-  //         const boardId = doc.data().boardId
-  //         const score = doc.data().score
-
-  //         // If boardId is not in the map or the current score is lower than the stored one, update the map
-  //         if (
-  //           !lowestScoresMap.has(boardId) ||
-  //           score < lowestScoresMap.get(boardId).score
-  //         ) {
-  //           if (gamemode == 'Progressive') {
-  //             lowestScoresMap.set(boardId, {
-  //               id: doc.id,
-  //               ...doc.data(),
-  //               score:
-  //                 doc.data().score > 0 ? `+${doc.data().score}` : doc.data().score,
-  //             })
-  //           } else {
-  //             lowestScoresMap.set(boardId, {
-  //               id: doc.id,
-  //               ...doc.data(),
-  //             })
-  //           }
-  //         }
-  //       })
-  //       const scoreList = Array.from(lowestScoresMap.values())
-  //       newAnimatedValues = []
-  //       let prevScoreList
-  //       if (prevLowestScores != null) {
-  //         prevScoreList = Array.from(prevLowestScores.values())
-  //         console.log(scoreList)
-  //         console.log(prevScoreList)
-  //         let y = 0 //number to add to previous scores to offset index in case new score came in
-  //         for (let x = 0; x < scoreList.length; x++) {
-  //           // console.log(`scorelist[${x}]`,scoreList[x])
-  //           // console.log(`prevscoreList${x}`,prevScoreList[x])
-  //           if (
-  //             prevScoreList[x - y] &&
-  //             scoreList[x].boardId != prevScoreList[x - y].boardId
-  //           ) {
-  //             // console.log('boardId not equal here',x)
-  //             updatedIndexArr.push(0)
-  //             y++
-  //           } else {
-  //             updatedIndexArr.push(1)
-  //           }
-  //         }
-  //         updatedIndexArr.forEach((val) => {
-  //           newAnimatedValues.push(new Animated.Value(val))
-  //         })
-  //       } else {
-  //         scoreList.forEach((val) => {
-  //           newAnimatedValues.push(new Animated.Value(0))
-  //         })
-  //       }
-  //       let prevAnimatedValues = new Array(prevScoreList.length).fill(
-  //         new Animated.Value(1),
-  //       )
-  //       let conjoinedAnimatedArr = [...prevAnimatedValues, ...newAnimatedValues]
-  //       console.log('anim length', conjoinedAnimatedArr.length)
-  //       let conjoinedScoreArr = [...prevScoreList, ...scoreList]
-  //       console.log('score length', conjoinedScoreArr.length)
-  //       animatedValues = []
-  //       animatedValues = [...prevAnimatedValues, ...newAnimatedValues]
-  //       prevLoadLength = prevScoreList.length
-  //       console.log('prevlengthasdf', prevLoadLength)
-  //       console.log(scoreList)
-  //       setScores([...prevScoreList, ...scoreList])
-  //       // setAnimatedValues(newAnimatedValues)
-  //       prevLowestScores = new Map([...prevLowestScores, ...lowestScoresMap])
-  //       console.log('prevLowestScores after', prevLowestScores)
-  //       // console.log(scoreList)
-  //       updatedIndexArr = []
-  //     }
-  //     snapshotQuery = query(
-  //       collection(db, 'Scores'),
-  //       where('gamemode', '==', gamemode),
-  //       where('size', '==', size),
-  //       orderBy('score', 'asc'),
-  //       orderBy('createdAt', 'asc'),
-  //       limitValue + prevLoadLength < 251
-  //         ? limit(limitValue + prevLoadLength)
-  //         : limit(limitValue),
-  //     )
-  //     console.log(snapshotQuery)
-  //     setPagingLoad(false)
-  //     setQueryUpdate(true)
-  //     setUpdate(false)
-  //     snapshotQuery = query(
-  //       collection(db, 'Scores'),
-  //       where('gamemode', '==', gamemode),
-  //       where('size', '==', size),
-  //       orderBy('score', 'asc'),
-  //       orderBy('createdAt', 'asc'),
-  //       startAfter(lastScore.score, lastScore.createdAt),
-  //       limit(limitValue),
-  //     )
-
-  //     // } else {
-  //     //   let q = query(
-  //     //     collection(db, 'Users'),
-  //     //     orderBy('totalGames', 'desc'),
-  //     //     orderBy('createdAt', 'asc'),
-  //     //     startAfter(lastScore.totalGames, lastScore.createdAt),
-  //     //     limit(limitValue),
-  //     //   )
-
-  //     //   const querySnapshot = await getDocs(q)
-  //     //   if (!querySnapshot.empty) {
-  //     //     const queryArr = []
-  //     //     let userInfo = []
-  //     //     querySnapshot.forEach((doc) => {
-  //     //       if (queryOptionState == 'Win Rate') {
-  //     //         queryArr.push({
-  //     //           id: doc.id,
-  //     //           ...doc.data(),
-  //     //           queryData:
-  //     //             Math.round(
-  //     //               (doc.data().wins / (doc.data().wins + doc.data().losses) +
-  //     //                 Number.EPSILON) *
-  //     //                 100,
-  //     //             ) + '%',
-  //     //         })
-  //     //         if (doc.data().username == userName) {
-  //     //           userInfo.push({
-  //     //             id: doc.id,
-  //     //             ...doc.data(),
-  //     //             queryData:
-  //     //               Math.round(
-  //     //                 (doc.data().wins / (doc.data().wins + doc.data().losses) +
-  //     //                   Number.EPSILON) *
-  //     //                   100,
-  //     //               ) + '%',
-  //     //           })
-  //     //         }
-  //     //       } else if (queryOptionState == 'Wins-Losses') {
-  //     //         queryArr.push({
-  //     //           id: doc.id,
-  //     //           ...doc.data(),
-  //     //           queryData: doc.data().wins + ' - ' + doc.data().losses,
-  //     //         })
-  //     //         if (doc.data().username == userName) {
-  //     //           userInfo.push({
-  //     //             id: doc.id,
-  //     //             ...doc.data(),
-  //     //             queryData: doc.data().wins + ' - ' + doc.data().losses,
-  //     //           })
-  //     //         }
-  //     //       } else if (queryOptionState == 'Current Winstreak') {
-  //     //         queryArr.push({
-  //     //           id: doc.id,
-  //     //           ...doc.data(),
-  //     //           queryData: doc.data().currentWinStreak,
-  //     //         })
-  //     //         if (doc.data().username == userName) {
-  //     //           userInfo.push({
-  //     //             id: doc.id,
-  //     //             ...doc.data(),
-  //     //             queryData: doc.data().currentWinStreak,
-  //     //           })
-  //     //         }
-  //     //       } else if (queryOptionState == 'Best Winstreak') {
-  //     //         queryArr.push({
-  //     //           id: doc.id,
-  //     //           ...doc.data(),
-  //     //           queryData: doc.data().bestWinStreak,
-  //     //         })
-  //     //         if (doc.data().username == userName) {
-  //     //           userInfo.push({
-  //     //             id: doc.id,
-  //     //             ...doc.data(),
-  //     //             queryData: doc.data().bestWinStreak,
-  //     //           })
-  //     //         }
-  //     //       }
-  //     //     })
-  //     //     let topScores = queryArr.filter((a) => a.wins + a.losses > 9)
-  //     //     let bottomScores = queryArr.filter((a) => a.wins + a.losses <= 9)
-  //     //     bottomScores.sort((a, b) => a.wins + a.losses > b.wins + b.losses)
-  //     //     topScores.sort((a, b) => parseInt(a.queryData) - parseInt(b.queryData))
-  //     //     topScores.reverse()
-  //     //     bottomScores.reverse()
-  //     //     let fullArr = topScores.concat(bottomScores)
-  //     //     fullArr.forEach((val, index) => {
-  //     //       if (val.wins + val.losses > 9) {
-  //     //         val.rank = index + 1
-  //     //       } else {
-  //     //         val.rank = 'n/a'
-  //     //       }
-
-  //     //       if (val.username == userName) {
-  //     //         if (userInfo[0].wins + userInfo[0].losses > 9) {
-  //     //           userInfo[0].rank = index + 1
-  //     //         } else {
-  //     //           userInfo[0].rank = 'n/a'
-  //     //         }
-  //     //       }
-  //     //     })
-  //     //     console.log(userInfo)
-  //     //     fullArr.unshift(userInfo[0])
-  //     //     console.log(fullArr)
-  //     //     newAnimatedValues = []
-  //     //     if (prevLowestScores != null) {
-  //     //       console.log('prevscores', prevLowestScores)
-  //     //       let y = 0
-  //     //       for (let i = 0; i < fullArr.length; i++) {
-  //     //         if (
-  //     //           prevLowestScores[i - y] &&
-  //     //           fullArr[i].id != prevLowestScores[i - y].id
-  //     //         ) {
-  //     //           updatedIndexArr.push(0)
-  //     //           y++
-  //     //         } else {
-  //     //           updatedIndexArr.push(1)
-  //     //         }
-  //     //       }
-  //     //       updatedIndexArr.forEach((val) => {
-  //     //         newAnimatedValues.push(new Animated.Value(val))
-  //     //       })
-  //     //     } else {
-  //     //       fullArr.forEach((val) => {
-  //     //         newAnimatedValues.push(new Animated.Value(0))
-  //     //       })
-  //     //     }
-  //     //     animatedValues = []
-  //     //     animatedValues = [...newAnimatedValues]
-  //     //     // fullArr.reverse()
-  //     //     setScores([...prevLowestScores, ...fullArr])
-  //     //     prevLowestScores = [...prevLowestScores, ...fullArr]
-  //     //     updatedIndexArr = []
-
-  //     //     setUpdate(false)
-  //     //   }
-  //   }
-  // }
-
   const loadMore = () => {
-    console.log('start load more')
+    // console.log('start load more')
     if (scores.length === 0 || scores.length < limitValue || block || endReached) {
       setBlock(false)
       return
     }
-    console.log('load more running')
+    // console.log('load more running')
     newValue = false
 
-    console.log(scores)
+    // console.log(scores)
     lastScore = scores[scores.length - 1]
     snapshotQuery = query(
       collection(db, 'Scores'),
