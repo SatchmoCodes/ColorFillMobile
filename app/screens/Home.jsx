@@ -19,9 +19,7 @@ const Home = () => {
   const [colorTheme, setColorTheme] = useState(colors)
 
   useEffect(() => {
-    FIREBASE_AUTH.onAuthStateChanged((user) => {
-      console.log(user)
-    })
+    FIREBASE_AUTH.onAuthStateChanged((user) => {})
   }, [])
 
   function handleLogOut() {

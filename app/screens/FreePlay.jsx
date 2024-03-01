@@ -37,8 +37,6 @@ import { useColorSchemeContext } from '../../App'
 import { squareColors } from './colors.js'
 // import { AdEventType, InterstitialAd, TestIds } from 'react-native-google-mobile-ads'
 
-console.log(squareColors)
-
 let red = 'hsl(0, 100%, 40%)'
 let orange = 'hsl(22, 100%, 50%)'
 let yellow = 'hsl(60, 100%, 50%)'
@@ -63,10 +61,10 @@ let sizeName = 'Medium'
 let screenWidth = Math.floor(Dimensions.get('window').width * 0.98)
 let screenHeight = Math.floor(Dimensions.get('window').height)
 let gridItemSize = Math.floor(screenWidth / boardSize)
-console.log(gridItemSize)
+// console.log(gridItemSize)
 if (screenWidth >= 500) {
   screenWidth = Math.floor(Dimensions.get('window').height * 0.6)
-  console.log(screenWidth)
+  // console.log(screenWidth)
   gridItemSize = Math.floor(screenWidth / boardSize)
 }
 
@@ -170,7 +168,7 @@ const FreePlay = () => {
       gridItemSize = Math.floor(screenWidth / boardSize)
       if (screenWidth >= 500) {
         screenWidth = Math.floor(Dimensions.get('window').height * 0.55)
-        console.log(screenWidth)
+        // console.log(screenWidth)
         gridItemSize = Math.floor(screenWidth / boardSize)
       }
       setViewportWidth(screenWidth)
@@ -220,7 +218,7 @@ const FreePlay = () => {
       // The user object will be null if not logged in or a user object if logged in
       if (user) {
         setUid(user.uid)
-        console.log('uid ', user.uid)
+        // console.log('uid ', user.uid)
       }
     })
 
@@ -230,11 +228,11 @@ const FreePlay = () => {
 
   useEffect(() => {
     const getUserData = async () => {
-      console.log('uid here', uid)
+      // console.log('uid here', uid)
       const q = query(collection(db, 'Users'), where('uid', '==', uid))
       const querySnapshot = await getDocs(q)
       if (querySnapshot.empty) {
-        console.log('tests')
+        // console.log('tests')
       }
       querySnapshot.forEach((doc) => {
         setUserName(doc.data().username)
@@ -278,10 +276,10 @@ const FreePlay = () => {
       const docRef = doc(db, 'Scores', docId)
       const docSnap = await getDoc(docRef)
       if (docSnap.exists()) {
-        console.log(docSnap.data().size)
-        console.log(size.sizeName)
+        // console.log(docSnap.data().size)
+        // console.log(size.sizeName)
         if (docSnap.data().size != size.sizeName) {
-          console.log('docId found but size different')
+          // console.log('docId found but size different')
           generateNewBoard()
           return
         }
@@ -289,7 +287,7 @@ const FreePlay = () => {
         setScoreToBeat(docSnap.data().score)
         // setPreviousScore(docSnap.data().score)
         originalScore = docSnap.data().score
-        console.log('loading board from leaderboard')
+        // console.log('loading board from leaderboard')
         randomArr = docSnap.data().boardData.replace(/,/g, '')
         boardSize = Math.sqrt(randomArr.length)
         originalSize = boardSize
@@ -298,18 +296,18 @@ const FreePlay = () => {
         squares = generateBoard(randomArr).flat()
         tempSquareArr = JSON.parse(JSON.stringify(squares))
         squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
-        console.log('running here')
+        // console.log('running here')
         resetColors(true)
         handleReset()
         return
       }
     }
     if (originalSize != size.boardSize || size == undefined) {
-      console.log('original size not equal')
+      // console.log('original size not equal')
       generateNewBoard()
       return
     }
-    console.log('resetting colors')
+    // console.log('resetting colors')
     resetColors()
   }
 
@@ -345,7 +343,7 @@ const FreePlay = () => {
       initialLoad()
       setChange(true)
       hasRun = true
-      console.log('testing to seesasdfasdf')
+      // console.log('testing to seesasdfasdf')
     }
   }, [])
 
@@ -370,7 +368,7 @@ const FreePlay = () => {
         // gridItemSize = Math.floor(screenWidth / boardSize);
         return { boardSize, sizeName }
       } else {
-        console.log('no size yet')
+        // console.log('no size yet')
         boardSize = 12
         sizeName = 'Medium'
         return { boardSize, sizeName }
@@ -393,7 +391,7 @@ const FreePlay = () => {
         // setSelectedColor(tempSquareArr[0].color)
       }
     } catch (e) {
-      console.log(e)
+      // console.log(e)
     }
   }
 
@@ -442,7 +440,7 @@ const FreePlay = () => {
       let currentHighScore = null
       if (!querySnapshot.empty) {
         currentHighScore = querySnapshot.docs[0].data().score
-        console.log('currentHighScore', currentHighScore)
+        // console.log('currentHighScore', currentHighScore)
         querySnapshot.forEach((doc) => {
           if (countNumber < doc.data().score) {
             let docRef = doc.ref
@@ -636,7 +634,7 @@ const FreePlay = () => {
         if (boardReset) {
           sq.color = tempSquareArr[0].color
         } else {
-          console.log('selectedColor', selectedColor)
+          // console.log('selectedColor', selectedColor)
           sq.color = colors[selectedColor]
         }
       }
@@ -692,13 +690,13 @@ const FreePlay = () => {
   // async function handleReset() {
   //     randomArr = []
   //     squareAnimArr = []
-  //     console.log('before board size')
-  //     console.log(boardSize)
+  //     // console.log('before board size')
+  //     // console.log(boardSize)
   //     let x = await getSize()
   //     await getColor()
-  //     console.log(x)
-  //     console.log('reset board size')
-  //     console.log(boardSize)
+  //     // console.log(x)
+  //     // console.log('reset board size')
+  //     // console.log(boardSize)
   //     for (let i = 0; i < (boardSize * boardSize); i++) {
   //         randomArr.push(Math.floor(Math.random() * 5))
   //     }
@@ -710,7 +708,7 @@ const FreePlay = () => {
   //       sq.color = colors[sq.colorIndex]
   //     })
 
-  //     console.log(squareAnimArr.length)
+  //     // console.log(squareAnimArr.length)
   //     squareCounterArr.forEach((counter, index) => {
   //         counter.count = 0
   //         counter.color = colors[index]
@@ -769,11 +767,11 @@ const FreePlay = () => {
       useNativeDriver: true,
     })
     Animated.sequence([growAnimation, reverseAnimation]).start()
-    console.log('complete', complete)
-    console.log('countNumber', countNumber)
+    // console.log('complete', complete)
+    // console.log('countNumber', countNumber)
     if (countNumber < scoreToBeat || scoreToBeat == null) {
       originalScore = scoreToBeat
-      console.log('originalscore', originalScore)
+      // console.log('originalscore', originalScore)
       complete && setScoreToBeat(countNumber)
     }
     countNumber = 0

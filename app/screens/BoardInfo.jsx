@@ -59,7 +59,6 @@ const BoardInfo = ({ navigation }) => {
       let gamemode
       if (!querySnapshot.empty) {
         if (querySnapshot.docs[0].data().gamemode == 'Progressive') {
-          console.log('yeah')
           gamemode = 'Progressive'
         } else {
           gamemode = 'Free Play'
@@ -71,7 +70,6 @@ const BoardInfo = ({ navigation }) => {
         setHighScore(highScoreData)
         querySnapshot.forEach((doc) => {
           if (gamemode == 'Progressive') {
-            console.log('true')
             scoreListArr.push({
               ...doc.data(),
               score:
