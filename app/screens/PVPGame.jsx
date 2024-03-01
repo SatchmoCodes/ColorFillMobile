@@ -54,10 +54,10 @@ let sizeName = 'Medium'
 let screenWidth = Math.floor(Dimensions.get('window').width * 0.98)
 let screenHeight = Math.floor(Dimensions.get('window').height)
 let gridItemSize = Math.floor(screenWidth / boardSize)
-// // console.log(gridItemSize)
+// console.log(gridItemSize)
 if (screenWidth >= 500) {
   screenWidth = Math.floor(Dimensions.get('window').height * 0.55)
-  // // console.log(screenWidth)
+  // console.log(screenWidth)
   gridItemSize = Math.floor(screenWidth / boardSize)
 }
 
@@ -181,7 +181,7 @@ const PVPGame = () => {
       gridItemSize = Math.floor(screenWidth / boardSize)
       if (screenWidth >= 500) {
         screenWidth = Math.floor(Dimensions.get('window').height * 0.55)
-        console.log(screenWidth)
+        // console.log(screenWidth)
         gridItemSize = Math.floor(screenWidth / boardSize)
       }
       setViewportWidth(screenWidth)
@@ -281,10 +281,10 @@ const PVPGame = () => {
       }
       if (timer == -5) {
         if (turn === 'Owner' && userNameRef.current === opponentName) {
-          console.log('owner left by closing app')
+          // console.log('owner left by closing app')
           handleLeave('Owner')
         } else if (turn === 'Opponent' && userNameRef.current === ownerName) {
-          console.log('opponent left by closing app')
+          // console.log('opponent left by closing app')
           handleLeave('Opponent')
         }
       }
@@ -442,7 +442,7 @@ const PVPGame = () => {
       setHasRun(true)
       docId = route.params?.id
       boardSize = route.params?.boardSize
-      console.log(boardSize)
+      // console.log(boardSize)
       squareAnimArr = new Array(boardSize * boardSize).fill(0)
       // setSquareAnim(squareAnimArr)
     }
@@ -474,18 +474,18 @@ const PVPGame = () => {
             handleComplete()
             return
           }
-          // // console.log(doc.data())
+          // console.log(doc.data())
           let boardState = []
           boardState = JSON.parse(doc.data().boardState).flat()
-          console.log('boardState', boardState)
-          // // console.log('board 0', boardState[0].colorIndex)
-          // // console.log('board end', boardState[boardState.length - 1].colorIndex)
-          // // console.log(boardState)
+          // console.log('boardState', boardState)
+          // console.log('board 0', boardState[0].colorIndex)
+          // console.log('board end', boardState[boardState.length - 1].colorIndex)
+          // console.log(boardState)
           tempSquareArr = []
           tempSquareArr = [...boardState]
           if (doc.data().turn == 'Owner') {
             setTurn('Owner')
-            console.log(doc.data().ownerSelectedColor)
+            // console.log(doc.data().ownerSelectedColor)
             setOpponentSelectedColor(colors[doc.data().opponentSelectedColor])
           } else {
             setTurn('Opponent')
@@ -608,7 +608,7 @@ const PVPGame = () => {
             noCaptureUpdate()
           }
         } else {
-          // // console.log('squares can still be captured')
+          // console.log('squares can still be captured')
         }
       } else {
         fakeTurn = 'Owner'
@@ -624,7 +624,7 @@ const PVPGame = () => {
             noCaptureUpdate()
           }
         } else {
-          // // console.log('squares can still be captured')
+          // console.log('squares can still be captured')
         }
       }
       tempSquareArr = [...tempArrCopy]
@@ -647,7 +647,7 @@ const PVPGame = () => {
       ownerCaptured = 0
     }
     const newTempArr = JSON.parse(JSON.stringify(tempSquareArr))
-    // // console.log(newTempArr)
+    // console.log(newTempArr)
     const newData = {
       boardState: JSON.stringify(newTempArr),
       // squareAnimArr: squareAnim,
@@ -661,14 +661,14 @@ const PVPGame = () => {
         opponentScore: increment(opponentCaptured),
       })
     } catch (error) {
-      // // console.log(error)
+      // console.log(error)
     }
   }
 
   //check to see if user returned from options page
   useEffect(() => {
     if (isFocused && userName != null) {
-      console.log('isFocused username hsere', userName)
+      // console.log('isFocused username hsere', userName)
       initialLoad()
     }
   }, [isFocused, userName])
@@ -691,7 +691,7 @@ const PVPGame = () => {
   //         initialLoad()
   //         setChange(true)
   //         hasRun = true
-  //         // // console.log('testing to seesasdfasdf')
+  //         // console.log('testing to seesasdfasdf')
   //     }
   // }, [])
 
@@ -706,10 +706,10 @@ const PVPGame = () => {
         for (let y = 0; y < 7; y++) {
           colors.push(colorArr[x][y])
         }
-        console.log('ownerselectedindex', ownerSelectedIndex)
-        console.log('opponentselectedindex', opponentSelectedIndex)
+        // console.log('ownerselectedindex', ownerSelectedIndex)
+        // console.log('opponentselectedindex', opponentSelectedIndex)
         setSelectedColorOption(colors)
-        // // console.log('colros',colors)
+        // console.log('colros',colors)
         if (ownerColorIndex != null) {
           setOwnerColor(colors[ownerColorIndex])
           setOpponentColor(colors[opponentColorIndex])
@@ -718,7 +718,7 @@ const PVPGame = () => {
         }
       }
     } catch (e) {
-      // // console.log(e)
+      // console.log(e)
     }
   }
 
@@ -747,10 +747,10 @@ const PVPGame = () => {
       })
       setSquareAnim(squareAnimArr)
       if (turn == 'Owner') {
-        console.log('local color set for owner', colors.indexOf(color))
+        // console.log('local color set for owner', colors.indexOf(color))
         setOwnerSelectedColor(colors.indexOf(color))
       } else {
-        console.log('local color set for opp', colors.indexOf(color))
+        // console.log('local color set for opp', colors.indexOf(color))
         setOpponentSelectedColor(colors.indexOf(color))
       }
       if (fogGame === true) {
@@ -767,7 +767,7 @@ const PVPGame = () => {
       }
       updateBoard(color)
     } else {
-      // // console.log('fake turn at initial:',fakeTurn)
+      // console.log('fake turn at initial:',fakeTurn)
       tempSquareArr.forEach((sq, index) => {
         if (sq.captured && sq.owner == fakeTurn) {
           captureCheck(color, index)
@@ -825,7 +825,7 @@ const PVPGame = () => {
       setTurn('Owner')
     }
 
-    console.log('newtemparr', newTempArr)
+    // console.log('newtemparr', newTempArr)
     try {
       const update = await updateDoc(docRef, {
         ...newData,
@@ -833,7 +833,7 @@ const PVPGame = () => {
         opponentScore: increment(opponentCaptured),
       })
     } catch (error) {
-      // // console.log(error)
+      // console.log(error)
     }
     turnCaptured = 0
     animationIndex = []
@@ -864,9 +864,25 @@ const PVPGame = () => {
       opponentRef = doc(db, 'Users', opponentId)
     }
     let newWinStreak
+    let newOwnerWinRate
+    let newOpponentWinRate
     if (userNameRef.current == ownerNameVar) {
       if (winner == 'Owner') {
         // console.log('owner win')
+        let currentOwnerWins = ownerSnapshot.docs[0].data().wins + 1
+        let currentOwnerLosses = ownerSnapshot.docs[0].data().losses
+        let currentOpponentWins = opponentSnapshot.docs[0].data().wins
+        let currentOpponentLosses = opponentSnapshot.docs[0].data().losses + 1
+        newOwnerWinRate = Math.floor(
+          (currentOwnerWins / (currentOwnerWins + currentOwnerLosses) +
+            Number.EPSILON) *
+            100,
+        )
+        newOpponentWinRate = Math.floor(
+          (currentOpponentWins / (currentOpponentWins + currentOpponentLosses) +
+            Number.EPSILON) *
+            100,
+        )
         if (
           ownerSnapshot.docs[0].data().currentWinStreak + 1 >
           ownerSnapshot.docs[0].data().bestWinStreak
@@ -880,6 +896,7 @@ const PVPGame = () => {
             wins: increment(1),
             currentWinStreak: increment(1),
             bestWinStreak: newWinStreak,
+            winRate: newOwnerWinRate,
             totalGames: increment(1),
           })
         } catch (error) {
@@ -889,6 +906,7 @@ const PVPGame = () => {
           await updateDoc(opponentRef, {
             losses: increment(1),
             currentWinStreak: 0,
+            winRate: newOpponentWinRate,
             totalGames: increment(1),
           })
         } catch (error) {
@@ -898,6 +916,20 @@ const PVPGame = () => {
     } else if (userNameRef.current == opponentNameVar) {
       if (winner == 'Opponent') {
         // console.log('opponent win')
+        let currentOwnerWins = ownerSnapshot.docs[0].data().wins
+        let currentOwnerLosses = ownerSnapshot.docs[0].data().losses + 1
+        let currentOpponentWins = opponentSnapshot.docs[0].data().wins + 1
+        let currentOpponentLosses = opponentSnapshot.docs[0].data().losses
+        newOwnerWinRate = Math.floor(
+          (currentOwnerWins / (currentOwnerWins + currentOwnerLosses) +
+            Number.EPSILON) *
+            100,
+        )
+        newOpponentWinRate = Math.floor(
+          (currentOpponentWins / (currentOpponentWins + currentOpponentLosses) +
+            Number.EPSILON) *
+            100,
+        )
         if (
           opponentSnapshot.docs[0].data().currentWinStreak + 1 >
           opponentSnapshot.docs[0].data().bestWinStreak
@@ -911,6 +943,7 @@ const PVPGame = () => {
             wins: increment(1),
             currentWinStreak: increment(1),
             bestWinStreak: newWinStreak,
+            winRate: newOpponentWinRate,
             totalGames: increment(1),
           })
         } catch (error) {
@@ -920,6 +953,7 @@ const PVPGame = () => {
           await updateDoc(ownerRef, {
             losses: increment(1),
             currentWinStreak: 0,
+            winRate: newOwnerWinRate,
             totalGames: increment(1),
           })
         } catch (error) {
@@ -932,7 +966,7 @@ const PVPGame = () => {
         gameState: 'Finished',
       })
     } catch (e) {
-      console.log(e)
+      // console.log(e)
     }
   }
 
@@ -945,9 +979,9 @@ const PVPGame = () => {
         tempSquareArr[index].rowIndex == tempSquareArr[index + 1].rowIndex
       ) {
         if (radar) {
-          // // console.log('fake captured right')
-          // // console.log(tempSquareArr[index])
-          // // console.log(tempSquareArr[index + 1])
+          // console.log('fake captured right')
+          // console.log(tempSquareArr[index])
+          // console.log(tempSquareArr[index + 1])
           fakeCaptured++
           return
         }
@@ -973,9 +1007,9 @@ const PVPGame = () => {
         tempSquareArr[index].rowIndex == tempSquareArr[index - 1].rowIndex
       ) {
         if (radar) {
-          // // console.log('fake captured left')
-          // // console.log(tempSquareArr[index])
-          // // console.log(tempSquareArr[index - 1])
+          // console.log('fake captured left')
+          // console.log(tempSquareArr[index])
+          // console.log(tempSquareArr[index - 1])
           fakeCaptured++
           return
         }
@@ -997,9 +1031,9 @@ const PVPGame = () => {
     ) {
       if (color == tempSquareArr[index + boardSize].color) {
         if (radar) {
-          // // console.log('fake captured down')
-          // // console.log(tempSquareArr[index])
-          // // console.log(tempSquareArr[index + boardSize])
+          // console.log('fake captured down')
+          // console.log(tempSquareArr[index])
+          // console.log(tempSquareArr[index + boardSize])
           fakeCaptured++
           return
         }
@@ -1021,9 +1055,9 @@ const PVPGame = () => {
     ) {
       if (color == tempSquareArr[index - boardSize].color) {
         if (radar) {
-          // // console.log('fake captured up')
-          // // console.log(tempSquareArr[index])
-          // // console.log(tempSquareArr[index - boardSize])
+          // console.log('fake captured up')
+          // console.log(tempSquareArr[index])
+          // console.log(tempSquareArr[index - boardSize])
           fakeCaptured++
           return
         }
@@ -1041,8 +1075,8 @@ const PVPGame = () => {
   }
 
   function fogCheck(color, index, player) {
-    console.log('color', color)
-    console.log('index', index)
+    // console.log('color', color)
+    // console.log('index', index)
     if (fakeSquareArr[index + 1] && fakeSquareArr[index + 1].captured == false) {
       if (
         color == fakeSquareArr[index + 1].color &&
@@ -1835,7 +1869,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    // justifyContent: 'center',
     height: '100%',
   },
   top: {
