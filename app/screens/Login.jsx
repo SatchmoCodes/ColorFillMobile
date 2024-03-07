@@ -12,8 +12,8 @@ import {
   Platform,
 } from 'react-native'
 // import firebase from '@react-native-firebase/app'
-import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig'
-import { signInWithEmailAndPassword } from 'firebase/auth'
+import { FIREBASE_AUTH, FIRESTORE_DB, FIREBASE_APP } from '../../firebaseConfig'
+import { signInWithEmailAndPassword, signInAnonymously } from 'firebase/auth'
 import { query, collection, doc, addDoc, where, getDocs } from 'firebase/firestore'
 // import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
 
@@ -77,6 +77,17 @@ const LoginScreen = ({}) => {
     }
   }
 
+  const handleGuestLogin = async () => {
+    try {
+      const x = await signInAnonymously(auth)
+      console.log(x)
+      console.log('balls')
+    } catch (error) {
+      console.log('gay error')
+      console.log(error)
+    }
+  }
+
   return (
     <ImageBackground
       source={require('./../../assets/ColorFill-Splash.png')}
@@ -98,12 +109,14 @@ const LoginScreen = ({}) => {
           <View style={styles.inputContainer}>
             <TextInput
               placeholder="Email or Username"
+              placeholderTextColor="black"
               value={emailOrUsername}
               onChangeText={(text) => setEmailOrUsername(text)}
               style={styles.input}
             />
             <TextInput
               placeholder="Password"
+              placeholderTextColor="black"
               value={password}
               onChangeText={(text) => setPassword(text)}
               style={styles.input}
@@ -128,6 +141,9 @@ const LoginScreen = ({}) => {
               style={[styles.button, styles.buttonOutline]}
             >
               <Text style={styles.buttonOutlineText}>Register Account</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleGuestLogin} style={styles.button}>
+              <Text style={styles.buttonText}>Sign in Anonymously</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -186,11 +202,12 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 15,
     borderRadius: 10,
+    marginBottom: 5,
+    marginTop: 5,
     alignItems: 'center',
   },
   buttonOutline: {
     backgroundColor: 'white',
-    marginTop: 5,
     borderColor: '#0782F9',
     borderWidth: 2,
   },
