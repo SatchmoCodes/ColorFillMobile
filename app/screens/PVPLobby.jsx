@@ -179,6 +179,10 @@ const PVPLobby = () => {
         <Text style={{ fontSize: 20, marginBottom: 10, color: colors.text }}>
           Board Type: {gameInfo != null && gameInfo.boardType}
         </Text>
+        {/* <Text style={{ fontSize: 20, marginBottom: 10, color: colors.text }}>
+          Square Colors:{' '}
+          {gameInfo != null && gameInfo.dynamic === true ? 'Dynamic' : 'Static'}
+        </Text> */}
         <Text style={{ fontSize: 20, marginBottom: 10, color: colors.text }}>
           Fog of War: {gameInfo != null && gameInfo.fog === true ? 'On' : 'Off'}
         </Text>
