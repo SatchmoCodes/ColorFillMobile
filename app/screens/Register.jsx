@@ -79,6 +79,7 @@ const Register = () => {
         wins: 0,
         losses: 0,
         totalGames: 0,
+        winRate: 0,
         currentWinStreak: 0,
         bestWinStreak: 0,
         createdAt: serverTimestamp(),
@@ -110,12 +111,14 @@ const Register = () => {
           <View style={styles.inputContainer}>
             <TextInput
               placeholder="Email"
+              placeholderTextColor="black"
               value={email}
               onChangeText={(text) => setEmail(text)}
               style={styles.input}
             />
             <TextInput
               placeholder="Username"
+              placeholderTextColor="black"
               value={displayName}
               onChangeText={(text) => setDisplayName(text)}
               style={styles.input}
@@ -123,6 +126,7 @@ const Register = () => {
             />
             <TextInput
               placeholder="Password"
+              placeholderTextColor="black"
               value={password}
               onChangeText={(text) => setPassword(text)}
               style={styles.input}
