@@ -549,7 +549,7 @@ const Progressive = () => {
         currentHighScore = querySnapshot.docs[0].data().score
         console.log('currentHighScore', currentHighScore)
         querySnapshot.forEach((doc) => {
-          if (countNumber < doc.data().score) {
+          if (totalScoreValue < doc.data().score) {
             let docRef = doc.ref
             updates.push(
               updateDoc(docRef, {
@@ -569,13 +569,12 @@ const Progressive = () => {
         uid: uid,
         gamemode: 'Progressive',
         highScore:
-          countNumber < currentHighScore || currentHighScore === null ? true : false,
+          totalScoreValue < currentHighScore || currentHighScore === null
+            ? true
+            : false,
         createdAt: serverTimestamp(),
       })
-      console.log(totalScoreValue)
       originalScore = scoreToBeat
-      console.log('totalscore', totalScoreValue)
-      console.log('originalscore', originalScore)
       if (totalScoreValue < highScore || highScore === '') {
         setHighScore(totalScoreValue)
       }
