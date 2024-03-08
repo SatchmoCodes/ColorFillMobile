@@ -26,6 +26,7 @@ import {
   limit,
   serverTimestamp,
   getDoc,
+  updateDoc,
 } from 'firebase/firestore'
 import { FIRESTORE_DB, FIREBASE_AUTH } from '../../firebaseConfig'
 import { useColorSchemeContext } from '../../App'
@@ -73,7 +74,7 @@ const db = FIRESTORE_DB
 const auth = FIREBASE_AUTH
 
 let screenWidth = Dimensions.get('window').width
-let unknownUser = '???'
+let unknownUser = 'Anonymous'
 
 // async function createScores() {
 //   let boardId
@@ -82,7 +83,7 @@ let unknownUser = '???'
 //   let boardData = ''
 //   let createdBy = 'Satchmo'
 //   let uid = 'sRev1ct3vEM9dXoaBfrPTOhBY9V2'
-//   for (let i = 0; i < 50; i++) {
+//   for (let i = 0; i < 20; i++) {
 //     score = Math.floor(Math.random() * 20) + 10
 //     boardId = uuid.v4()
 //     for (let x = 0; x < 144; x++) {
@@ -96,6 +97,7 @@ let unknownUser = '???'
 //       boardData: boardData,
 //       createdBy: createdBy,
 //       uid: uid,
+//       highScore: true,
 //       gamemode: 'FreePlay',
 //       createdAt: serverTimestamp(),
 //     })
@@ -126,6 +128,57 @@ let unknownUser = '???'
 //     createUsers()
 //   }, 1000)
 // }
+
+// let updates
+
+// async function updateUsers() {
+//   updates = []
+//   const q = query(collection(db, 'Users'))
+//   const querySnapshot = await getDocs(q)
+//   querySnapshot.forEach((doc) => {
+//     let docRef = doc.ref
+//     if (doc.data().wins + doc.data().losses <= 9) {
+//       updates.push(
+//         updateDoc(docRef, {
+//           winRate: 0,
+//         }),
+//       )
+//     } else {
+//       updates.push(
+//         updateDoc(docRef, {
+//           winRate: Math.floor(
+//             (doc.data().wins / (doc.data().wins + doc.data().losses) +
+//               Number.EPSILON) *
+//               100,
+//           ),
+//         }),
+//       )
+//     }
+//   })
+// }
+
+// updateUsers()
+// await Promise.all(updates)
+// let updates
+
+// async function updateUsers() {
+//   updates = []
+//   const q = query(collection(db, 'Users'))
+//   const querySnapshot = await getDocs(q)
+//   querySnapshot.forEach((doc) => {
+//     let docRef = doc.ref
+//     if (doc.data().wins + doc.data().losses == 0) {
+//       updates.push(
+//         updateDoc(docRef, {
+//           winRate: 0,
+//         }),
+//       )
+//     }
+//   })
+// }
+
+// updateUsers()
+// await Promise.all(updates)
 
 const Leaderboard = () => {
   const { useColors, userColorScheme } = useColorSchemeContext()
@@ -172,12 +225,12 @@ const Leaderboard = () => {
       // console.log('uid here', uid)
       const q = query(collection(db, 'Users'), where('uid', '==', uid))
       const querySnapshot = await getDocs(q)
-      if (querySnapshot.empty) {
+      if (!querySnapshot.empty) {
+        querySnapshot.forEach((doc) => {
+          setUserName(doc.data().username)
+        })
         // console.log('tests')
       }
-      querySnapshot.forEach((doc) => {
-        setUserName(doc.data().username)
-      })
     }
     getUserData()
   }, [uid])
@@ -601,13 +654,14 @@ const Leaderboard = () => {
       const unsubscribe = onSnapshot(q, async (querySnapshot) => {
         let userStats
         try {
-          const userQuery = query(
-            collection(db, 'Users'),
-            where('username', '==', userName),
-          )
+          const userQuery = query(collection(db, 'Users'), where('uid', '==', uid))
           let docSnap = await getDocs(userQuery)
+          if (!docSnap.empty) {
+            userStats = docSnap.docs[0]
+          } else {
+            userStats = null
+          }
           // console.log(docSnap.docs[0].data())
-          userStats = docSnap.docs[0]
         } catch (error) {
           return error
         }
@@ -626,7 +680,7 @@ const Leaderboard = () => {
                     100,
                 ) + '%',
             })
-            if (userInfo.length === 0) {
+            if (userInfo.length === 0 && userStats != null) {
               userInfo.push({
                 id: userStats.id,
                 ...userStats.data(),
@@ -645,7 +699,7 @@ const Leaderboard = () => {
               ...doc.data(),
               queryData: doc.data().wins + ' - ' + doc.data().losses,
             })
-            if (userInfo.length === 0) {
+            if (userInfo.length === 0 && userStats != null) {
               userInfo.push({
                 id: userStats.id,
                 ...userStats.data(),
@@ -658,7 +712,7 @@ const Leaderboard = () => {
               ...doc.data(),
               queryData: doc.data().currentWinStreak,
             })
-            if (userInfo.length === 0) {
+            if (userInfo.length === 0 && userStats != null) {
               userInfo.push({
                 id: userStats.id,
                 ...userStats.data(),
@@ -671,7 +725,7 @@ const Leaderboard = () => {
               ...doc.data(),
               queryData: doc.data().bestWinStreak,
             })
-            if (userInfo.length === 0) {
+            if (userInfo.length === 0 && userStats != null) {
               userInfo.push({
                 id: userStats.id,
                 ...userStats.data(),
@@ -683,8 +737,12 @@ const Leaderboard = () => {
         let topScores = queryArr.filter((a) => a.wins + a.losses > 9)
         let bottomScores = queryArr.filter((a) => a.wins + a.losses <= 9)
         bottomScores.sort((a, b) => a.wins + a.losses > b.wins + b.losses)
-        topScores.sort((a, b) => parseInt(a.queryData) - parseInt(b.queryData))
-        topScores.reverse()
+        // topScores.sort((a, b) => parseInt(a.queryData) - parseInt(b.queryData))
+        topScores.sort((a, b) => {
+          const compareValue = b.queryData - a.queryData
+          return compareValue !== 0 ? compareValue : b.totalGames - a.totalGames
+        })
+        // topScores.reverse()
         // bottomScores.reverse()
         let fullArr = topScores.concat(bottomScores)
         fullArr.forEach((val, index) => {
@@ -702,15 +760,18 @@ const Leaderboard = () => {
             }
           }
         })
-        if (userInfo[0].rank == undefined) {
-          if (userInfo[0].wins + userInfo[0].losses > 9) {
-            userInfo[0].rank = '<50'
-          } else {
-            userInfo[0].rank = 'n/a'
+        console.log('userInfo', userInfo)
+        if (!userInfo.length == 0) {
+          if (userInfo[0].rank == undefined && userInfo != []) {
+            if (userInfo[0].wins + userInfo[0].losses > 9) {
+              userInfo[0].rank = '<50'
+            } else {
+              userInfo[0].rank = 'n/a'
+            }
           }
         }
         // console.log(userInfo)
-        fullArr.unshift(userInfo[0])
+        !userInfo.length == 0 && fullArr.unshift(userInfo[0])
         // console.log('fullArr', fullArr)
         newAnimatedValues = []
         let comparisonId = null
@@ -759,7 +820,13 @@ const Leaderboard = () => {
 
   const loadMore = () => {
     // console.log('start load more')
-    if (scores.length === 0 || scores.length < limitValue || block || endReached) {
+    if (
+      scores.length === 0 ||
+      scores.length < limitValue ||
+      block ||
+      endReached ||
+      scores.length >= 500
+    ) {
       setBlock(false)
       return
     }
@@ -1116,7 +1183,10 @@ const Leaderboard = () => {
                               {
                                 textAlign: 'center',
 
-                                color: index == 0 ? colors.username : colors.text,
+                                color:
+                                  index == 0 && userName != null
+                                    ? colors.username
+                                    : colors.text,
                               },
                             ]}
                           >
@@ -1150,7 +1220,10 @@ const Leaderboard = () => {
                               {
                                 textAlign: 'center',
 
-                                color: index == 0 ? colors.username : colors.text,
+                                color:
+                                  index == 0 && userName != null
+                                    ? colors.username
+                                    : colors.text,
                               },
                             ]}
                           >
