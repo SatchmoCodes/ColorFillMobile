@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Image, TouchableOpacity, Modal } from 'react-native'
 import React, { useMemo, useState, useEffect } from 'react'
 import RadioGroup, { RadioButton } from 'react-native-radio-buttons-group'
 import {
@@ -30,6 +30,13 @@ const PVPCreate = ({ navigation }) => {
   const [boardType, setBoardType] = useState('Random')
   const [lobbyType, setLobbyType] = useState('Public')
   const [fog, setFog] = useState('Off')
+  const [squareOption, setSquareOption] = useState('Static')
+
+  const [sizeVisible, setSizeVisilbe] = useState(false)
+  const [boardTypeVisible, setBoardTypeVisible] = useState(false)
+  const [fogVisible, setFogVisible] = useState(false)
+  const [squareOptionVisible, setSquareOptionVisible] = useState(false)
+  const [lobbyTypeVisible, setLobbyTypeVisible] = useState(false)
 
   const [uid, setUid] = useState(null)
   const [userName, setUserName] = useState(null)
@@ -123,6 +130,19 @@ const PVPCreate = ({ navigation }) => {
       id: 'Off',
       label: 'Off',
       value: 'Off',
+    },
+  ])
+
+  const squareOptions = useMemo(() => [
+    {
+      id: 'Static',
+      label: 'Static',
+      value: 'Static',
+    },
+    {
+      id: 'Dynamic',
+      label: 'Dynamic',
+      value: 'Dynamic',
     },
   ])
 
@@ -344,6 +364,7 @@ const PVPCreate = ({ navigation }) => {
       ownerColor: ownerColor,
       opponentColor: opponentColor,
       fog: fog === 'On' ? true : false,
+      dynamic: squareOption === 'Dynamic' ? true : false,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     })
@@ -361,6 +382,143 @@ const PVPCreate = ({ navigation }) => {
         ></Image>
       </View>
       <View style={styles.bottom}>
+        <Modal animationType="fade" transparent={true} visible={sizeVisible}>
+          <View style={[styles.centeredView]}>
+            <View style={[styles.modalView, { backgroundColor: colors.button }]}>
+              <Text
+                style={[
+                  styles.modalText,
+                  { fontSize: 25, fontWeight: 'bold', color: colors.text },
+                ]}
+              >
+                Board Size Options
+              </Text>
+              <Text style={[styles.modalText, { color: colors.text }]}>
+                Small: 11x11 board size. First to 61 wins!
+              </Text>
+              <Text style={[styles.modalText, { color: colors.text }]}>
+                Medium: 13x13 board size. First to 85 wins!
+              </Text>
+              <Text style={[styles.modalText, { color: colors.text }]}>
+                Large: 15x15 board size. First to 113 wins!
+              </Text>
+              <TouchableOpacity
+                style={[styles.modalButton]}
+                onPress={() => setSizeVisilbe(false)}
+              >
+                <Text style={[styles.textStyle]}>Ok</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+        <Modal animationType="fade" transparent={true} visible={boardTypeVisible}>
+          <View style={[styles.centeredView]}>
+            <View style={[styles.modalView, { backgroundColor: colors.button }]}>
+              <Text
+                style={[
+                  styles.modalText,
+                  { fontSize: 25, fontWeight: 'bold', color: colors.text },
+                ]}
+              >
+                Board Types
+              </Text>
+              <Text style={[styles.modalText, { color: colors.text }]}>
+                Mirrored: Board is exactly the same on both sides for both players
+              </Text>
+              <Text style={[styles.modalText, { color: colors.text }]}>
+                Random: Board is completely randomized on both sides
+              </Text>
+              <Text style={[styles.modalText, { color: colors.text }]}>
+                Partial Mirror: Board is partially mirrored and partially random
+              </Text>
+              <TouchableOpacity
+                style={[styles.modalButton]}
+                onPress={() => setBoardTypeVisible(false)}
+              >
+                <Text style={[styles.textStyle]}>Ok</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+        <Modal animationType="fade" transparent={true} visible={squareOptionVisible}>
+          <View style={[styles.centeredView]}>
+            <View style={[styles.modalView, { backgroundColor: colors.button }]}>
+              <Text
+                style={[
+                  styles.modalText,
+                  { fontSize: 25, fontWeight: 'bold', color: colors.text },
+                ]}
+              >
+                Square Color Options
+              </Text>
+              <Text style={[styles.modalText, { color: colors.text }]}>
+                Static: Squares will stay the same color unless captured
+              </Text>
+              <Text style={[styles.modalText, { color: colors.text }]}>
+                Dynamic: Squares have a small chance to change colors after each turn
+              </Text>
+              <TouchableOpacity
+                style={[styles.modalButton]}
+                onPress={() => setSquareOptionVisible(false)}
+              >
+                <Text style={[styles.textStyle]}>Ok</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+        <Modal animationType="fade" transparent={true} visible={fogVisible}>
+          <View style={[styles.centeredView]}>
+            <View style={[styles.modalView, { backgroundColor: colors.button }]}>
+              <Text
+                style={[
+                  styles.modalText,
+                  { fontSize: 25, fontWeight: 'bold', color: colors.text },
+                ]}
+              >
+                Fog of War Options
+              </Text>
+              <Text style={[styles.modalText, { color: colors.text }]}>
+                On: Only squares that can currently be captured are visible
+              </Text>
+              <Text style={[styles.modalText, { color: colors.text }]}>
+                Off: All squares are visible to all players
+              </Text>
+              <TouchableOpacity
+                style={[styles.modalButton]}
+                onPress={() => setFogVisible(false)}
+              >
+                <Text style={[styles.textStyle]}>Ok</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+        <Modal animationType="fade" transparent={true} visible={lobbyTypeVisible}>
+          <View style={[styles.centeredView]}>
+            <View style={[styles.modalView, { backgroundColor: colors.button }]}>
+              <Text
+                style={[
+                  styles.modalText,
+                  { fontSize: 25, fontWeight: 'bold', color: colors.text },
+                ]}
+              >
+                Lobby Type Options
+              </Text>
+              <Text style={[styles.modalText, { color: colors.text }]}>
+                Public: Anyone can view your game in the menu and join it
+              </Text>
+              <Text style={[styles.modalText, { color: colors.text }]}>
+                Private: Game is not visible in the menu. Share the code generated
+                after creation with a friend to let them join
+              </Text>
+              <TouchableOpacity
+                style={[styles.modalButton]}
+                onPress={() => setLobbyTypeVisible(false)}
+              >
+                <Text style={[styles.textStyle]}>Ok</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
         <View style={styles.optionsContainer}>
           <Text
             style={[
@@ -374,16 +532,27 @@ const PVPCreate = ({ navigation }) => {
             Game Options
           </Text>
           <View style={[styles.sizeOptions, styles.optionBlock]}>
-            <Text
-              style={{
-                textAlign: 'center',
-                fontSize: 20,
-                marginBottom: 10,
-                color: colors.text,
-              }}
-            >
-              Board Size
-            </Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5 }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontSize: 20,
+                  marginBottom: 10,
+                  color: colors.text,
+                }}
+              >
+                Board Size
+              </Text>
+              <TouchableOpacity
+                style={[
+                  styles.tooltip,
+                  { marginTop: 3, backgroundColor: colors.button },
+                ]}
+                onPress={() => setSizeVisilbe(true)}
+              >
+                <Text style={[styles.tooltipText, { color: colors.text }]}>?</Text>
+              </TouchableOpacity>
+            </View>
             <RadioGroup
               containerStyle={{ justifyContent: 'center' }}
               radioButtons={sizeOptions.map((option) => ({
@@ -398,16 +567,27 @@ const PVPCreate = ({ navigation }) => {
             />
           </View>
           <View style={[styles.boardOptions, styles.optionBlock]}>
-            <Text
-              style={{
-                textAlign: 'center',
-                fontSize: 20,
-                marginBottom: 10,
-                color: colors.text,
-              }}
-            >
-              Board Type
-            </Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5 }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontSize: 20,
+                  marginBottom: 10,
+                  color: colors.text,
+                }}
+              >
+                Board Type
+              </Text>
+              <TouchableOpacity
+                style={[
+                  styles.tooltip,
+                  { marginTop: 3, backgroundColor: colors.button },
+                ]}
+                onPress={() => setBoardTypeVisible(true)}
+              >
+                <Text style={[styles.tooltipText, { color: colors.text }]}>?</Text>
+              </TouchableOpacity>
+            </View>
             <RadioGroup
               containerStyle={{ flexWrap: 'wrap', justifyContent: 'center' }}
               radioButtons={boardOptions.map((option) => ({
@@ -420,40 +600,62 @@ const PVPCreate = ({ navigation }) => {
               layout="row"
             />
           </View>
-          <View style={[styles.lobbyOptions, styles.optionBlock]}>
-            <Text
-              style={{
-                textAlign: 'center',
-                fontSize: 20,
-                marginBottom: 10,
-                color: colors.text,
-              }}
-            >
-              Lobby Type
-            </Text>
+          {/* <View style={[styles.lobbyOptions, styles.optionBlock]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5 }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontSize: 20,
+                  marginBottom: 10,
+                  color: colors.text,
+                }}
+              >
+                Square Colors
+              </Text>
+              <TouchableOpacity
+                style={[
+                  styles.tooltip,
+                  { marginTop: 3, backgroundColor: colors.button },
+                ]}
+                onPress={() => setSquareOptionVisible(true)}
+              >
+                <Text style={[styles.tooltipText, { color: colors.text }]}>?</Text>
+              </TouchableOpacity>
+            </View>
             <RadioGroup
               containerStyle={{ justifyContent: 'center' }}
-              radioButtons={lobbyOptions.map((option) => ({
+              radioButtons={squareOptions.map((option) => ({
                 ...option,
                 labelStyle: { fontSize: 15, color: colors.text },
-                borderColor: option.id === lobbyType && colors.radioSelected,
+                borderColor: option.id === squareOption && colors.radioSelected,
               }))}
-              onPress={(e) => setLobbyType(e)}
-              selectedId={lobbyType}
+              onPress={(e) => setSquareOption(e)}
+              selectedId={squareOption}
               layout="row"
             />
-          </View>
+          </View> */}
           <View style={[styles.lobbyOptions, styles.optionBlock]}>
-            <Text
-              style={{
-                textAlign: 'center',
-                fontSize: 20,
-                marginBottom: 10,
-                color: colors.text,
-              }}
-            >
-              Fog of War
-            </Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5 }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontSize: 20,
+                  marginBottom: 10,
+                  color: colors.text,
+                }}
+              >
+                Fog of War
+              </Text>
+              <TouchableOpacity
+                style={[
+                  styles.tooltip,
+                  { marginTop: 3, backgroundColor: colors.button },
+                ]}
+                onPress={() => setFogVisible(true)}
+              >
+                <Text style={[styles.tooltipText, { color: colors.text }]}>?</Text>
+              </TouchableOpacity>
+            </View>
             <RadioGroup
               containerStyle={{ justifyContent: 'center' }}
               radioButtons={fogOptions.map((option) => ({
@@ -463,6 +665,40 @@ const PVPCreate = ({ navigation }) => {
               }))}
               onPress={(e) => setFog(e)}
               selectedId={fog}
+              layout="row"
+            />
+          </View>
+          <View style={[styles.lobbyOptions, styles.optionBlock]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5 }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontSize: 20,
+                  marginBottom: 10,
+                  color: colors.text,
+                }}
+              >
+                Lobby Type
+              </Text>
+              <TouchableOpacity
+                style={[
+                  styles.tooltip,
+                  { marginTop: 3, backgroundColor: colors.button },
+                ]}
+                onPress={() => setLobbyTypeVisible(true)}
+              >
+                <Text style={[styles.tooltipText, { color: colors.text }]}>?</Text>
+              </TouchableOpacity>
+            </View>
+            <RadioGroup
+              containerStyle={{ justifyContent: 'center' }}
+              radioButtons={lobbyOptions.map((option) => ({
+                ...option,
+                labelStyle: { fontSize: 15, color: colors.text },
+                borderColor: option.id === lobbyType && colors.radioSelected,
+              }))}
+              onPress={(e) => setLobbyType(e)}
+              selectedId={lobbyType}
               layout="row"
             />
           </View>
@@ -533,5 +769,80 @@ const styles = StyleSheet.create({
       width: 1,
       height: 1,
     },
+  },
+  tooltip: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 50,
+    width: 25,
+    height: 25,
+  },
+  tooltipText: {
+    textAlign: 'center',
+    fontSize: 15,
+  },
+  //modal garbage
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  buttonOpen: {
+    backgroundColor: '#F194FF',
+  },
+  buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: 15,
+    fontWeight: 'bold',
+    textShadowColor: 'black',
+    textShadowRadius: 1,
+    textShadowOffset: {
+      width: 1,
+      height: 1,
+    },
+  },
+  modalButton: {
+    borderRadius: 20,
+    padding: 15,
+    elevation: 2,
+    marginBottom: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    borderColor: 'white',
+    borderWidth: 1,
+    backgroundColor: '#2196F3',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+    fontSize: 20,
   },
 })
