@@ -120,7 +120,9 @@ let winner
 let animationIndex = []
 let visibleArr = []
 let fakeSquareArr = []
+let bannedIndexes = []
 let fogGame = false
+let dynamicGame = false
 let randomColor
 
 const totalTime = 10
@@ -369,12 +371,23 @@ const PVPGame = () => {
         setSquareAnim(squareAnimArr)
         setOwnerColor(colors[docSnap.data().ownerColor])
         setOpponentColor(colors[docSnap.data().opponentColor])
+        if (docSnap.data().dynamic === true) {
+          console.log('dynamic game')
+          dynamicGame = true
+          bannedIndexes.push(0)
+          bannedIndexes.push(boardSize)
+          bannedIndexes.push(tempSquareArr.length - 2)
+          bannedIndexes.push(tempSquareArr.length - 1 - boardSize)
+        } else {
+          dynamicGame = false
+        }
         if (docSnap.data().fog === true) {
           fogGame = true
           visibleArr = new Array(tempSquareArr.length).fill(false)
           visibleArr[0] = true
           visibleArr[visibleArr.length - 1] = true
         } else {
+          fogGame = false
           visibleArr = new Array(tempSquareArr.length).fill(true)
         }
         ownerColorIndex = docSnap.data().ownerColor
@@ -477,11 +490,9 @@ const PVPGame = () => {
           // console.log(doc.data())
           let boardState = []
           boardState = JSON.parse(doc.data().boardState).flat()
-          // console.log('boardState', boardState)
           // console.log('board 0', boardState[0].colorIndex)
           // console.log('board end', boardState[boardState.length - 1].colorIndex)
           // console.log(boardState)
-          tempSquareArr = []
           tempSquareArr = [...boardState]
           if (doc.data().turn == 'Owner') {
             setTurn('Owner')
@@ -523,6 +534,7 @@ const PVPGame = () => {
               Animated.sequence([growAnimation, reverseAnimation]).start()
             })
             setSquareAnim(squareAnimArr)
+            setColorState(boardState)
           } else if (
             doc.data().turn == 'Opponent' &&
             userNameRef.current != doc.data().ownerName
@@ -544,9 +556,10 @@ const PVPGame = () => {
               Animated.sequence([growAnimation, reverseAnimation]).start()
             })
             setSquareAnim(squareAnimArr)
+            setColorState(boardState)
           }
           squareAnimArr = tempSquareArr.map(() => new Animated.Value(0))
-          setColorState(boardState)
+
           setOwnerScore(doc.data().ownerScore)
           setOpponentScore(doc.data().opponentScore)
           if (doc.data().ownerScore > Math.floor(tempSquareArr.length / 2)) {
@@ -628,7 +641,7 @@ const PVPGame = () => {
         }
       }
       tempSquareArr = [...tempArrCopy]
-      setColorState(tempSquareArr)
+      // setColorState(tempSquareArr)
       setRadar(false)
       fakeCaptured = 0
     }
@@ -729,7 +742,7 @@ const PVPGame = () => {
           captureCheck(color, index)
         }
       })
-      setColorState(tempSquareArr)
+
       animationIndex.forEach((val) => {
         const growAnimation = Animated.timing(squareAnimArr[val], {
           toValue: 1,
@@ -753,6 +766,24 @@ const PVPGame = () => {
         // console.log('local color set for opp', colors.indexOf(color))
         setOpponentSelectedColor(colors.indexOf(color))
       }
+      if (dynamicGame === true) {
+        tempSquareArr.forEach((sq) => {
+          if (!sq.captured && !bannedIndexes.includes(sq.index)) {
+            let rand = Math.floor(Math.random() * 10)
+            if (rand === 0) {
+              console.log('index', sq.index)
+              let newColor = Math.floor(Math.random() * 5)
+              while (newColor === sq.colorIndex) {
+                newColor = Math.floor(Math.random() * 5)
+              }
+              sq.color = colors[newColor]
+              sq.colorIndex = colors.indexOf(sq.color)
+              // animationIndex.push(sq.index)
+            }
+          }
+        })
+      }
+      setColorState(tempSquareArr)
       if (fogGame === true) {
         fakeSquareArr = JSON.parse(JSON.stringify(tempSquareArr))
         let startArr = [...fakeSquareArr]
@@ -873,16 +904,24 @@ const PVPGame = () => {
         let currentOwnerLosses = ownerSnapshot.docs[0].data().losses
         let currentOpponentWins = opponentSnapshot.docs[0].data().wins
         let currentOpponentLosses = opponentSnapshot.docs[0].data().losses + 1
-        newOwnerWinRate = Math.floor(
-          (currentOwnerWins / (currentOwnerWins + currentOwnerLosses) +
-            Number.EPSILON) *
-            100,
-        )
-        newOpponentWinRate = Math.floor(
-          (currentOpponentWins / (currentOpponentWins + currentOpponentLosses) +
-            Number.EPSILON) *
-            100,
-        )
+        if (currentOwnerWins + currentOwnerLosses < 10) {
+          newOwnerWinRate = 0
+        } else {
+          newOwnerWinRate = Math.floor(
+            (currentOwnerWins / (currentOwnerWins + currentOwnerLosses) +
+              Number.EPSILON) *
+              100,
+          )
+        }
+        if (currentOpponentWins + currentOpponentLosses < 10) {
+          newOpponentWinRate = 0
+        } else {
+          newOpponentWinRate = Math.floor(
+            (currentOpponentWins / (currentOpponentWins + currentOpponentLosses) +
+              Number.EPSILON) *
+              100,
+          )
+        }
         if (
           ownerSnapshot.docs[0].data().currentWinStreak + 1 >
           ownerSnapshot.docs[0].data().bestWinStreak
@@ -920,16 +959,24 @@ const PVPGame = () => {
         let currentOwnerLosses = ownerSnapshot.docs[0].data().losses + 1
         let currentOpponentWins = opponentSnapshot.docs[0].data().wins + 1
         let currentOpponentLosses = opponentSnapshot.docs[0].data().losses
-        newOwnerWinRate = Math.floor(
-          (currentOwnerWins / (currentOwnerWins + currentOwnerLosses) +
-            Number.EPSILON) *
-            100,
-        )
-        newOpponentWinRate = Math.floor(
-          (currentOpponentWins / (currentOpponentWins + currentOpponentLosses) +
-            Number.EPSILON) *
-            100,
-        )
+        if (currentOwnerWins + currentOwnerLosses < 10) {
+          newOwnerWinRate = 0
+        } else {
+          newOwnerWinRate = Math.floor(
+            (currentOwnerWins / (currentOwnerWins + currentOwnerLosses) +
+              Number.EPSILON) *
+              100,
+          )
+        }
+        if (currentOpponentWins + currentOpponentLosses < 10) {
+          newOpponentWinRate = 0
+        } else {
+          newOpponentWinRate = Math.floor(
+            (currentOpponentWins / (currentOpponentWins + currentOpponentLosses) +
+              Number.EPSILON) *
+              100,
+          )
+        }
         if (
           opponentSnapshot.docs[0].data().currentWinStreak + 1 >
           opponentSnapshot.docs[0].data().bestWinStreak
@@ -1698,15 +1745,20 @@ const PVPGame = () => {
             style={[
               styles.color,
               {
-                backgroundColor:
-                  ownerSelectedColor == colors[0] ? 'gray' : colorOption[0],
+                backgroundColor: dynamicGame
+                  ? colorOption[0]
+                  : ownerSelectedColor == colors[0]
+                    ? 'gray'
+                    : colorOption[0],
               },
-              { opacity: ownerSelectedColor == colors[0] ? 0.1 : 1 },
+              {
+                opacity: dynamicGame ? 1 : ownerSelectedColor == colors[0] ? 0.1 : 1,
+              },
             ]}
             onPress={() =>
               turn == 'Owner' &&
               userName == ownerName &&
-              ownerSelectedColor != colors[0] &&
+              (ownerSelectedColor != colors[0] || dynamicGame) &&
               colorChange(colorOption[0])
             }
           ></TouchableOpacity>
@@ -1714,15 +1766,20 @@ const PVPGame = () => {
             style={[
               styles.color,
               {
-                backgroundColor:
-                  ownerSelectedColor == colors[1] ? 'gray' : colorOption[1],
+                backgroundColor: dynamicGame
+                  ? colorOption[1]
+                  : ownerSelectedColor == colors[1]
+                    ? 'gray'
+                    : colorOption[1],
               },
-              { opacity: ownerSelectedColor == colors[1] ? 0.1 : 1 },
+              {
+                opacity: dynamicGame ? 1 : ownerSelectedColor == colors[1] ? 0.1 : 1,
+              },
             ]}
             onPress={() =>
               turn == 'Owner' &&
               userName == ownerName &&
-              ownerSelectedColor != colors[1] &&
+              (ownerSelectedColor != colors[1] || dynamicGame) &&
               colorChange(colorOption[1])
             }
           ></TouchableOpacity>
@@ -1730,15 +1787,20 @@ const PVPGame = () => {
             style={[
               styles.color,
               {
-                backgroundColor:
-                  ownerSelectedColor == colors[2] ? 'gray' : colorOption[2],
+                backgroundColor: dynamicGame
+                  ? colorOption[2]
+                  : ownerSelectedColor == colors[2]
+                    ? 'gray'
+                    : colorOption[2],
               },
-              { opacity: ownerSelectedColor == colors[2] ? 0.1 : 1 },
+              {
+                opacity: dynamicGame ? 1 : ownerSelectedColor == colors[2] ? 0.1 : 1,
+              },
             ]}
             onPress={() =>
               turn == 'Owner' &&
               userName == ownerName &&
-              ownerSelectedColor != colors[2] &&
+              (ownerSelectedColor != colors[2] || dynamicGame) &&
               colorChange(colorOption[2])
             }
           ></TouchableOpacity>
@@ -1746,15 +1808,20 @@ const PVPGame = () => {
             style={[
               styles.color,
               {
-                backgroundColor:
-                  ownerSelectedColor == colors[3] ? 'gray' : colorOption[3],
+                backgroundColor: dynamicGame
+                  ? colorOption[3]
+                  : ownerSelectedColor == colors[3]
+                    ? 'gray'
+                    : colorOption[3],
               },
-              { opacity: ownerSelectedColor == colors[3] ? 0.1 : 1 },
+              {
+                opacity: dynamicGame ? 1 : ownerSelectedColor == colors[3] ? 0.1 : 1,
+              },
             ]}
             onPress={() =>
               turn == 'Owner' &&
               userName == ownerName &&
-              ownerSelectedColor != colors[3] &&
+              (ownerSelectedColor != colors[3] || dynamicGame) &&
               colorChange(colorOption[3])
             }
           ></TouchableOpacity>
@@ -1762,15 +1829,20 @@ const PVPGame = () => {
             style={[
               styles.color,
               {
-                backgroundColor:
-                  ownerSelectedColor == colors[4] ? 'gray' : colorOption[4],
+                backgroundColor: dynamicGame
+                  ? colorOption[4]
+                  : ownerSelectedColor == colors[4]
+                    ? 'gray'
+                    : colorOption[4],
               },
-              { opacity: ownerSelectedColor == colors[4] ? 0.1 : 1 },
+              {
+                opacity: dynamicGame ? 1 : ownerSelectedColor == colors[4] ? 0.1 : 1,
+              },
             ]}
             onPress={() =>
               turn == 'Owner' &&
               userName == ownerName &&
-              ownerSelectedColor != colors[4] &&
+              (ownerSelectedColor != colors[4] || dynamicGame) &&
               colorChange(colorOption[4])
             }
           ></TouchableOpacity>
@@ -1781,15 +1853,24 @@ const PVPGame = () => {
             style={[
               styles.color,
               {
-                backgroundColor:
-                  opponentSelectedColor == colors[0] ? 'gray' : colorOption[0],
+                backgroundColor: dynamicGame
+                  ? colorOption[0]
+                  : opponentSelectedColor == colors[0]
+                    ? 'gray'
+                    : colorOption[0],
               },
-              { opacity: opponentSelectedColor == colors[0] ? 0.1 : 1 },
+              {
+                opacity: dynamicGame
+                  ? 1
+                  : opponentSelectedColor == colors[0]
+                    ? 0.1
+                    : 1,
+              },
             ]}
             onPress={() =>
               turn == 'Opponent' &&
               userName == opponentName &&
-              opponentSelectedColor != colors[0] &&
+              (opponentSelectedColor != colors[0] || dynamicGame) &&
               colorChange(colorOption[0])
             }
           ></TouchableOpacity>
@@ -1797,15 +1878,24 @@ const PVPGame = () => {
             style={[
               styles.color,
               {
-                backgroundColor:
-                  opponentSelectedColor == colors[1] ? 'gray' : colorOption[1],
+                backgroundColor: dynamicGame
+                  ? colorOption[1]
+                  : opponentSelectedColor == colors[1]
+                    ? 'gray'
+                    : colorOption[1],
               },
-              { opacity: opponentSelectedColor == colors[1] ? 0.1 : 1 },
+              {
+                opacity: dynamicGame
+                  ? 1
+                  : opponentSelectedColor == colors[1]
+                    ? 0.1
+                    : 1,
+              },
             ]}
             onPress={() =>
               turn == 'Opponent' &&
               userName == opponentName &&
-              opponentSelectedColor != colors[1] &&
+              (opponentSelectedColor != colors[1] || dynamicGame) &&
               colorChange(colorOption[1])
             }
           ></TouchableOpacity>
@@ -1813,15 +1903,24 @@ const PVPGame = () => {
             style={[
               styles.color,
               {
-                backgroundColor:
-                  opponentSelectedColor == colors[2] ? 'gray' : colorOption[2],
+                backgroundColor: dynamicGame
+                  ? colorOption[2]
+                  : opponentSelectedColor == colors[2]
+                    ? 'gray'
+                    : colorOption[2],
               },
-              { opacity: opponentSelectedColor == colors[2] ? 0.1 : 1 },
+              {
+                opacity: dynamicGame
+                  ? 1
+                  : opponentSelectedColor == colors[2]
+                    ? 0.1
+                    : 1,
+              },
             ]}
             onPress={() =>
               turn == 'Opponent' &&
               userName == opponentName &&
-              opponentSelectedColor != colors[2] &&
+              (opponentSelectedColor != colors[2] || dynamicGame) &&
               colorChange(colorOption[2])
             }
           ></TouchableOpacity>
@@ -1829,15 +1928,24 @@ const PVPGame = () => {
             style={[
               styles.color,
               {
-                backgroundColor:
-                  opponentSelectedColor == colors[3] ? 'gray' : colorOption[3],
+                backgroundColor: dynamicGame
+                  ? colorOption[3]
+                  : opponentSelectedColor == colors[3]
+                    ? 'gray'
+                    : colorOption[3],
               },
-              { opacity: opponentSelectedColor == colors[3] ? 0.1 : 1 },
+              {
+                opacity: dynamicGame
+                  ? 1
+                  : opponentSelectedColor == colors[3]
+                    ? 0.1
+                    : 1,
+              },
             ]}
             onPress={() =>
               turn == 'Opponent' &&
               userName == opponentName &&
-              opponentSelectedColor != colors[3] &&
+              (opponentSelectedColor != colors[3] || dynamicGame) &&
               colorChange(colorOption[3])
             }
           ></TouchableOpacity>
@@ -1845,15 +1953,24 @@ const PVPGame = () => {
             style={[
               styles.color,
               {
-                backgroundColor:
-                  opponentSelectedColor == colors[4] ? 'gray' : colorOption[4],
+                backgroundColor: dynamicGame
+                  ? colorOption[4]
+                  : opponentSelectedColor == colors[4]
+                    ? 'gray'
+                    : colorOption[4],
               },
-              { opacity: opponentSelectedColor == colors[4] ? 0.1 : 1 },
+              {
+                opacity: dynamicGame
+                  ? 1
+                  : opponentSelectedColor == colors[4]
+                    ? 0.1
+                    : 1,
+              },
             ]}
             onPress={() =>
               turn == 'Opponent' &&
               userName == opponentName &&
-              opponentSelectedColor != colors[4] &&
+              (opponentSelectedColor != colors[4] || dynamicGame) &&
               colorChange(colorOption[4])
             }
           ></TouchableOpacity>
