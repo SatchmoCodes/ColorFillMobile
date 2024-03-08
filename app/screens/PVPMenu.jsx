@@ -48,6 +48,8 @@ const PVPMenu = () => {
   const [uid, setUid] = useState(null)
   const [userName, setUserName] = useState(null)
 
+  const unsubscribeRef = useRef(null)
+
   async function initialLoad() {
     const cutOffTime = new Date()
     cutOffTime.setMinutes(cutOffTime.getMinutes() - 3)
@@ -62,6 +64,7 @@ const PVPMenu = () => {
           break
       }
       if (gamesShown === 'Playing') {
+        console.log('playing')
         newQuery = query(
           collection(db, 'Games'),
           where('lobbyType', '==', 'Public'),
@@ -70,6 +73,7 @@ const PVPMenu = () => {
           orderBy('createdAt', 'asc'),
         )
       } else {
+        console.log('not playing')
         newQuery = query(
           collection(db, 'Games'),
           where('lobbyType', '==', 'Public'),
@@ -139,6 +143,7 @@ const PVPMenu = () => {
         orderBy('createdAt', 'asc'),
       )
     } else {
+      console.log('else here')
       console.log(newQuery)
       q = newQuery
     }
@@ -162,6 +167,7 @@ const PVPMenu = () => {
             }
           }
         })
+        unsubscribeRef.current = true
         setGames(gameList)
       })
     }
@@ -184,59 +190,72 @@ const PVPMenu = () => {
   }, [uid])
 
   async function handleJoin(id) {
-    const docRef = doc(db, 'Games', id)
-    const docSnap = await getDoc(docRef)
-    const newData = {
-      opponentName: userName,
-      opponentUid: uid,
-    }
-    try {
-      if (docSnap.exists()) {
-        if (docSnap.data().ownerName != userName) {
-          const update = await updateDoc(docRef, newData)
-        }
-      }
-      joining = true
-      const unsubscribe = await setupSnapshot()
-      navigation.navigate('PVPLobby', { id })
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  async function handleCodeJoin() {
-    const upperCaseCode = code.toUpperCase()
-    const gamesRef = collection(db, 'Games')
-    const q = query(gamesRef, where('code', '==', upperCaseCode))
-    const querySnapshot = await getDocs(q)
-    if (!querySnapshot.empty) {
-      if (querySnapshot.docs[0].data().opponentName != '') {
-        alert('Game already full!')
-        return
-      }
-      const id = querySnapshot.docs[0].id
+    if (userName != null) {
       const docRef = doc(db, 'Games', id)
+      const docSnap = await getDoc(docRef)
       const newData = {
         opponentName: userName,
         opponentUid: uid,
       }
       try {
-        const update = await updateDoc(docRef, newData)
-
+        if (docSnap.exists()) {
+          if (docSnap.data().ownerName != userName) {
+            const update = await updateDoc(docRef, newData)
+          }
+        }
+        joining = true
+        const unsubscribe = await setupSnapshot()
         navigation.navigate('PVPLobby', { id })
       } catch (error) {
         console.log(error)
       }
     } else {
-      setCode('')
-      alert('No games found with that code!')
+      alert('You must create an account to play!')
+    }
+  }
+
+  async function handleCodeJoin() {
+    if (userName != null) {
+      const upperCaseCode = code.toUpperCase()
+      const gamesRef = collection(db, 'Games')
+      const q = query(gamesRef, where('code', '==', upperCaseCode))
+      const querySnapshot = await getDocs(q)
+      querySnapshot.forEach((doc) => {})
+      if (!querySnapshot.empty) {
+        if (querySnapshot.docs[0].data().opponentName != '') {
+          alert('Game already full!')
+          return
+        }
+        const id = querySnapshot.docs[0].id
+        const docRef = doc(db, 'Games', id)
+        const newData = {
+          opponentName: userName,
+          opponentUid: uid,
+        }
+        try {
+          const update = await updateDoc(docRef, newData)
+
+          navigation.navigate('PVPLobby', { id })
+        } catch (error) {
+          console.log(error)
+        }
+      } else {
+        setCode('')
+        alert('No games found with that code!')
+      }
+    } else {
+      alert('You must create an account to play!')
     }
   }
 
   async function handleCreate() {
-    joining = true
-    await setupSnapshot()
-    navigation.navigate('PVPCreate')
+    if (userName != null) {
+      joining = true
+      await setupSnapshot()
+      navigation.navigate('PVPCreate')
+    } else {
+      alert('You must create an account to play!')
+    }
   }
 
   async function handleFilters() {
@@ -246,20 +265,24 @@ const PVPMenu = () => {
   }
 
   async function handleSpectate(id, boardSize) {
-    switch (boardSize) {
-      case 'Small':
-        boardSize = 11
-        break
-      case 'Medium':
-        boardSize = 15
-        break
-      case 'Large':
-        boardSize = 19
-        break
+    if (userName != null) {
+      switch (boardSize) {
+        case 'Small':
+          boardSize = 11
+          break
+        case 'Medium':
+          boardSize = 15
+          break
+        case 'Large':
+          boardSize = 19
+          break
+      }
+      joining = true
+      await setupSnapshot()
+      navigation.navigate('PVPGame', { id, boardSize })
+    } else {
+      alert('You must create an account to play!')
     }
-    joining = true
-    await setupSnapshot()
-    navigation.navigate('PVPGame', { id, boardSize })
   }
 
   return (
@@ -293,6 +316,9 @@ const PVPMenu = () => {
               <Text style={[{ fontSize: 15, color: colors.text }]}>
                 Board Type: {item.data.boardType}
               </Text>
+              {/* <Text style={[{ fontSize: 15, color: colors.text }]}>
+                Square Colors: {item.data.dynamic === true ? 'Dynamic' : 'Static'}
+              </Text> */}
               <Text style={[{ fontSize: 15, color: colors.text }]}>
                 Fog of War: {item.data.fog === true ? 'On' : 'Off'}
               </Text>
@@ -309,7 +335,6 @@ const PVPMenu = () => {
                     ` - ${item.data.ownerScore}`}
                 </Text>
               </View>
-
               <View
                 style={{
                   display: 'flex',
