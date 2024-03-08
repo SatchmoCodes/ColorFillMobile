@@ -62,10 +62,10 @@ const Home = () => {
           <Text style={styles.buttonText}>Play Game</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.button, { opacity: 0.5 }]}
-          onPress={() => navigation.navigate('Login')}
+          style={[styles.button]}
+          onPress={() => navigation.navigate('HowToPlay')}
         >
-          <Text style={styles.buttonText}>Login</Text>
+          <Text style={styles.buttonText}>How to Play</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => handleLogOut()}>
           <Text style={styles.buttonText}>Logout</Text>
