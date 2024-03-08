@@ -40,7 +40,9 @@ import { FIREBASE_API_KEY } from '@env'
 import Register from './app/screens/Register.jsx'
 import Filters from './app/screens/Filters.jsx'
 import PasswordReset from './app/screens/PasswordReset.jsx'
-console.log(FIREBASE_API_KEY)
+
+import * as Updates from 'expo-updates'
+import HowToPlay from './app/screens/HowToPlay.jsx'
 
 const Stack = createNativeStackNavigator()
 const AuthenticatedUserContext = createContext({})
@@ -139,6 +141,27 @@ function AuthView() {
         })}
       />
       <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen
+        name="HowToPlay"
+        component={HowToPlay}
+        options={({ navigation, route }) => ({
+          // Add a placeholder button without the `onPress` to avoid flicker
+          headerRight: () => (
+            <TouchableOpacity
+              style={[
+                {
+                  marginRight: Platform.OS === 'web' && 20,
+                  backgroundColor: '#2196F3',
+                  padding: 8,
+                },
+              ]}
+              onPress={() => navigation.navigate('Options')}
+            >
+              <Text style={{ color: 'white' }}>Options</Text>
+            </TouchableOpacity>
+          ),
+        })}
+      />
       <Stack.Screen
         name="PlayMenu"
         component={PlayMenu}
@@ -314,20 +337,20 @@ function AuthView() {
         name="PVPGame"
         component={PVPGame}
         options={({ navigation, route }) => ({
-          headerRight: () => (
-            <TouchableOpacity
-              style={[
-                {
-                  marginRight: Platform.OS === 'web' && 20,
-                  backgroundColor: '#2196F3',
-                  padding: 8,
-                },
-              ]}
-              onPress={() => navigation.navigate('Options')}
-            >
-              <Text style={{ color: 'white' }}>Options</Text>
-            </TouchableOpacity>
-          ),
+          // headerRight: () => (
+          //   <TouchableOpacity
+          //     style={[
+          //       {
+          //         marginRight: Platform.OS === 'web' && 20,
+          //         backgroundColor: '#2196F3',
+          //         padding: 8,
+          //       },
+          //     ]}
+          //     onPress={() => navigation.navigate('Options')}
+          //   >
+          //     <Text style={{ color: 'white' }}>Options</Text>
+          //   </TouchableOpacity>
+          // ),
           // Add a placeholder button without the `onPress` to avoid flicker
         })}
       />
@@ -399,6 +422,26 @@ function RootNavigator() {
 }
 
 export default function App() {
+  async function onFetchUpdateAsync() {
+    try {
+      const update = await Updates.checkForUpdateAsync()
+
+      if (update.isAvailable) {
+        await Updates.fetchUpdateAsync()
+        await Updates.reloadAsync()
+      }
+    } catch (error) {
+      // You can also add an alert() to see the error message in case of an error when fetching updates.
+      alert(`Error fetching latest Expo update: ${error}`)
+    }
+  }
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') {
+      onFetchUpdateAsync()
+    }
+  })
+
   return (
     <AuthenticatedUserProvider>
       <ColorSchemeProvider>
