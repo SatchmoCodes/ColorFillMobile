@@ -26,7 +26,7 @@ import { useColorSchemeContext } from '../../App'
 
 let docId
 let screenHeight = Dimensions.get('window').height
-let unknownUser = '???'
+let unknownUser = 'Anonymous'
 
 const BoardInfo = ({ navigation }) => {
   const { useColors } = useColorSchemeContext()
