@@ -109,6 +109,7 @@ const HowToPlay = () => {
           >
             Stats for Player vs Player are also visible on the leaderboard. You can
             view yours and other players win rates, wins and losses, and win streaks.
+            Only the top 50 players are visible so play to win!
           </Text>
           <Text style={[styles.headerText, { color: colorTheme.text }]}>
             Options
