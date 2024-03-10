@@ -19,6 +19,7 @@ import {
   orderBy,
   onSnapshot,
   getDocs,
+  limit,
 } from 'firebase/firestore'
 import { FIRESTORE_DB } from '../../firebaseConfig'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -53,6 +54,7 @@ const BoardInfo = ({ navigation }) => {
       where('boardId', '==', docId),
       orderBy('score', 'asc'),
       orderBy('createdAt', 'asc'),
+      limit(50),
     )
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const scoreListArr = []
@@ -90,6 +92,7 @@ const BoardInfo = ({ navigation }) => {
       collection(db, 'Scores'),
       where('boardId', '==', docId),
       orderBy('createdAt', 'asc'),
+      limit(1),
     )
     const querySnapshot = await getDocs(creatorQuery)
     if (!querySnapshot.empty) {
