@@ -169,7 +169,7 @@ const PVPCreate = ({ navigation }) => {
       let timeCreated = dateObj.getTime() / 1000
       let currentTime = Math.floor(new Date().getTime() / 1000)
       console.log(currentTime - timeCreated)
-      if (currentTime - timeCreated <= 300) {
+      if (currentTime - timeCreated <= 180) {
         alert(
           `You already created a game! Rejoin your lobby or wait ${Math.round(
             300 - (currentTime - timeCreated),
