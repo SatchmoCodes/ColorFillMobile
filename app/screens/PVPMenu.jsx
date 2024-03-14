@@ -316,9 +316,9 @@ const PVPMenu = () => {
               <Text style={[{ fontSize: 15, color: colors.text }]}>
                 Board Type: {item.data.boardType}
               </Text>
-              {/* <Text style={[{ fontSize: 15, color: colors.text }]}>
+              <Text style={[{ fontSize: 15, color: colors.text }]}>
                 Square Colors: {item.data.dynamic === true ? 'Dynamic' : 'Static'}
-              </Text> */}
+              </Text>
               <Text style={[{ fontSize: 15, color: colors.text }]}>
                 Fog of War: {item.data.fog === true ? 'On' : 'Off'}
               </Text>
