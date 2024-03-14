@@ -30,6 +30,7 @@ import {
   serverTimestamp,
   limit,
   updateDoc,
+  increment,
 } from 'firebase/firestore'
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig.js'
 import uuid from 'react-native-uuid'
@@ -108,6 +109,7 @@ let totalCaptured = 1
 let boardId = uuid.v4()
 let docId = null
 let originalScore //score before challenge/reset
+let rewardArr = []
 
 const db = FIRESTORE_DB
 const auth = FIREBASE_AUTH
@@ -206,6 +208,7 @@ const Progressive = () => {
   const [loading, setLoading] = useState(false)
   const [prompt, setPrompt] = useState(false)
   const [resetPrompt, setResetPrompt] = useState(false)
+  const [rewardModal, setShowRewardModal] = useState(false)
 
   const [block, setBlock] = useState(false)
 
@@ -542,8 +545,15 @@ const Progressive = () => {
         orderBy('score', 'asc'),
         orderBy('createdAt', 'asc'),
       )
+      const userQuery = query(
+        collection(db, 'Users'),
+        where('username', '==', userName),
+        limit(1),
+      )
+      const userSnapshot = await getDocs(userQuery)
       const querySnapshot = await getDocs(boardScores)
       const updates = []
+      rewardArr = []
       let currentHighScore = null
       if (!querySnapshot.empty) {
         currentHighScore = querySnapshot.docs[0].data().score
@@ -557,6 +567,23 @@ const Progressive = () => {
               }),
             )
           }
+        })
+      }
+      if (!userSnapshot.empty) {
+        userSnapshot.forEach((doc) => {
+          if (doc.data().boardsCompleted === 9) {
+            rewardArr.push(squareColors[9])
+          } else if (doc.data().boardsCompleted === 49) {
+            rewardArr.push(squareColors[10])
+          } else if (doc.data().boardsCompleted === 99) {
+            rewardArr.push(squareColors[11])
+          }
+          let docRef = doc.ref
+          updates.push(
+            updateDoc(docRef, {
+              boardsCompleted: increment(1),
+            }),
+          )
         })
       }
       await Promise.all(updates)
@@ -582,8 +609,9 @@ const Progressive = () => {
         // setPreviousScore(scoreToBeat)
         setScoreToBeat(totalScoreValue)
       }
-      setLoading(false)
+      rewardArr.length > 0 && setShowRewardModal(true)
     }
+    setLoading(false)
   }
 
   function generateNewBoard(showAd) {
@@ -783,39 +811,42 @@ const Progressive = () => {
             {loading ? (
               <ActivityIndicator color="darkgreen"></ActivityIndicator>
             ) : (
-              <Text style={[styles.modalText, { color: colorTheme.text }]}>
-                {originalScore == null
-                  ? `You completed the game ${
-                      totalScoreValue < 0
-                        ? totalScoreValue + ' under '
-                        : totalScoreValue + ' over'
-                    } par!`
-                  : totalScoreValue >= originalScore
-                    ? `You did not beat the previous score!`
-                    : `You beat the previous record (${
-                        originalScore > 0 ? `+${originalScore}` : originalScore
-                      }) with a score of ${
-                        totalScoreValue > 0 ? `+${totalScoreValue}` : totalScoreValue
-                      }!`}
-              </Text>
+              <>
+                <Text style={[styles.modalText, { color: colorTheme.text }]}>
+                  {originalScore == null
+                    ? `You completed the game ${
+                        totalScoreValue < 0
+                          ? totalScoreValue + ' under '
+                          : totalScoreValue + ' over'
+                      } par!`
+                    : totalScoreValue >= originalScore
+                      ? `You did not beat the previous score!`
+                      : `You beat the previous record (${
+                          originalScore > 0 ? `+${originalScore}` : originalScore
+                        }) with a score of ${
+                          totalScoreValue > 0
+                            ? `+${totalScoreValue}`
+                            : totalScoreValue
+                        }!`}
+                </Text>
+                <TouchableOpacity
+                  style={[styles.button, styles.buttonClose]}
+                  onPress={() => generateNewBoard(true)}
+                >
+                  <Text style={[styles.textStyle, { color: colorTheme.text }]}>
+                    New Game
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, styles.buttonClose]}
+                  onPress={() => handleReset(true)}
+                >
+                  <Text style={[styles.textStyle, { color: colorTheme.text }]}>
+                    Retry Game
+                  </Text>
+                </TouchableOpacity>
+              </>
             )}
-
-            <TouchableOpacity
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => generateNewBoard(true)}
-            >
-              <Text style={[styles.textStyle, { color: colorTheme.text }]}>
-                New Game
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => handleReset(true)}
-            >
-              <Text style={[styles.textStyle, { color: colorTheme.text }]}>
-                Retry Game
-              </Text>
-            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -879,6 +910,41 @@ const Progressive = () => {
               onPress={() => setResetPrompt(false)}
             >
               <Text style={[styles.textStyle]}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      <Modal animationType="fade" transparent={true} visible={rewardModal}>
+        <View style={styles.centeredView}>
+          <View style={[styles.modalView, { backgroundColor: colorTheme.button }]}>
+            <Text
+              style={[
+                styles.modalText,
+                { fontSize: 25, fontWeight: 'bold', color: colorTheme.text },
+              ]}
+            >
+              You unlocked a new color palette!
+            </Text>
+            <View>
+              {rewardArr.map((square, index) => (
+                <View style={styles.palette}>
+                  {square.map((color, colIndex) => (
+                    <View
+                      key={colIndex}
+                      style={[
+                        colIndex > 4 ? styles.hide : styles.palSquare,
+                        { backgroundColor: color },
+                      ]}
+                    ></View>
+                  ))}
+                </View>
+              ))}
+            </View>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => setShowRewardModal(false)}
+            >
+              <Text style={styles.textStyle}>Ok</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -979,7 +1045,7 @@ const Progressive = () => {
                 totalScore < 0 ? 'green' : totalScore > 0 ? 'red' : colorTheme.text,
             }}
           >
-            {totalScore > 0 ? `+${totalScore}` : totalScore}
+            {totalScore > 0 ? ` +${totalScore}` : ` ${totalScore}`}
           </Text>
         </Text>
       </View>
@@ -1195,6 +1261,28 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 50,
   },
+  palette: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    width: 90,
+    alignItems: 'center',
+    justifyContent: 'center',
+    transform: 'rotateX(180deg)',
+    marginBottom: 20,
+    // marginLeft: 10,
+    // marginRight: 10,
+    // padding: 10,
+  },
+  palSquare: {
+    width: 25,
+    height: 25,
+    maxWidth: 25,
+    maxHeight: 25,
+    borderWidth: 1,
+  },
+  hide: {
+    display: 'none',
+  },
 
   //modal garbage
   centeredView: {
@@ -1224,6 +1312,8 @@ const styles = StyleSheet.create({
     elevation: 2,
     marginBottom: 5,
     shadowColor: '#000',
+    borderWidth: 1,
+    borderColor: 'white',
     shadowOffset: {
       width: 2,
       height: 2,
@@ -1237,6 +1327,28 @@ const styles = StyleSheet.create({
   buttonClose: {
     backgroundColor: '#2196F3',
   },
+  modalButton: {
+    borderRadius: 20,
+    padding: 15,
+    elevation: 2,
+    marginBottom: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    borderColor: 'white',
+    borderWidth: 1,
+    backgroundColor: '#2196F3',
+  },
+  modalText: {
+    fontWeight: 600,
+    marginBottom: 15,
+    textAlign: 'center',
+    fontSize: 25,
+  },
   textStyle: {
     color: 'white',
     fontWeight: 'bold',
@@ -1249,11 +1361,6 @@ const styles = StyleSheet.create({
       width: 1,
       height: 1,
     },
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: 'center',
-    fontSize: 20,
   },
 })
 
