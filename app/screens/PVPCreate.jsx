@@ -1,4 +1,12 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity, Modal } from 'react-native'
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  Modal,
+  ScrollView,
+} from 'react-native'
 import React, { useMemo, useState, useEffect } from 'react'
 import RadioGroup, { RadioButton } from 'react-native-radio-buttons-group'
 import {
@@ -423,13 +431,13 @@ const PVPCreate = ({ navigation }) => {
                 Board Types
               </Text>
               <Text style={[styles.modalText, { color: colors.text }]}>
-                Mirrored: Board is exactly the same on both sides for both players
+                Mirrored: Board is exactly the same on both sides for both players.
               </Text>
               <Text style={[styles.modalText, { color: colors.text }]}>
-                Random: Board is completely randomized on both sides
+                Random: Board is completely randomized on both sides.
               </Text>
               <Text style={[styles.modalText, { color: colors.text }]}>
-                Partial Mirror: Board is partially mirrored and partially random
+                Partial Mirror: Board is partially mirrored and partially random.
               </Text>
               <TouchableOpacity
                 style={[styles.modalButton]}
@@ -452,10 +460,11 @@ const PVPCreate = ({ navigation }) => {
                 Square Color Options
               </Text>
               <Text style={[styles.modalText, { color: colors.text }]}>
-                Static: Squares will stay the same color unless captured
+                Static: Squares will stay the same color unless captured.
               </Text>
               <Text style={[styles.modalText, { color: colors.text }]}>
-                Dynamic: Squares have a small chance to change colors after each turn
+                Dynamic: Squares have a small chance to change colors after each
+                turn.
               </Text>
               <TouchableOpacity
                 style={[styles.modalButton]}
@@ -478,10 +487,10 @@ const PVPCreate = ({ navigation }) => {
                 Fog of War Options
               </Text>
               <Text style={[styles.modalText, { color: colors.text }]}>
-                On: Only squares that can currently be captured are visible
+                On: Only squares that can currently be captured are visible.
               </Text>
               <Text style={[styles.modalText, { color: colors.text }]}>
-                Off: All squares are visible to all players
+                Off: All squares are visible to all players.
               </Text>
               <TouchableOpacity
                 style={[styles.modalButton]}
@@ -504,11 +513,11 @@ const PVPCreate = ({ navigation }) => {
                 Lobby Type Options
               </Text>
               <Text style={[styles.modalText, { color: colors.text }]}>
-                Public: Anyone can view your game in the menu and join it
+                Public: Anyone can view your game in the menu and join it.
               </Text>
               <Text style={[styles.modalText, { color: colors.text }]}>
                 Private: Game is not visible in the menu. Share the code generated
-                after creation with a friend to let them join
+                after creation with a friend to let them join.
               </Text>
               <TouchableOpacity
                 style={[styles.modalButton]}
@@ -519,198 +528,210 @@ const PVPCreate = ({ navigation }) => {
             </View>
           </View>
         </Modal>
-        <View style={styles.optionsContainer}>
-          <Text
-            style={[
-              {
-                textAlign: 'center',
-                fontSize: 30,
-                color: colors.text,
-              },
-            ]}
-          >
-            Game Options
-          </Text>
-          <View style={[styles.sizeOptions, styles.optionBlock]}>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5 }}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 20,
-                  marginBottom: 10,
-                  color: colors.text,
-                }}
+        <Text
+          style={[
+            {
+              textAlign: 'center',
+              fontSize: 30,
+              color: colors.text,
+            },
+          ]}
+        >
+          Game Options
+        </Text>
+        <ScrollView>
+          <View style={styles.optionsContainer}>
+            <View style={[styles.sizeOptions, styles.optionBlock]}>
+              <View
+                style={{ flexDirection: 'row', justifyContent: 'center', gap: 5 }}
               >
-                Board Size
-              </Text>
-              <TouchableOpacity
-                style={[
-                  styles.tooltip,
-                  { marginTop: 3, backgroundColor: colors.button },
-                ]}
-                onPress={() => setSizeVisilbe(true)}
-              >
-                <Text style={[styles.tooltipText, { color: colors.text }]}>?</Text>
-              </TouchableOpacity>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontSize: 20,
+                    marginBottom: 10,
+                    color: colors.text,
+                  }}
+                >
+                  Board Size
+                </Text>
+                <TouchableOpacity
+                  style={[
+                    styles.tooltip,
+                    { marginTop: 3, backgroundColor: colors.button },
+                  ]}
+                  onPress={() => setSizeVisilbe(true)}
+                >
+                  <Text style={[styles.tooltipText, { color: colors.text }]}>?</Text>
+                </TouchableOpacity>
+              </View>
+              <RadioGroup
+                containerStyle={{ justifyContent: 'center' }}
+                radioButtons={sizeOptions.map((option) => ({
+                  ...option,
+                  labelStyle: { fontSize: 15, color: colors.text },
+                  borderColor: option.id === size && colors.radioSelected,
+                }))}
+                onPress={(e) => setSize(e)}
+                selectedId={size}
+                layout="row"
+                renderRadioButton={MyRadioButton}
+              />
             </View>
-            <RadioGroup
-              containerStyle={{ justifyContent: 'center' }}
-              radioButtons={sizeOptions.map((option) => ({
-                ...option,
-                labelStyle: { fontSize: 15, color: colors.text },
-                borderColor: option.id === size && colors.radioSelected,
-              }))}
-              onPress={(e) => setSize(e)}
-              selectedId={size}
-              layout="row"
-              renderRadioButton={MyRadioButton}
-            />
+            <View style={[styles.boardOptions, styles.optionBlock]}>
+              <View
+                style={{ flexDirection: 'row', justifyContent: 'center', gap: 5 }}
+              >
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontSize: 20,
+                    marginBottom: 10,
+                    color: colors.text,
+                  }}
+                >
+                  Board Type
+                </Text>
+                <TouchableOpacity
+                  style={[
+                    styles.tooltip,
+                    { marginTop: 3, backgroundColor: colors.button },
+                  ]}
+                  onPress={() => setBoardTypeVisible(true)}
+                >
+                  <Text style={[styles.tooltipText, { color: colors.text }]}>?</Text>
+                </TouchableOpacity>
+              </View>
+              <RadioGroup
+                containerStyle={{ flexWrap: 'wrap', justifyContent: 'center' }}
+                radioButtons={boardOptions.map((option) => ({
+                  ...option,
+                  labelStyle: { fontSize: 15, color: colors.text },
+                  borderColor: option.id === boardType && colors.radioSelected,
+                }))}
+                onPress={(e) => setBoardType(e)}
+                selectedId={boardType}
+                layout="row"
+              />
+            </View>
+            <View style={[styles.lobbyOptions, styles.optionBlock]}>
+              <View
+                style={{ flexDirection: 'row', justifyContent: 'center', gap: 5 }}
+              >
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontSize: 20,
+                    marginBottom: 10,
+                    color: colors.text,
+                  }}
+                >
+                  Square Colors
+                </Text>
+                <TouchableOpacity
+                  style={[
+                    styles.tooltip,
+                    { marginTop: 3, backgroundColor: colors.button },
+                  ]}
+                  onPress={() => setSquareOptionVisible(true)}
+                >
+                  <Text style={[styles.tooltipText, { color: colors.text }]}>?</Text>
+                </TouchableOpacity>
+              </View>
+              <RadioGroup
+                containerStyle={{ justifyContent: 'center' }}
+                radioButtons={squareOptions.map((option) => ({
+                  ...option,
+                  labelStyle: { fontSize: 15, color: colors.text },
+                  borderColor: option.id === squareOption && colors.radioSelected,
+                }))}
+                onPress={(e) => setSquareOption(e)}
+                selectedId={squareOption}
+                layout="row"
+              />
+            </View>
+            <View style={[styles.lobbyOptions, styles.optionBlock]}>
+              <View
+                style={{ flexDirection: 'row', justifyContent: 'center', gap: 5 }}
+              >
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontSize: 20,
+                    marginBottom: 10,
+                    color: colors.text,
+                  }}
+                >
+                  Fog of War
+                </Text>
+                <TouchableOpacity
+                  style={[
+                    styles.tooltip,
+                    { marginTop: 3, backgroundColor: colors.button },
+                  ]}
+                  onPress={() => setFogVisible(true)}
+                >
+                  <Text style={[styles.tooltipText, { color: colors.text }]}>?</Text>
+                </TouchableOpacity>
+              </View>
+              <RadioGroup
+                containerStyle={{ justifyContent: 'center' }}
+                radioButtons={fogOptions.map((option) => ({
+                  ...option,
+                  labelStyle: { fontSize: 15, color: colors.text },
+                  borderColor: option.id === fog && colors.radioSelected,
+                }))}
+                onPress={(e) => setFog(e)}
+                selectedId={fog}
+                layout="row"
+              />
+            </View>
+            <View style={[styles.lobbyOptions, styles.optionBlock]}>
+              <View
+                style={{ flexDirection: 'row', justifyContent: 'center', gap: 5 }}
+              >
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontSize: 20,
+                    marginBottom: 10,
+                    color: colors.text,
+                  }}
+                >
+                  Lobby Type
+                </Text>
+                <TouchableOpacity
+                  style={[
+                    styles.tooltip,
+                    { marginTop: 3, backgroundColor: colors.button },
+                  ]}
+                  onPress={() => setLobbyTypeVisible(true)}
+                >
+                  <Text style={[styles.tooltipText, { color: colors.text }]}>?</Text>
+                </TouchableOpacity>
+              </View>
+              <RadioGroup
+                containerStyle={{ justifyContent: 'center' }}
+                radioButtons={lobbyOptions.map((option) => ({
+                  ...option,
+                  labelStyle: { fontSize: 15, color: colors.text },
+                  borderColor: option.id === lobbyType && colors.radioSelected,
+                }))}
+                onPress={(e) => setLobbyType(e)}
+                selectedId={lobbyType}
+                layout="row"
+              />
+            </View>
           </View>
-          <View style={[styles.boardOptions, styles.optionBlock]}>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5 }}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 20,
-                  marginBottom: 10,
-                  color: colors.text,
-                }}
-              >
-                Board Type
-              </Text>
-              <TouchableOpacity
-                style={[
-                  styles.tooltip,
-                  { marginTop: 3, backgroundColor: colors.button },
-                ]}
-                onPress={() => setBoardTypeVisible(true)}
-              >
-                <Text style={[styles.tooltipText, { color: colors.text }]}>?</Text>
-              </TouchableOpacity>
-            </View>
-            <RadioGroup
-              containerStyle={{ flexWrap: 'wrap', justifyContent: 'center' }}
-              radioButtons={boardOptions.map((option) => ({
-                ...option,
-                labelStyle: { fontSize: 15, color: colors.text },
-                borderColor: option.id === boardType && colors.radioSelected,
-              }))}
-              onPress={(e) => setBoardType(e)}
-              selectedId={boardType}
-              layout="row"
-            />
+          <View>
+            <TouchableOpacity
+              style={[styles.button, { opacity: userName == null && 0.5 }]}
+              onPress={() => !block && userName && createBoard()}
+            >
+              <Text style={[styles.buttonText]}>Create Game</Text>
+            </TouchableOpacity>
           </View>
-          {/* <View style={[styles.lobbyOptions, styles.optionBlock]}>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5 }}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 20,
-                  marginBottom: 10,
-                  color: colors.text,
-                }}
-              >
-                Square Colors
-              </Text>
-              <TouchableOpacity
-                style={[
-                  styles.tooltip,
-                  { marginTop: 3, backgroundColor: colors.button },
-                ]}
-                onPress={() => setSquareOptionVisible(true)}
-              >
-                <Text style={[styles.tooltipText, { color: colors.text }]}>?</Text>
-              </TouchableOpacity>
-            </View>
-            <RadioGroup
-              containerStyle={{ justifyContent: 'center' }}
-              radioButtons={squareOptions.map((option) => ({
-                ...option,
-                labelStyle: { fontSize: 15, color: colors.text },
-                borderColor: option.id === squareOption && colors.radioSelected,
-              }))}
-              onPress={(e) => setSquareOption(e)}
-              selectedId={squareOption}
-              layout="row"
-            />
-          </View> */}
-          <View style={[styles.lobbyOptions, styles.optionBlock]}>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5 }}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 20,
-                  marginBottom: 10,
-                  color: colors.text,
-                }}
-              >
-                Fog of War
-              </Text>
-              <TouchableOpacity
-                style={[
-                  styles.tooltip,
-                  { marginTop: 3, backgroundColor: colors.button },
-                ]}
-                onPress={() => setFogVisible(true)}
-              >
-                <Text style={[styles.tooltipText, { color: colors.text }]}>?</Text>
-              </TouchableOpacity>
-            </View>
-            <RadioGroup
-              containerStyle={{ justifyContent: 'center' }}
-              radioButtons={fogOptions.map((option) => ({
-                ...option,
-                labelStyle: { fontSize: 15, color: colors.text },
-                borderColor: option.id === fog && colors.radioSelected,
-              }))}
-              onPress={(e) => setFog(e)}
-              selectedId={fog}
-              layout="row"
-            />
-          </View>
-          <View style={[styles.lobbyOptions, styles.optionBlock]}>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5 }}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 20,
-                  marginBottom: 10,
-                  color: colors.text,
-                }}
-              >
-                Lobby Type
-              </Text>
-              <TouchableOpacity
-                style={[
-                  styles.tooltip,
-                  { marginTop: 3, backgroundColor: colors.button },
-                ]}
-                onPress={() => setLobbyTypeVisible(true)}
-              >
-                <Text style={[styles.tooltipText, { color: colors.text }]}>?</Text>
-              </TouchableOpacity>
-            </View>
-            <RadioGroup
-              containerStyle={{ justifyContent: 'center' }}
-              radioButtons={lobbyOptions.map((option) => ({
-                ...option,
-                labelStyle: { fontSize: 15, color: colors.text },
-                borderColor: option.id === lobbyType && colors.radioSelected,
-              }))}
-              onPress={(e) => setLobbyType(e)}
-              selectedId={lobbyType}
-              layout="row"
-            />
-          </View>
-        </View>
-        <View>
-          <TouchableOpacity
-            style={[styles.button, { opacity: userName == null && 0.5 }]}
-            onPress={() => !block && userName && createBoard()}
-          >
-            <Text style={[styles.buttonText]}>Create Game</Text>
-          </TouchableOpacity>
-        </View>
+        </ScrollView>
       </View>
     </View>
   )
