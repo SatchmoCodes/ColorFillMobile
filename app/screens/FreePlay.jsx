@@ -30,6 +30,7 @@ import {
   serverTimestamp,
   limit,
   updateDoc,
+  increment,
 } from 'firebase/firestore'
 import { FIRESTORE_DB, FIREBASE_AUTH } from '../../firebaseConfig.js'
 import uuid from 'react-native-uuid'
@@ -116,6 +117,7 @@ let boardId = uuid.v4()
 let docId = null
 let originalSize
 let originalScore //initial score of board when challenging/resetting
+let rewardArr = []
 
 // const interstitial = InterstitialAd.createForAdRequest(TestIds.INTERSTITIAL, {
 //   requestNonPersonalizedAdsOnly: true,
@@ -212,6 +214,7 @@ const FreePlay = () => {
   const [boardLoaded, setBoardLoaded] = useState(false)
   const [loading, setLoading] = useState(false)
   const [prompt, setPrompt] = useState(false)
+  const [rewardModal, setShowRewardModal] = useState(false)
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -435,8 +438,15 @@ const FreePlay = () => {
         orderBy('score', 'asc'),
         orderBy('createdAt', 'asc'),
       )
+      const userQuery = query(
+        collection(db, 'Users'),
+        where('username', '==', userName),
+        limit(1),
+      )
+      const userSnapshot = await getDocs(userQuery)
       const querySnapshot = await getDocs(boardScores)
       const updates = []
+      rewardArr = []
       let currentHighScore = null
       if (!querySnapshot.empty) {
         currentHighScore = querySnapshot.docs[0].data().score
@@ -450,6 +460,42 @@ const FreePlay = () => {
               }),
             )
           }
+        })
+      }
+      if (
+        (highScore > 9 || highScore === '') &&
+        countNumber <= 9 &&
+        sizeName === 'Small'
+      ) {
+        rewardArr.push(squareColors[12])
+      } else if (
+        (highScore > 13 || highScore === '') &&
+        countNumber <= 13 &&
+        sizeName === 'Medium'
+      ) {
+        rewardArr.push(squareColors[13])
+      } else if (
+        (highScore > 17 || highScore === '') &&
+        countNumber <= 17 &&
+        sizeName === 'Large'
+      ) {
+        rewardArr.push(squareColors[14])
+      }
+      if (!userSnapshot.empty) {
+        userSnapshot.forEach((doc) => {
+          if (doc.data().boardsCompleted === 9) {
+            rewardArr.push(squareColors[9])
+          } else if (doc.data().boardsCompleted === 49) {
+            rewardArr.push(squareColors[10])
+          } else if (doc.data().boardsCompleted === 99) {
+            rewardArr.push(squareColors[11])
+          }
+          let docRef = doc.ref
+          updates.push(
+            updateDoc(docRef, {
+              boardsCompleted: increment(1),
+            }),
+          )
         })
       }
       await Promise.all(updates)
@@ -473,6 +519,9 @@ const FreePlay = () => {
         // setPreviousScore(scoreToBeat)
         setScoreToBeat(countNumber)
       }
+      // rewardArr.push(squareColors[11])
+      // console.log('rewardArr', rewardArr)
+      rewardArr.length > 0 && setShowRewardModal(true)
     }
     setLoading(false)
   }
@@ -852,6 +901,41 @@ const FreePlay = () => {
           </View>
         </View>
       </Modal>
+      <Modal animationType="fade" transparent={true} visible={rewardModal}>
+        <View style={styles.centeredView}>
+          <View style={[styles.modalView, { backgroundColor: colorTheme.button }]}>
+            <Text
+              style={[
+                styles.modalText,
+                { fontSize: 25, fontWeight: 'bold', color: colorTheme.text },
+              ]}
+            >
+              You unlocked a new color palette!
+            </Text>
+            <View>
+              {rewardArr.map((square, index) => (
+                <View style={styles.palette}>
+                  {square.map((color, colIndex) => (
+                    <View
+                      key={colIndex}
+                      style={[
+                        colIndex > 4 ? styles.hide : styles.palSquare,
+                        { backgroundColor: color },
+                      ]}
+                    ></View>
+                  ))}
+                </View>
+              ))}
+            </View>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => setShowRewardModal(false)}
+            >
+              <Text style={styles.textStyle}>Ok</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       <View style={styles.top}>
         {screenHeight > 740 ? (
           <Text
@@ -973,7 +1057,9 @@ const FreePlay = () => {
               },
               { opacity: selectedColor == 0 ? 0.1 : 1 },
             ]}
-            onPress={() => selectedColor != 0 && colorChange(colorOption[0])}
+            onPress={() =>
+              selectedColor != 0 && !loading && colorChange(colorOption[0])
+            }
           ></TouchableOpacity>
           <TouchableOpacity
             style={[
@@ -983,7 +1069,9 @@ const FreePlay = () => {
               },
               { opacity: selectedColor == 1 ? 0.1 : 1 },
             ]}
-            onPress={() => selectedColor != 1 && colorChange(colorOption[1])}
+            onPress={() =>
+              selectedColor != 1 && !loading && colorChange(colorOption[1])
+            }
           ></TouchableOpacity>
           <TouchableOpacity
             style={[
@@ -993,7 +1081,9 @@ const FreePlay = () => {
               },
               { opacity: selectedColor == 2 ? 0.1 : 1 },
             ]}
-            onPress={() => selectedColor != 2 && colorChange(colorOption[2])}
+            onPress={() =>
+              selectedColor != 2 && !loading && colorChange(colorOption[2])
+            }
           ></TouchableOpacity>
           <TouchableOpacity
             style={[
@@ -1003,7 +1093,9 @@ const FreePlay = () => {
               },
               { opacity: selectedColor == 3 ? 0.1 : 1 },
             ]}
-            onPress={() => selectedColor != 3 && colorChange(colorOption[3])}
+            onPress={() =>
+              selectedColor != 3 && !loading && colorChange(colorOption[3])
+            }
           ></TouchableOpacity>
           <TouchableOpacity
             style={[
@@ -1013,7 +1105,9 @@ const FreePlay = () => {
               },
               { opacity: selectedColor == 4 ? 0.1 : 1 },
             ]}
-            onPress={() => selectedColor != 4 && colorChange(colorOption[4])}
+            onPress={() =>
+              selectedColor != 4 && !loading && colorChange(colorOption[4])
+            }
           ></TouchableOpacity>
         </View>
       </View>
@@ -1121,7 +1215,28 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 50,
   },
-
+  palette: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    width: 90,
+    // alignItems: 'center',
+    justifyContent: 'center',
+    transform: 'rotateX(180deg)',
+    marginBottom: 20,
+    // marginLeft: 10,
+    // marginRight: 10,
+    // padding: 10,
+  },
+  palSquare: {
+    width: 25,
+    height: 25,
+    maxWidth: 25,
+    maxHeight: 25,
+    borderWidth: 1,
+  },
+  hide: {
+    display: 'none',
+  },
   //modal garbage
   centeredView: {
     flex: 1,
@@ -1150,6 +1265,8 @@ const styles = StyleSheet.create({
     elevation: 2,
     marginBottom: 5,
     shadowColor: '#000',
+    borderWidth: 1,
+    borderColor: 'white',
     shadowOffset: {
       width: 2,
       height: 2,
@@ -1176,10 +1293,27 @@ const styles = StyleSheet.create({
       height: 1,
     },
   },
+  modalButton: {
+    borderRadius: 20,
+    padding: 15,
+    elevation: 2,
+    marginBottom: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    borderColor: 'white',
+    borderWidth: 1,
+    backgroundColor: '#2196F3',
+  },
   modalText: {
+    fontWeight: 600,
     marginBottom: 15,
     textAlign: 'center',
-    fontSize: 20,
+    fontSize: 25,
   },
 })
 
