@@ -127,6 +127,8 @@ let randomColor
 
 const totalTime = 10
 
+let rewardArr = []
+
 // const interstitial = InterstitialAd.createForAdRequest(TestIds.INTERSTITIAL, {
 //   requestNonPersonalizedAdsOnly: true,
 // })
@@ -238,6 +240,8 @@ const PVPGame = () => {
   const userNameRef = useRef(null)
   const completeRef = useRef(null)
   const leaveRef = useState(null)
+
+  const [rewardModal, setShowRewardModal] = useState(false)
 
   //timer stuff
   const [timer, setTimer] = useState(11)
@@ -371,8 +375,10 @@ const PVPGame = () => {
         setSquareAnim(squareAnimArr)
         setOwnerColor(colors[docSnap.data().ownerColor])
         setOpponentColor(colors[docSnap.data().opponentColor])
+        // console.log('is dynamic game true before doc?', dynamicGame)
+        // console.log('is fog true before doc?', fogGame)
         if (docSnap.data().dynamic === true) {
-          console.log('dynamic game')
+          // console.log('dynamic game')
           dynamicGame = true
           bannedIndexes.push(0)
           bannedIndexes.push(boardSize)
@@ -490,6 +496,7 @@ const PVPGame = () => {
           // console.log(doc.data())
           let boardState = []
           boardState = JSON.parse(doc.data().boardState).flat()
+          // console.log('boardState', boardState)
           // console.log('board 0', boardState[0].colorIndex)
           // console.log('board end', boardState[boardState.length - 1].colorIndex)
           // console.log(boardState)
@@ -533,6 +540,20 @@ const PVPGame = () => {
               })
               Animated.sequence([growAnimation, reverseAnimation]).start()
             })
+            if (fogGame === true && userNameRef.current == doc.data().ownerName) {
+              fakeSquareArr = JSON.parse(JSON.stringify(tempSquareArr))
+              visibleArr = new Array(tempSquareArr.length).fill(false)
+              let startArr = [...fakeSquareArr]
+              for (let i = 0; i < 5; i++) {
+                fakeSquareArr = JSON.parse(JSON.stringify(startArr))
+                fakeSquareArr.forEach((sq, index) => {
+                  if (sq.captured && sq.owner == 'Owner') {
+                    fogCheck(colors[i], index, 'Owner')
+                  }
+                })
+              }
+            }
+            // console.log('owner turn')
             setSquareAnim(squareAnimArr)
             setColorState(boardState)
           } else if (
@@ -555,6 +576,20 @@ const PVPGame = () => {
               })
               Animated.sequence([growAnimation, reverseAnimation]).start()
             })
+            // console.log('opponent turn')
+            if (fogGame === true && userNameRef.current == doc.data().opponentName) {
+              fakeSquareArr = JSON.parse(JSON.stringify(tempSquareArr))
+              visibleArr = new Array(tempSquareArr.length).fill(false)
+              let startArr = [...fakeSquareArr]
+              for (let i = 0; i < 5; i++) {
+                fakeSquareArr = JSON.parse(JSON.stringify(startArr))
+                fakeSquareArr.forEach((sq, index) => {
+                  if (sq.captured && sq.owner == 'Opponent') {
+                    fogCheck(colors[i], index, 'Opponent')
+                  }
+                })
+              }
+            }
             setSquareAnim(squareAnimArr)
             setColorState(boardState)
           }
@@ -771,7 +806,7 @@ const PVPGame = () => {
           if (!sq.captured && !bannedIndexes.includes(sq.index)) {
             let rand = Math.floor(Math.random() * 10)
             if (rand === 0) {
-              console.log('index', sq.index)
+              // console.log('index', sq.index)
               let newColor = Math.floor(Math.random() * 5)
               while (newColor === sq.colorIndex) {
                 newColor = Math.floor(Math.random() * 5)
@@ -786,12 +821,13 @@ const PVPGame = () => {
       setColorState(tempSquareArr)
       if (fogGame === true) {
         fakeSquareArr = JSON.parse(JSON.stringify(tempSquareArr))
+        visibleArr = new Array(tempSquareArr.length).fill(false)
         let startArr = [...fakeSquareArr]
         for (let i = 0; i < 5; i++) {
           fakeSquareArr = JSON.parse(JSON.stringify(startArr))
           fakeSquareArr.forEach((sq, index) => {
             if (sq.captured && sq.owner == turn) {
-              fogCheck(colors[i], index)
+              fogCheck(colors[i], index, turn)
             }
           })
         }
@@ -872,6 +908,7 @@ const PVPGame = () => {
 
   async function handleComplete() {
     visibleArr = new Array(tempSquareArr.length).fill(true)
+    rewardArr = []
     const docRef = doc(db, 'Games', docId)
     // console.log(ownerName)
     const ownerQuery = query(
@@ -898,6 +935,13 @@ const PVPGame = () => {
     let newOwnerWinRate
     let newOpponentWinRate
     if (userNameRef.current == ownerNameVar) {
+      if (ownerSnapshot.docs[0].data().totalGames === 9) {
+        rewardArr.push(squareColors[15])
+      } else if (ownerSnapshot.docs[0].data().totalGames === 19) {
+        rewardArr.push(squareColors[16])
+      } else if (ownerSnapshot.docs[0].data().totalGames === 29) {
+        rewardArr.push(squareColors[17])
+      }
       if (winner == 'Owner') {
         // console.log('owner win')
         let currentOwnerWins = ownerSnapshot.docs[0].data().wins + 1
@@ -953,6 +997,13 @@ const PVPGame = () => {
         }
       }
     } else if (userNameRef.current == opponentNameVar) {
+      if (opponentSnapshot.docs[0].data().totalGames === 9) {
+        rewardArr.push(squareColors[15])
+      } else if (opponentSnapshot.docs[0].data().totalGames === 19) {
+        rewardArr.push(squareColors[16])
+      } else if (opponentSnapshot.docs[0].data().totalGames === 29) {
+        rewardArr.push(squareColors[17])
+      }
       if (winner == 'Opponent') {
         // console.log('opponent win')
         let currentOwnerWins = ownerSnapshot.docs[0].data().wins
@@ -1008,6 +1059,7 @@ const PVPGame = () => {
         }
       }
     }
+    rewardArr.length > 0 && setShowRewardModal(true)
     try {
       await updateDoc(docRef, {
         gameState: 'Finished',
@@ -1467,6 +1519,41 @@ const PVPGame = () => {
               onPress={() => handleEnd()}
             >
               <Text style={styles.textStyle}>Return to Menu</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      <Modal animationType="fade" transparent={true} visible={rewardModal}>
+        <View style={styles.centeredView}>
+          <View style={[styles.modalView, { backgroundColor: colorTheme.button }]}>
+            <Text
+              style={[
+                styles.modalText,
+                { fontSize: 25, fontWeight: 'bold', color: colorTheme.text },
+              ]}
+            >
+              You unlocked a new color palette!
+            </Text>
+            <View>
+              {rewardArr.map((square, index) => (
+                <View style={styles.palette}>
+                  {square.map((color, colIndex) => (
+                    <View
+                      key={colIndex}
+                      style={[
+                        colIndex > 4 ? styles.hide : styles.palSquare,
+                        { backgroundColor: color },
+                      ]}
+                    ></View>
+                  ))}
+                </View>
+              ))}
+            </View>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => setShowRewardModal(false)}
+            >
+              <Text style={styles.textStyle}>Ok</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -2092,7 +2179,28 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 50,
   },
-
+  palette: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    width: 90,
+    alignItems: 'center',
+    justifyContent: 'center',
+    transform: 'rotateX(180deg)',
+    marginBottom: 20,
+    // marginLeft: 10,
+    // marginRight: 10,
+    // padding: 10,
+  },
+  palSquare: {
+    width: 25,
+    height: 25,
+    maxWidth: 25,
+    maxHeight: 25,
+    borderWidth: 1,
+  },
+  hide: {
+    display: 'none',
+  },
   //modal garbage
   centeredView: {
     flex: 1,
@@ -2123,6 +2231,8 @@ const styles = StyleSheet.create({
     elevation: 2,
     marginBottom: 5,
     shadowColor: '#000',
+    borderWidth: 1,
+    borderColor: 'white',
     shadowOffset: {
       width: 2,
       height: 2,
@@ -2149,8 +2259,26 @@ const styles = StyleSheet.create({
       height: 1,
     },
   },
+  modalButton: {
+    borderRadius: 20,
+    padding: 15,
+    elevation: 2,
+    marginBottom: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    borderColor: 'white',
+    borderWidth: 1,
+    backgroundColor: '#2196F3',
+  },
   modalText: {
+    fontWeight: 600,
     marginBottom: 15,
     textAlign: 'center',
+    fontSize: 25,
   },
 })
